@@ -51,6 +51,41 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px;
             font-size:18px; font-weight:bold; cursor:pointer; }
 
+/* Tilaustiedot-laatikko */
+.form-box {
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    border-left:6px solid var(--hw-blue);
+    margin-bottom:25px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.form-box h2 {
+    margin-top:0;
+    color:var(--hw-blue);
+}
+
+.form-row {
+    display:flex;
+    flex-direction:column;
+    margin-bottom:12px;
+}
+
+.form-row label {
+    font-weight:600;
+    margin-bottom:4px;
+}
+
+.form-row input, .form-row textarea {
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:14px;
+}
+
+textarea { resize:vertical; }
+
 /* Mobiilin kori-nappi */
 #toggleCart {
     display:none;
@@ -106,6 +141,51 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 
     <div class="content-area">
 
+        <!-- TILAUSTIEDOT -->
+        <div class="form-box">
+            <h2>Tilaustiedot</h2>
+
+            <div class="form-row">
+                <label>Tilaaja *</label>
+                <input id="f_tilaaja" required>
+            </div>
+
+            <div class="form-row">
+                <label>Varasto NRO *</label>
+                <input id="f_varasto" required>
+            </div>
+
+            <div class="form-row">
+                <label>Tilauspäivä *</label>
+                <input id="f_pvm" type="date" required>
+            </div>
+
+            <div class="form-row">
+                <label>Toimitustapa *</label>
+                <input id="f_toimitus" required>
+            </div>
+
+            <div class="form-row">
+                <label>Lähetysosoite *</label>
+                <input id="f_osoite" required>
+            </div>
+
+            <div class="form-row">
+                <label>Postinumero *</label>
+                <input id="f_postinumero" required>
+            </div>
+
+            <div class="form-row">
+                <label>Paikkakunta *</label>
+                <input id="f_paikkakunta" required>
+            </div>
+
+            <div class="form-row">
+                <label>Lisätiedot</label>
+                <textarea id="f_lisatiedot" rows="3"></textarea>
+            </div>
+        </div>
+
         <header>
             <h1 style="color:var(--hw-blue); margin:0;">Hartwall Varaosatilaus</h1>
             <input id="filter" class="search-box" placeholder="Hae tuotetta tai koodia..." oninput="render(this.value)">
@@ -124,7 +204,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
             <p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>
         </div>
         <div style="padding:15px;">
-            <button class="btn-send" onclick="finalSubmit()">MUODOSTA TILAUS</button>
+            <button class="btn-send" onclick="finalSubmit()">LÄHETÄ TILAUS</button>
         </div>
     </div>
 
@@ -1187,14 +1267,49 @@ function removeFromBasket(code) {
     updateBasket();
 }
 
-/* 🔧 TILAUKSEN MUODOSTUS */
+/* 🔧 TILAUKSEN LÄHETYS SÄHKÖPOSTILLA */
 function finalSubmit() {
+
+    const required = [
+        "f_tilaaja",
+        "f_varasto",
+        "f_pvm",
+        "f_toimitus",
+        "f_osoite",
+        "f_postinumero",
+        "f_paikkakunta"
+    ];
+
+    for (const id of required) {
+        if (!document.getElementById(id).value.trim()) {
+            alert("Täytä kaikki pakolliset kentät.");
+            return;
+        }
+    }
+
     if (basket.length === 0) {
         alert("Ei tuotteita korissa.");
         return;
     }
 
-    alert("Tilaus muodostettu (lisää sähköpostilähetys tähän).");
+    let body = "";
+    body += "Tilaaja: " + f_tilaaja.value + "%0D%0A";
+    body += "Varasto NRO: " + f_varasto.value + "%0D%0A";
+    body += "Tilauspäivä: " + f_pvm.value + "%0D%0A";
+    body += "Toimitustapa: " + f_toimitus.value + "%0D%0A";
+    body += "Osoite: " + f_osoite.value + "%0D%0A";
+    body += "Postinumero: " + f_postinumero.value + "%0D%0A";
+    body += "Paikkakunta: " + f_paikkakunta.value + "%0D%0A";
+    body += "Lisätiedot: " + f_lisatiedot.value + "%0D%0A%0D%0A";
+
+    body += "TILAUS:%0D%0A";
+
+    basket.forEach(item => {
+        body += `${item.qty} kpl – ${item.code} – ${item.name}%0D%0A`;
+    });
+
+    const mail = "mailto:varaosat@hartwall.fi?subject=Varaosatilaus&body=" + body;
+    window.location.href = mail;
 }
 
 /* 🔧 PUHELIN – kori auki/kiinni */
