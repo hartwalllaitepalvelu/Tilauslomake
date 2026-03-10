@@ -61,7 +61,7 @@
                      border:none; border-radius:8px; font-size:16px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2);
                      display:none; z-index:2000; }
 
-        /* 📱 Mobiilin avaa/sulje kori -nappi */
+        /* Mobiilin avaa/sulje kori -nappi */
         #toggleCart {
             display: none;
             position: fixed;
@@ -78,8 +78,8 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
 
-        /* 📱 Mobiilinäkymä */
-        @media (max-width: 768px) {
+        /* Mobiilinäkymä (puhelin) – tabletilla kori näkyy normaalisti */
+        @media (max-width: 600px) {
 
             #toggleCart {
                 display: block;
@@ -185,7 +185,6 @@ background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:ce
 
 
 <script id="rawData" type="text/plain">
-
 	OLUTJÄÄHYT
 10066	Turboallas
 10067	BOC-4
@@ -1091,13 +1090,10 @@ T00863	BRIX EROTIN LOOP UF1, SF1, SFV1
 T00678	BIB-LIITIN
 T00760	KONVERTTERI 24VAC-12VDC (POLAR, FUSION YMS)
 T49461	HAPOTUSTESTERI
-
 </script>
 
 <script>
-/* -----------------------------
-   AUTOMAATTINEN PÄIVÄMÄÄRÄ
------------------------------ */
+/* AUTOMAATTINEN PÄIVÄMÄÄRÄ */
 document.addEventListener("DOMContentLoaded", function () {
     const pvm = document.getElementById("tilauspvm");
     if (pvm) {
@@ -1105,11 +1101,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-/* -----------------------------
-   PARSINTA (KORJATTU)
------------------------------ */
+/* PARSINTA: rivi joka EI ala numerolla = kategoria, numerolla = nimike */
 function parseData() {
-    const raw = document.getElementById("rawData").textContent.trim().split("\n");
+    const raw = document.getElementById("rawData").textContent.split("\n");
     const categories = [];
     let current = null;
 
@@ -1117,15 +1111,18 @@ function parseData() {
         line = line.trim();
         if (!line) return;
 
-        // Jos rivi EI ala kirjaimella tai numerolla → kategoria
-        if (!line.match(/^[A-Za-z0-9]/)) {
+        // Kategoria
+        if (!/^\d/.test(line)) {
             current = { name: line, items: [] };
             categories.push(current);
-        } else {
-            // Muuten se on nimike
+        }
+        // Nimike
+        else {
             const [code, ...nameParts] = line.split(/\s+/);
             const name = nameParts.join(" ");
-            current.items.push({ code, name });
+            if (current) {
+                current.items.push({ code, name });
+            }
         }
     });
 
@@ -1135,9 +1132,7 @@ function parseData() {
 const categories = parseData();
 const basket = [];
 
-/* -----------------------------
-   RENDERÖINTI
------------------------------ */
+/* LISTAN RENDERÖINTI */
 function render(filter = "") {
     const list = document.getElementById("main-list");
     list.innerHTML = "";
@@ -1150,7 +1145,7 @@ function render(filter = "") {
 
         const block = document.createElement("div");
         block.className = "category-block";
-        block.id = cat.name;
+        block.id = "cat-" + cat.name;
 
         block.innerHTML = `<div class="category-name">${cat.name}</div>`;
 
@@ -1185,17 +1180,14 @@ function render(filter = "") {
 
 render();
 
-/* -----------------------------
-   KATEGORIAHYPPY
------------------------------ */
-function jumpTo(cat) {
-    if (!cat) return;
-    document.getElementById(cat).scrollIntoView({ behavior: "smooth" });
+/* KATEGORIAHYPPY */
+function jumpTo(catName) {
+    if (!catName) return;
+    const el = document.getElementById("cat-" + catName);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
 }
 
-/* -----------------------------
-   OSTOSKORI
------------------------------ */
+/* OSTOSKORI */
 function changeQty(code, delta) {
     const input = document.getElementById(`qty-${code}`);
     let qty = parseInt(input.value) + delta;
@@ -1203,7 +1195,6 @@ function changeQty(code, delta) {
     input.value = qty;
 
     const item = findItem(code);
-
     const existing = basket.find(b => b.code === code);
 
     if (qty === 0) {
@@ -1211,7 +1202,7 @@ function changeQty(code, delta) {
     } else {
         if (existing) {
             existing.qty = qty;
-        } else {
+        } else if (item) {
             basket.push({ ...item, qty });
         }
     }
@@ -1225,6 +1216,7 @@ function findItem(code) {
             if (item.code === code) return item;
         }
     }
+    return null;
 }
 
 function updateBasket() {
@@ -1258,12 +1250,12 @@ function updateBasket() {
 function removeFromBasket(code) {
     const idx = basket.findIndex(i => i.code === code);
     if (idx !== -1) basket.splice(idx, 1);
+    const input = document.getElementById(`qty-${code}`);
+    if (input) input.value = 0;
     updateBasket();
 }
 
-/* -----------------------------
-   TILAUKSEN MUODOSTUS
------------------------------ */
+/* TILAUKSEN MUODOSTUS */
 let lastEmailBody = "";
 
 function finalSubmit() {
@@ -1315,7 +1307,30 @@ function closePreview() {
     document.getElementById("previewModal").style.display = "none";
 }
 
-/* -----------------------------
-   SÄHKÖPOSTIN LÄHETYS
------------------------------ */
-function sendEmail()
+/* SÄHKÖPOSTIN LÄHETYS – MUOKKAA VASTAANOTTAJA */
+function sendEmail() {
+    const subject = encodeURIComponent("Varaosatilaus");
+    const body = encodeURIComponent(lastEmailBody || "");
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+/* YLÖS-PAINIKE */
+window.addEventListener("scroll", function () {
+    const btn = document.getElementById("backToTop");
+    if (window.scrollY > 300) btn.style.display = "block";
+    else btn.style.display = "none";
+});
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* Mobiilikorin avaus/sulku */
+function toggleCart() {
+    const sidebar = document.querySelector(".sidebar");
+    sidebar.classList.toggle("open");
+}
+</script>
+
+</body>
+</html>
