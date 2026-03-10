@@ -18,15 +18,21 @@
         .category-block { margin-top: 35px; scroll-margin-top: 200px; }
         .category-name { background: var(--hw-blue); color: white; padding: 12px 15px; border-radius: 8px; font-weight: bold; text-transform: uppercase; }
         .product-item { display: grid; grid-template-columns: 1fr auto; padding: 15px; border-bottom: 1px solid #eee; align-items: center; background: white; }
+        .product-info { display: flex; flex-direction: column; gap: 3px; }
+        .product-name { font-weight: 600; }
+        .product-code { font-size: 12px; color: #666; }
         .qty-controls { display: flex; align-items: center; gap: 5px; border: 1px solid #ccc; border-radius: 10px; padding: 3px; background: #fff; }
-        .qty-btn { width: 38px; height: 38px; border: none; background: #f0f0f0; color: var(--hw-blue); cursor: pointer; font-weight: bold; font-size: 20px; border-radius: 6px; }
-        .qty-display { width: 35px; border: none; text-align: center; font-weight: bold; font-size: 18px; background: transparent; }
+        .qty-btn { width: 32px; height: 32px; border: none; background: #f0f0f0; color: var(--hw-blue); cursor: pointer; font-weight: bold; font-size: 18px; border-radius: 6px; }
+        .qty-display { width: 35px; border: none; text-align: center; font-weight: bold; font-size: 16px; background: transparent; }
         .btn-send { width: 100%; padding: 18px; background: var(--hw-green); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
         .info-section { background: white; padding: 25px; border-radius: 12px; margin-bottom: 15px; }
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .info-grid input, .full-width-input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--hw-blue); }
-        .basket-item { position: relative; padding: 10px; border-bottom: 1px solid #eee; background: #fff; display: flex; justify-content: space-between; align-items: flex-start; }
+        .basket-item { position: relative; padding: 10px; border-bottom: 1px solid #eee; background: #fff; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .basket-main { display: flex; flex-direction: column; font-size: 12px; }
+        .basket-line1 { font-weight: 600; }
+        .basket-line2 { color: #666; }
         .delete-btn { color: #dc3545; cursor: pointer; font-weight: bold; font-size: 18px; border: none; background: none; padding: 0 5px; }
         .delete-btn:hover { color: #a71d2a; }
     </style>
@@ -38,23 +44,49 @@
         <header>
             <h1 style="color:var(--hw-blue); margin:0;">Hartwall Varaosatilaus</h1>
             <input type="text" id="filter" class="search-box" placeholder="Hae tuotetta tai koodia..." oninput="render(this.value)">
-            <select id="cat-nav" class="nav-dropdown" onchange="jumpTo(this.value)"><option value="">-- Hyppää kategoriaan --</option></select>
+            <select id="cat-nav" class="nav-dropdown" onchange="jumpTo(this.value)">
+                <option value="">-- Hyppää kategoriaan --</option>
+            </select>
         </header>
 
-        <form id="order-form">
+        <form id="order-form" onsubmit="return false;">
             <div class="info-section" id="infoBox">
                 <div class="info-grid">
-                    <div><label>Tilaaja *</label><input type="text" id="f_tilaaja" required></div>
-                    <div><label>Varasto NRO</label><input type="text" id="f_varasto"></div>
-                    <div><label>Tilauspäivä</label><input type="date" id="tilauspvm"></div>
-                    <div><label>Toimitustapa</label><input type="text" id="f_toimitus"></div>
+                    <div>
+                        <label>Tilaaja *</label>
+                        <input type="text" id="f_tilaaja" required>
+                    </div>
+                    <div>
+                        <label>Varasto NRO</label>
+                        <input type="text" id="f_varasto">
+                    </div>
+                    <div>
+                        <label>Tilauspäivä</label>
+                        <input type="date" id="tilauspvm">
+                    </div>
+                    <div>
+                        <label>Toimitustapa</label>
+                        <input type="text" id="f_toimitus">
+                    </div>
                 </div>
-                <div style="margin-bottom:15px;"><label>Lähetysosoite *</label><input type="text" id="f_osoite" class="full-width-input" required></div>
+                <div style="margin-bottom:15px;">
+                    <label>Lähetysosoite *</label>
+                    <input type="text" id="f_osoite" class="full-width-input" required>
+                </div>
                 <div class="info-grid">
-                    <div><label>Postinumero *</label><input type="text" id="f_postinro" required></div>
-                    <div><label>Paikkakunta *</label><input type="text" id="f_paikka" required></div>
+                    <div>
+                        <label>Postinumero *</label>
+                        <input type="text" id="f_postinro" required>
+                    </div>
+                    <div>
+                        <label>Paikkakunta *</label>
+                        <input type="text" id="f_paikka" required>
+                    </div>
                 </div>
-                <div><label>Lisätiedot</label><textarea id="f_lisatiedot" style="width:100%; height:60px;"></textarea></div>
+                <div>
+                    <label>Lisätiedot</label>
+                    <textarea id="f_lisatiedot" style="width:100%; height:60px;"></textarea>
+                </div>
             </div>
             <div id="main-list"></div>
         </form>
@@ -65,9 +97,71 @@
         <div class="sidebar-content" id="basket-items">
             <p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>
         </div>
-        <div style="padding:15px;"><button type="button" class="btn-send" onclick="finalSubmit()">MUODOSTA TILAUS</button></div>
+        <div style="padding:15px;">
+            <button type="button" class="btn-send" onclick="finalSubmit()">MUODOSTA TILAUS</button>
+        </div>
     </div>
 </div>
+
+<!-- Esikatseluikkuna -->
+<div id="previewModal" 
+style="
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(0,0,0,0.5);
+display: none;
+justify-content: center;
+align-items: center;
+z-index: 3000;
+">
+    <div style="
+        background: white;
+        padding: 25px;
+        width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    ">
+        <h2 style="margin-top:0; color:var(--hw-blue);">Tilauksen esikatselu</h2>
+        <pre id="previewContent" 
+style="white-space: pre-wrap; font-size: 14px; background:#f7f7f7; padding:15px; border-radius:8px;"></pre>
+
+        <div style="margin-top:20px; display:flex; justify-content:space-between;">
+            <button onclick="sendEmail()" 
+            style="padding:12px 20px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-size:16px; cursor:pointer;">
+                Lähetä tilaus
+            </button>
+
+            <button onclick="closePreview()" 
+            style="padding:12px 20px; background:#ccc; color:black; border:none; border-radius:8px; font-size:16px; cursor:pointer;">
+                Peruuta
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Pikahyppy ylös -->
+<button id="backToTop" onclick="scrollToTop()" 
+style="
+position: fixed;
+bottom: 25px;
+right: 25px;
+padding: 14px 20px;
+background: var(--hw-blue);
+color: white;
+border: none;
+border-radius: 8px;
+font-size: 16px;
+cursor: pointer;
+box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+display: none;
+z-index: 2000;
+">
+Ylös ▲
+</button>
+
 
 <script id="rawData" type="text/plain">
 	OLUTJÄÄHYT
@@ -975,155 +1069,248 @@ T00863	BRIX EROTIN LOOP UF1, SF1, SFV1
 T00678	BIB-LIITIN
 T00760	KONVERTTERI 24VAC-12VDC (POLAR, FUSION YMS)
 T49461	HAPOTUSTESTERI
+
 </script>
 
 <script>
-    const rawData = document.getElementById('rawData').textContent;
-    const items = {};
-    const productNames = {}; 
-    let currentCat = "Hartwall Varaosat";
+    const items = {};      // { kategoria: [ {code, name}, ... ] }
+    const categories = []; // kategorioiden järjestys
+    const basket = [];     // {code, name, qty}
+    let lastEmailBody = "";
 
-    document.getElementById('tilauspvm').valueAsDate = new Date();
+    function parseRawData() {
+        const raw = document.getElementById("rawData").textContent;
+        const lines = raw.split(/\r?\n/);
+        let currentCat = null;
 
-    rawData.split('\n').forEach(line => {
-        const trimmed = line.trim();
-        if (!trimmed) return;
-        const match = trimmed.match(/^([A-Z0-9]{4,})\s+(.*)$/);
-        if (match) {
-            const code = match[1];
-            const name = match[2];
-            if (!items[currentCat]) items[currentCat] = [];
-            items[currentCat].push({ code, name });
-            productNames[code] = name;
-        } else {
-            currentCat = trimmed;
-            if (!items[currentCat]) items[currentCat] = [];
-        }
-    });
+        for (let line of lines) {
+            line = line.trim();
+            if (!line || line.startsWith("/*") || line.startsWith("*") || line.startsWith("//")) continue;
 
-    const selected = {};
-
-    function render(filter = "") {
-        const container = document.getElementById('main-list');
-        const infoBox = document.getElementById('infoBox');
-        container.innerHTML = "";
-        infoBox.style.display = (filter.trim().length > 0) ? 'none' : 'block';
-
-        for (const cat in items) {
-            const filtered = items[cat].filter(p => 
-                p.code.toLowerCase().includes(filter.toLowerCase()) || 
-                p.name.toLowerCase().includes(filter.toLowerCase())
-            );
-            if (filtered.length > 0) {
-                const block = document.createElement('div');
-                block.id = "cat-" + btoa(unescape(encodeURIComponent(cat))).replace(/=/g, '');
-                block.className = "category-block";
-                block.innerHTML = `<div class="category-name">${cat}</div>`;
-                filtered.forEach(p => {
-                    const row = document.createElement('div');
-                    row.className = "product-item";
-                    row.innerHTML = `
-                        <div><b>${p.code}</b><br>${p.name}</div>
-                        <div class="qty-controls">
-                            <button type="button" class="qty-btn" onclick="add('${p.code}', -1)">-</button>
-                            <input type="text" class="qty-display" id="q-${p.code}" value="${selected[p.code] || 0}" readonly>
-                            <button type="button" class="qty-btn" onclick="add('${p.code}', 1)">+</button>
-                        </div>`;
-                    block.appendChild(row);
-                });
-                container.appendChild(block);
+            if (!line.includes("\t")) {
+                currentCat = line;
+                if (!items[currentCat]) {
+                    items[currentCat] = [];
+                    categories.push(currentCat);
+                }
+            } else {
+                const parts = line.split("\t");
+                const code = (parts[0] || "").trim();
+                const name = (parts[1] || "").trim();
+                if (currentCat && code && name) {
+                    items[currentCat].push({ code, name });
+                }
             }
         }
     }
 
-    function add(code, val) {
-        selected[code] = (selected[code] || 0) + val;
-        if (selected[code] <= 0) delete selected[code];
-        updateUI(code);
+    function safeId(code) {
+        return code.replace(/[^a-zA-Z0-9_-]/g, "_");
     }
 
-    function removeCompletely(code) {
-        delete selected[code];
-        updateUI(code);
+    function getBasketQty(code) {
+        const found = basket.find(b => b.code === code);
+        return found ? found.qty : 0;
     }
 
-    function updateUI(code) {
-        const el = document.getElementById('q-' + code);
-        if(el) el.value = selected[code] || 0;
-        updateBasket();
-    }
-
-    function updateBasket() {
-        const basket = document.getElementById('basket-items');
-        basket.innerHTML = "";
-        let count = 0;
-        for (const code in selected) {
-            const name = productNames[code] || "Tuote";
-            basket.innerHTML += `
-                <div class="basket-item">
-                    <div>
-                        <div style="color:var(--hw-blue); font-weight:bold;">${code}</div>
-                        <div>${name}</div>
-                        <div style="font-weight:bold;">${selected[code]} kpl</div>
-                    </div>
-                    <button class="delete-btn" title="Poista tuote" onclick="removeCompletely('${code}')">✕</button>
-                </div>`;
-            count++;
+    function changeQty(code, name, delta) {
+        let item = basket.find(b => b.code === code);
+        if (!item && delta > 0) {
+            item = { code, name, qty: 0 };
+            basket.push(item);
         }
-        document.getElementById('basket-count').innerText = count;
-        if (count === 0) basket.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>';
+        if (!item) return;
+
+        item.qty += delta;
+        if (item.qty <= 0) {
+            const idx = basket.indexOf(item);
+            if (idx >= 0) basket.splice(idx, 1);
+        }
+
+        const qtyInput = document.getElementById("qty-" + safeId(code));
+        if (qtyInput) qtyInput.value = getBasketQty(code) || 0;
+
+        renderBasket();
+    }
+
+    function renderBasket() {
+        const container = document.getElementById("basket-items");
+        const countSpan = document.getElementById("basket-count");
+
+        if (basket.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>';
+            countSpan.textContent = "0";
+            return;
+        }
+
+        countSpan.textContent = basket.reduce((sum, it) => sum + it.qty, 0);
+
+        container.innerHTML = "";
+        basket.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "basket-item";
+            div.innerHTML = `
+                <div class="basket-main">
+                    <div class="basket-line1">${item.qty} kpl – ${item.code}</div>
+                    <div class="basket-line2">${item.name}</div>
+                </div>
+                <button class="delete-btn" onclick="removeFromBasket('${item.code}')">&times;</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function removeFromBasket(code) {
+        const idx = basket.findIndex(b => b.code === code);
+        if (idx >= 0) basket.splice(idx, 1);
+        renderBasket();
+
+        const qtyInput = document.getElementById("qty-" + safeId(code));
+        if (qtyInput) qtyInput.value = 0;
+    }
+
+    function render(filter = "") {
+        const container = document.getElementById("main-list");
+        const infoBox = document.getElementById("infoBox");
+        const nav = document.getElementById("cat-nav");
+
+        container.innerHTML = "";
+        nav.innerHTML = '<option value="">-- Hyppää kategoriaan --</option>';
+
+        const f = filter.trim().toLowerCase();
+        infoBox.style.display = f.length > 0 ? "none" : "block";
+
+        categories.forEach(cat => {
+            const list = items[cat] || [];
+            const filtered = list.filter(p =>
+                p.code.toLowerCase().includes(f) ||
+                p.name.toLowerCase().includes(f)
+            );
+
+            if (filtered.length === 0) return;
+
+            nav.innerHTML += `<option value="${cat}">${cat}</option>`;
+
+            const encoded = btoa(unescape(encodeURIComponent(cat))).replace(/=/g, "");
+            const block = document.createElement("div");
+            block.className = "category-block";
+            block.id = "cat-" + encoded;
+
+            const header = document.createElement("div");
+            header.className = "category-name";
+            header.textContent = cat;
+            block.appendChild(header);
+
+            filtered.forEach(p => {
+                const row = document.createElement("div");
+                row.className = "product-item";
+
+                const qtyId = "qty-" + safeId(p.code);
+                const currentQty = getBasketQty(p.code);
+
+                row.innerHTML = `
+                    <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-code">${p.code}</div>
+                    </div>
+                    <div class="qty-controls">
+                        <button type="button" class="qty-btn" onclick="changeQty('${p.code}', '${p.name.replace(/'/g, "\\'")}', -1)">-</button>
+                        <input id="${qtyId}" class="qty-display" type="text" value="${currentQty}" readonly>
+                        <button type="button" class="qty-btn" onclick="changeQty('${p.code}', '${p.name.replace(/'/g, "\\'")}', 1)">+</button>
+                    </div>
+                `;
+                block.appendChild(row);
+            });
+
+            container.appendChild(block);
+        });
+    }
+
+    function jumpTo(catName) {
+        if (!catName) return;
+        const encoded = btoa(unescape(encodeURIComponent(catName))).replace(/=/g, "");
+        const el = document.getElementById("cat-" + encoded);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
     }
 
     function finalSubmit() {
-        const tilaaja = document.getElementById('f_tilaaja').value;
-        const varasto = document.getElementById('f_varasto').value;
-        const osoite = document.getElementById('f_osoite').value;
-        const postinro = document.getElementById('f_postinro').value;
-        const paikka = document.getElementById('f_paikka').value;
+        const tilaaja = document.getElementById("f_tilaaja").value.trim();
+        const varasto = document.getElementById("f_varasto").value.trim();
+        const tilauspvm = document.getElementById("tilauspvm").value.trim();
+        const toimitus = document.getElementById("f_toimitus").value.trim();
+        const osoite = document.getElementById("f_osoite").value.trim();
+        const postinro = document.getElementById("f_postinro").value.trim();
+        const paikka = document.getElementById("f_paikka").value.trim();
+        const lisatiedot = document.getElementById("f_lisatiedot").value.trim();
 
-        if (!tilaaja || !osoite || !postinro || !paikka) return alert("Täytä tähdellä (*) merkityt kentät!");
-        if (Object.keys(selected).length === 0) return alert("Ostoskori on tyhjä!");
-
-        const pvm = document.getElementById('tilauspvm').value;
-        const toimitus = document.getElementById('f_toimitus').value;
-        const lisatiedot = document.getElementById('f_lisatiedot').value;
-
-        let body = `VARAOSATILAUS\n\n`;
-        body += `Tilaaja: ${tilaaja}\n`;
-        body += `Varasto NRO: ${varasto}\n`;
-        body += `Tilauspäivä: ${pvm}\n`;
-        body += `Toimitustapa: ${toimitus}\n`;
-        body += `Osoite: ${osoite}, ${postinro} ${paikka}\n`;
-        body += `Lisätiedot: ${lisatiedot}\n\n`;
-        
-        body += `KERÄILYLISTA\n\n`;
-
-        for (const code in selected) {
-            const name = productNames[code] || "Tuote";
-            
-            // SARAKKEET: [ Ruutu ] | Määrä | Numero | Nimike (ilman otsikoita)
-            const colChk = "[      ]".padEnd(12);
-            const colQty = (selected[code] + " kpl").padEnd(16);
-            const colNum = code.padEnd(16);
-            const colNam = name;
-            
-            body += `${colChk}${colQty}${colNum}${colNam}\n`;
+        if (!tilaaja || !osoite || !postinro || !paikka) {
+            alert("Täytä kaikki pakolliset kentät (*).");
+            return;
         }
 
-        const sposti1 = "tomi.eskola@hartwall.fi"; 
-        const sposti2 = "tomi.id4@hotmail.com";
-        const subject = `Varaosatilaus - ${tilaaja} - ${varasto || 'Ei numeroa'}`;
-        
-        window.location.href = `mailto:${sposti1},${sposti2}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        if (basket.length === 0) {
+            alert("Ostoskorissa ei ole tuotteita.");
+            return;
+        }
+
+        let productLines = basket.map(item =>
+            `[ ]   ${item.qty} kpl   ${item.code}   ${item.name}`
+        ).join("\n");
+
+        lastEmailBody =
+`Tilaaja: ${tilaaja}
+Varasto NRO: ${varasto}
+Tilauspäivä: ${tilauspvm}
+Toimitustapa: ${toimitus}
+
+Lähetysosoite:
+${osoite}
+${postinro} ${paikka}
+
+Lisätiedot:
+${lisatiedot}
+
+Tilattavat tuotteet:
+${productLines}
+`;
+
+        document.getElementById("previewContent").textContent = lastEmailBody;
+        document.getElementById("previewModal").style.display = "flex";
     }
 
-    function jumpTo(cat) {
-        const id = "cat-" + btoa(unescape(encodeURIComponent(cat))).replace(/=/g, '');
-        const target = document.getElementById(id);
-        if(target) target.scrollIntoView({ behavior: 'smooth' });
+    function closePreview() {
+        document.getElementById("previewModal").style.display = "none";
     }
 
-    render();
+    function sendEmail() {
+        const encodedBody = encodeURIComponent(lastEmailBody);
+        window.location.href = `mailto:?subject=Varaosatilaus&body=${encodedBody}`;
+        closePreview();
+    }
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    window.addEventListener("scroll", () => {
+        document.getElementById("backToTop").style.display =
+            window.scrollY > 300 ? "block" : "none";
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const pvm = document.getElementById("tilauspvm");
+        if (pvm && !pvm.value) {
+            const today = new Date().toISOString().split("T")[0];
+            pvm.value = today;
+        }
+
+        parseRawData();
+        render("");
+        renderBasket();
+    });
 </script>
+
 </body>
 </html>
