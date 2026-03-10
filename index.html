@@ -1050,7 +1050,10 @@ T49461	HAPOTUSTESTERI
 /* -----------------------------
    AUTOMAATTINEN PÄIVÄMÄÄRÄ
 ----------------------------- */
-document.getElementById("tilauspvm").value = new Date().toISOString().split("T")[0];
+window.onload = function() {
+    document.getElementById("tilauspvm").value =
+        new Date().toISOString().split("T")[0];
+};
 
 /* -----------------------------
    PARSINTA
@@ -1124,4 +1127,161 @@ function render(filter = "") {
                 block.appendChild(row);
             });
 
-        list
+        list.appendChild(block);
+    });
+}
+
+render();
+
+/* -----------------------------
+   KATEGORIAHYPPY
+----------------------------- */
+function jumpTo(cat) {
+    if (!cat) return;
+    document.getElementById(cat).scrollIntoView({ behavior: "smooth" });
+}
+
+/* -----------------------------
+   OSTOSKORI
+----------------------------- */
+function changeQty(code, delta) {
+    const input = document.getElementById(`qty-${code}`);
+    let qty = parseInt(input.value) + delta;
+    if (qty < 0) qty = 0;
+    input.value = qty;
+
+    const item = findItem(code);
+
+    const existing = basket.find(b => b.code === code);
+
+    if (qty === 0) {
+        if (existing) basket.splice(basket.indexOf(existing), 1);
+    } else {
+        if (existing) {
+            existing.qty = qty;
+        } else {
+            basket.push({ ...item, qty });
+        }
+    }
+
+    updateBasket();
+}
+
+function findItem(code) {
+    for (const cat of categories) {
+        for (const item of cat.items) {
+            if (item.code === code) return item;
+        }
+    }
+}
+
+function updateBasket() {
+    const box = document.getElementById("basket-items");
+    box.innerHTML = "";
+
+    if (basket.length === 0) {
+        box.innerHTML = `<p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>`;
+        document.getElementById("basket-count").textContent = 0;
+        return;
+    }
+
+    basket.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "basket-item";
+
+        div.innerHTML = `
+            <div class="basket-main">
+                <div class="basket-line1">${item.qty} kpl – ${item.code}</div>
+                <div class="basket-line2">${item.name}</div>
+            </div>
+            <button class="delete-btn" onclick="removeFromBasket('${item.code}')">&times;</button>
+        `;
+
+        box.appendChild(div);
+    });
+
+    document.getElementById("basket-count").textContent = basket.length;
+}
+
+function removeFromBasket(code) {
+    const idx = basket.findIndex(i => i.code === code);
+    if (idx !== -1) basket.splice(idx, 1);
+    updateBasket();
+}
+
+/* -----------------------------
+   TILAUKSEN MUODOSTUS
+----------------------------- */
+let lastEmailBody = "";
+
+function finalSubmit() {
+    if (basket.length === 0) {
+        alert("Ei tuotteita korissa.");
+        return;
+    }
+
+    const tilaaja = document.getElementById("f_tilaaja").value;
+    const osoite = document.getElementById("f_osoite").value;
+    const postinro = document.getElementById("f_postinro").value;
+    const paikka = document.getElementById("f_paikka").value;
+
+    if (!tilaaja || !osoite || !postinro || !paikka) {
+        alert("Täytä kaikki pakolliset kentät.");
+        return;
+    }
+
+    const productLines = basket
+        .map(item => `[   ]   ${item.qty} kpl   ${item.code}   ${item.name}`)
+        .join("\n------------------------------\n");
+
+    lastEmailBody =
+`Tilaaja: ${tilaaja}
+Varasto: ${document.getElementById("f_varasto").value}
+Tilauspäivä: ${document.getElementById("tilauspvm").value}
+Toimitustapa: ${document.getElementById("f_toimitus").value}
+
+Osoite:
+${osoite}
+${postinro} ${paikka}
+
+Lisätiedot:
+${document.getElementById("f_lisatiedot").value}
+
+------------------------------
+TUOTTEET:
+------------------------------
+${productLines}
+`;
+
+    document.getElementById("previewContent").textContent = lastEmailBody;
+    document.getElementById("previewModal").style.display = "flex";
+}
+
+function closePreview() {
+    document.getElementById("previewModal").style.display = "none";
+}
+
+/* -----------------------------
+   SÄHKÖPOSTIN LÄHETYS
+----------------------------- */
+function sendEmail() {
+    const encoded = encodeURIComponent(lastEmailBody);
+    window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=Varaosatilaus&body=${encoded}`;
+    closePreview();
+}
+
+/* -----------------------------
+   YLÖS-NAPPI
+----------------------------- */
+window.onscroll = function() {
+    document.getElementById("backToTop").style.display =
+        window.scrollY > 300 ? "block" : "none";
+};
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+</script>
+
+</body>
+</html>
