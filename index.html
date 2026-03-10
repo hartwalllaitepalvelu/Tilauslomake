@@ -30,9 +30,8 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .product-name { font-weight:600; }
 .product-code { font-size:12px; color:#666; }
 
-.qty-controls { display:flex; align-items:center; gap:5px; border:1px solid #ccc; border-radius:10px; padding:3px; background:#fff; }
+.qty-controls { display:flex; align-items:center; gap:5px; }
 .qty-btn { width:32px; height:32px; border:none; background:#f0f0f0; color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px; }
-.qty-display { width:35px; border:none; text-align:center; font-weight:bold; font-size:16px; background:transparent; }
 
 .sidebar { width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px); background:white;
            border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; flex-direction:column;
@@ -41,7 +40,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .sidebar-header { background:var(--hw-blue); color:white; padding:15px; text-align:center; font-weight:bold; border-radius:10px 10px 0 0; }
 .sidebar-content { flex:1; overflow-y:auto; padding:12px; font-size:13px; }
 
-.basket-item { padding:10px; background:#fff; display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.basket-item { padding:10px; background:#fff; display:flex; justify-content:space-between; align-items:center; gap:8px; border-bottom:1px solid #eee; }
 .basket-main { display:flex; flex-direction:column; font-size:12px; }
 .basket-line1 { font-weight:600; }
 .basket-line2 { color:#666; }
@@ -1200,12 +1199,39 @@ function render(filter = "") {
 }
 
 /* ————————————————————————————————
-   🔵 3) OSTOSKORI
+   🔵 3) OSTOSKORI (uusi + / – / numero)
 ——————————————————————————————— */
 function addToBasket(code, name) {
     const item = basket.find(b => b.code === code);
     if (item) item.qty++;
     else basket.push({ code, name, qty: 1 });
+    renderBasket();
+}
+
+function decreaseQty(code) {
+    const item = basket.find(b => b.code === code);
+    if (!item) return;
+
+    item.qty--;
+
+    if (item.qty <= 0) {
+        basket = basket.filter(b => b.code !== code);
+    }
+
+    renderBasket();
+}
+
+function updateQty(code, value) {
+    const item = basket.find(b => b.code === code);
+    if (!item) return;
+
+    const n = parseInt(value);
+    if (isNaN(n) || n <= 0) {
+        basket = basket.filter(b => b.code !== code);
+    } else {
+        item.qty = n;
+    }
+
     renderBasket();
 }
 
@@ -1235,13 +1261,24 @@ function renderBasket() {
                 <div class="basket-line1">${item.code}</div>
                 <div class="basket-line2">${item.name}</div>
             </div>
+
+            <div style="display:flex; align-items:center; gap:6px;">
+                <button class="qty-btn" onclick="decreaseQty('${item.code}')">−</button>
+
+                <input type="number" min="1" value="${item.qty}" 
+                       style="width:45px; text-align:center; font-weight:bold;"
+                       onchange="updateQty('${item.code}', this.value)">
+
+                <button class="qty-btn" onclick="addToBasket('${item.code}','${item.name}')">+</button>
+            </div>
+
             <button class="delete-btn" onclick="removeFromBasket('${item.code}')">×</button>
         `;
 
         box.appendChild(row);
     });
 
-    count.textContent = basket.length;
+    count.textContent = basket.reduce((a, b) => a + b.qty, 0);
 }
 
 /* ————————————————————————————————
