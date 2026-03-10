@@ -1048,12 +1048,14 @@ T49461	HAPOTUSTESTERI
 
 <script>
 /* -----------------------------
-   AUTOMAATTINEN PÄIVÄMÄÄRÄ
+   AUTOMAATTINEN PÄIVÄMÄÄRÄ (TOIMIVA)
 ----------------------------- */
-window.onload = function() {
-    document.getElementById("tilauspvm").value =
-        new Date().toISOString().split("T")[0];
-};
+document.addEventListener("DOMContentLoaded", function() {
+    const pvm = document.getElementById("tilauspvm");
+    if (pvm) {
+        pvm.value = new Date().toISOString().split("T")[0];
+    }
+});
 
 /* -----------------------------
    PARSINTA
