@@ -82,7 +82,7 @@
                 <div class="info-grid">
                     <div><label>Tilaaja *</label><input id="f_tilaaja" required></div>
                     <div><label>Varasto NRO</label><input id="f_varasto"></div>
-                    <div><label>Tilauspäivä</label><input type="date" id="tilauspvm"></div>
+                    <div><label>Tilauspäivä *</label><input type="date" id="tilauspvm" required></div>
                     <div><label>Toimitustapa</label><input id="f_toimitus"></div>
                 </div>
 
@@ -1048,16 +1048,6 @@ T49461	HAPOTUSTESTERI
 
 <script>
 /* -----------------------------
-   AUTOMAATTINEN PÄIVÄMÄÄRÄ (TOIMIVA)
------------------------------ */
-document.addEventListener("DOMContentLoaded", function() {
-    const pvm = document.getElementById("tilauspvm");
-    if (pvm) {
-        pvm.value = new Date().toISOString().split("T")[0];
-    }
-});
-
-/* -----------------------------
    PARSINTA
 ----------------------------- */
 function parseData() {
@@ -1226,20 +1216,21 @@ function finalSubmit() {
     const osoite = document.getElementById("f_osoite").value;
     const postinro = document.getElementById("f_postinro").value;
     const paikka = document.getElementById("f_paikka").value;
+    const pvm = document.getElementById("tilauspvm").value;
 
-    if (!tilaaja || !osoite || !postinro || !paikka) {
+    if (!tilaaja || !osoite || !postinro || !paikka || !pvm) {
         alert("Täytä kaikki pakolliset kentät.");
         return;
     }
 
     const productLines = basket
         .map(item => `[   ]   ${item.qty} kpl   ${item.code}   ${item.name}`)
-        .join("\n------------------------------\n");
+        .join("\n========================================\n");
 
     lastEmailBody =
 `Tilaaja: ${tilaaja}
 Varasto: ${document.getElementById("f_varasto").value}
-Tilauspäivä: ${document.getElementById("tilauspvm").value}
+Tilauspäivä: ${pvm}
 Toimitustapa: ${document.getElementById("f_toimitus").value}
 
 Osoite:
@@ -1249,9 +1240,9 @@ ${postinro} ${paikka}
 Lisätiedot:
 ${document.getElementById("f_lisatiedot").value}
 
-------------------------------
+========================================
 TUOTTEET:
-------------------------------
+========================================
 ${productLines}
 `;
 
