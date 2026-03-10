@@ -1096,7 +1096,17 @@ T49461	HAPOTUSTESTERI
 
 <script>
 /* -----------------------------
-   PARSINTA
+   AUTOMAATTINEN PÄIVÄMÄÄRÄ
+----------------------------- */
+document.addEventListener("DOMContentLoaded", function () {
+    const pvm = document.getElementById("tilauspvm");
+    if (pvm) {
+        pvm.value = new Date().toISOString().split("T")[0];
+    }
+});
+
+/* -----------------------------
+   PARSINTA (KORJATTU)
 ----------------------------- */
 function parseData() {
     const raw = document.getElementById("rawData").textContent.trim().split("\n");
@@ -1107,10 +1117,12 @@ function parseData() {
         line = line.trim();
         if (!line) return;
 
-        if (!line.match(/^\d/)) {
+        // Jos rivi EI ala kirjaimella tai numerolla → kategoria
+        if (!line.match(/^[A-Za-z0-9]/)) {
             current = { name: line, items: [] };
             categories.push(current);
         } else {
+            // Muuten se on nimike
             const [code, ...nameParts] = line.split(/\s+/);
             const name = nameParts.join(" ");
             current.items.push({ code, name });
@@ -1265,6 +1277,7 @@ function finalSubmit() {
     const postinro = document.getElementById("f_postinro").value;
     const paikka = document.getElementById("f_paikka").value;
     const pvm = document.getElementById("tilauspvm").value;
+    const varasto = document.getElementById("f_varasto").value;
 
     if (!tilaaja || !osoite || !postinro || !paikka || !pvm) {
         alert("Täytä kaikki pakolliset kentät.");
@@ -1277,7 +1290,7 @@ function finalSubmit() {
 
     lastEmailBody =
 `Tilaaja: ${tilaaja}
-Varasto: ${document.getElementById("f_varasto").value}
+Varasto: ${varasto}
 Tilauspäivä: ${pvm}
 Toimitustapa: ${document.getElementById("f_toimitus").value}
 
@@ -1305,26 +1318,4 @@ function closePreview() {
 /* -----------------------------
    SÄHKÖPOSTIN LÄHETYS
 ----------------------------- */
-function sendEmail() {
-    const encoded = encodeURIComponent(lastEmailBody);
-    window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=Varaosatilaus&body=${encoded}`;
-    closePreview();
-}
-
-/* -----------------------------
-   YLÖS-NAPPI
------------------------------ */
-window.onscroll = function() {
-    document.getElementById("backToTop").style.display =
-        window.scrollY > 300 ? "block" : "none";
-};
-
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-/* -----------------------------
-   MOBIILI: AVAA/SULJE KORI
------------------------------ */
-function toggleCart() {
-    const cart = document.querySelector
+function sendEmail()
