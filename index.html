@@ -1,100 +1,101 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hartwall Varaosatilaus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hartwall Varaosatilaus</title>
 
-    <style>
-        :root { --hw-blue:#004593; --hw-light:#eef4fb; --hw-green:#28a745; --sidebar:380px; }
-        body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-size:14px; color:#333; padding-bottom:120px; }
+<style>
+:root { --hw-blue:#004593; --hw-light:#eef4fb; --hw-green:#28a745; --sidebar:380px; }
+body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-size:14px; color:#333; padding-bottom:120px; }
 
-        .main-wrapper { display:flex; max-width:1550px; margin:0 auto; gap:20px; padding:15px; align-items:flex-start; }
-        .content-area { flex:1; min-width:0; }
+.main-wrapper { display:flex; max-width:1550px; margin:0 auto; gap:20px; padding:15px; align-items:flex-start; }
+.content-area { flex:1; min-width:0; }
 
-        header { background:white; padding:15px; border-radius:12px; border-bottom:4px solid var(--hw-blue);
-                 text-align:center; margin-bottom:15px; position:sticky; top:0; z-index:1000;
-                 box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+header { background:white; padding:15px; border-radius:12px; border-bottom:4px solid var(--hw-blue);
+         text-align:center; margin-bottom:15px; position:sticky; top:0; z-index:1000;
+         box-shadow:0 2px 10px rgba(0,0,0,0.05); }
 
-        .search-box { width:100%; padding:15px; border:2px solid #ddd; border-radius:8px; font-size:16px; }
+.search-box { width:100%; padding:15px; border:2px solid #ddd; border-radius:8px; font-size:16px; }
 
-        .nav-dropdown { width:100%; padding:12px; margin-top:10px; border-radius:8px; background:var(--hw-light);
-                        font-weight:bold; cursor:pointer; border:1px solid #ccc; }
+.nav-dropdown { width:100%; padding:12px; margin-top:10px; border-radius:8px; background:var(--hw-light);
+                font-weight:bold; cursor:pointer; border:1px solid #ccc; }
 
-        .category-block { margin-top:35px; scroll-margin-top:200px; }
-        .category-name { background:var(--hw-blue); color:white; padding:12px 15px; border-radius:8px; font-weight:bold; text-transform:uppercase; }
+.category-block { margin-top:35px; scroll-margin-top:200px; }
+.category-name { background:var(--hw-blue); color:white; padding:12px 15px; border-radius:8px; font-weight:bold; text-transform:uppercase; }
 
-        .product-item { display:grid; grid-template-columns:1fr auto; padding:15px; border-bottom:1px solid #eee; background:white; }
-        .product-info { display:flex; flex-direction:column; gap:3px; }
-        .product-name { font-weight:600; }
-        .product-code { font-size:12px; color:#666; }
+.product-item { display:grid; grid-template-columns:1fr auto; padding:15px; border-bottom:1px solid #eee; background:white; }
+.product-info { display:flex; flex-direction:column; gap:3px; }
+.product-name { font-weight:600; }
+.product-code { font-size:12px; color:#666; }
 
-        .qty-controls { display:flex; align-items:center; gap:5px; border:1px solid #ccc; border-radius:10px; padding:3px; background:#fff; }
-        .qty-btn { width:32px; height:32px; border:none; background:#f0f0f0; color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px; }
-        .qty-display { width:35px; border:none; text-align:center; font-weight:bold; font-size:16px; background:transparent; }
+.qty-controls { display:flex; align-items:center; gap:5px; border:1px solid #ccc; border-radius:10px; padding:3px; background:#fff; }
+.qty-btn { width:32px; height:32px; border:none; background:#f0f0f0; color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px; }
+.qty-display { width:35px; border:none; text-align:center; font-weight:bold; font-size:16px; background:transparent; }
 
-        .sidebar { width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px); background:white;
-                   border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; flex-direction:column;
-                   border:2px solid var(--hw-blue); }
+.sidebar { width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px); background:white;
+           border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; flex-direction:column;
+           border:2px solid var(--hw-blue); }
 
-        .sidebar-header { background:var(--hw-blue); color:white; padding:15px; text-align:center; font-weight:bold; border-radius:10px 10px 0 0; }
-        .sidebar-content { flex:1; overflow-y:auto; padding:12px; font-size:13px; }
+.sidebar-header { background:var(--hw-blue); color:white; padding:15px; text-align:center; font-weight:bold; border-radius:10px 10px 0 0; }
+.sidebar-content { flex:1; overflow-y:auto; padding:12px; font-size:13px; }
 
-        .basket-item { padding:10px; background:#fff; display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-        .basket-main { display:flex; flex-direction:column; font-size:12px; }
-        .basket-line1 { font-weight:600; }
-        .basket-line2 { color:#666; }
+.basket-item { padding:10px; background:#fff; display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.basket-main { display:flex; flex-direction:column; font-size:12px; }
+.basket-line1 { font-weight:600; }
+.basket-line2 { color:#666; }
 
-        .delete-btn { color:#dc3545; cursor:pointer; font-weight:bold; font-size:18px; border:none; background:none; padding:0 5px; }
-        .delete-btn:hover { color:#a71d2a; }
+.delete-btn { color:#dc3545; cursor:pointer; font-weight:bold; font-size:18px; border:none; background:none; padding:0 5px; }
+.delete-btn:hover { color:#a71d2a; }
 
-        .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px;
-                    font-size:18px; font-weight:bold; cursor:pointer; }
+.btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px;
+            font-size:18px; font-weight:bold; cursor:pointer; }
 
-        #toggleCart {
-            display:none;
-            position:fixed;
-            bottom:90px;
-            right:20px;
-            background:var(--hw-blue);
-            color:white;
-            border:none;
-            padding:14px 20px;
-            border-radius:8px;
-            font-size:16px;
-            font-weight:bold;
-            z-index:3000;
-            box-shadow:0 4px 10px rgba(0,0,0,0.25);
-        }
+/* Mobiilin kori-nappi */
+#toggleCart {
+    display:none;
+    position:fixed;
+    bottom:90px;
+    right:20px;
+    background:var(--hw-blue);
+    color:white;
+    border:none;
+    padding:14px 20px;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:bold;
+    z-index:3000;
+    box-shadow:0 4px 10px rgba(0,0,0,0.25);
+}
 
-        /* 📱 PUHELIN – kori pomppaa esiin alhaalta */
-        @media (max-width: 600px) {
+/* 📱 PUHELIN – kori pomppaa esiin alhaalta */
+@media (max-width: 600px) {
 
-            #toggleCart { display:block; }
+    #toggleCart { display:block; }
 
-            .main-wrapper { flex-direction:column; }
+    .main-wrapper { flex-direction:column; }
 
-            .sidebar {
-                width:100%;
-                position:fixed;
-                bottom:0;
-                left:0;
-                height:70%;
-                display:none;
-                background:white;
-                z-index:4000;
-                border-radius:12px 12px 0 0;
-                box-shadow:0 -4px 20px rgba(0,0,0,0.25);
-            }
+    .sidebar {
+        width:100%;
+        position:fixed;
+        bottom:0;
+        left:0;
+        height:70%;
+        display:none;
+        background:white;
+        z-index:4000;
+        border-radius:12px 12px 0 0;
+        box-shadow:0 -4px 20px rgba(0,0,0,0.25);
+    }
 
-            .sidebar.open { display:block; }
+    .sidebar.open { display:block; }
 
-            .sidebar-content {
-                max-height:calc(100% - 120px);
-                overflow-y:auto;
-            }
-        }
-    </style>
+    .sidebar-content {
+        max-height:calc(100% - 120px);
+        overflow-y:auto;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -1193,7 +1194,7 @@ function finalSubmit() {
         return;
     }
 
-    alert("Tilaus muodostettu (voit lisätä sähköpostilähetyksen tähän).");
+    alert("Tilaus muodostettu (lisää sähköpostilähetys tähän).");
 }
 
 /* 🔧 PUHELIN – kori auki/kiinni */
