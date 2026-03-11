@@ -6,7 +6,6 @@
 <title>Hartwall Varaosatilaus</title>
 
 <style>
-/* ——— CSS SÄILYTETTY TÄYSIN SAMANA ——— */
 :root { --hw-blue:#004593; --hw-light:#eef4fb; --hw-green:#28a745; --sidebar:380px; }
 body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-size:14px; color:#333; padding-bottom:120px; }
 
@@ -27,7 +26,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 
 .product-item { display:grid; grid-template-columns:1fr auto; padding:15px; border-bottom:1px solid #eee; background:white; }
 .product-info { display:flex; flex-direction:column; gap:3px; }
-.product-name { font-weight:600; }
+.product-name { font-weight:600; cursor:pointer; color:var(--hw-blue); text-decoration:underline; }
 .product-code { font-size:12px; color:#666; }
 
 .qty-controls { display:flex; align-items:center; gap:5px; }
@@ -51,40 +50,30 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px;
             font-size:18px; font-weight:bold; cursor:pointer; }
 
-/* Tilaustiedot-laatikko */
-.form-box {
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    border-left:6px solid var(--hw-blue);
-    margin-bottom:25px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+/* MODAALI */
+#imgModal {
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.85);
+    justify-content:center;
+    align-items:center;
+    z-index:5000;
 }
-
-.form-box h2 {
-    margin-top:0;
-    color:var(--hw-blue);
+#imgModal img {
+    max-width:90%;
+    max-height:90%;
+    border-radius:10px;
 }
-
-.form-row {
-    display:flex;
-    flex-direction:column;
-    margin-bottom:12px;
+#closeModal {
+    position:absolute;
+    top:20px;
+    right:30px;
+    font-size:40px;
+    color:white;
+    cursor:pointer;
 }
-
-.form-row label {
-    font-weight:600;
-    margin-bottom:4px;
-}
-
-.form-row input, .form-row textarea {
-    padding:10px;
-    border:1px solid #ccc;
-    border-radius:6px;
-    font-size:14px;
-}
-
-textarea { resize:vertical; }
 
 /* Mobiilin kori-nappi */
 #toggleCart {
@@ -103,13 +92,9 @@ textarea { resize:vertical; }
     box-shadow:0 4px 10px rgba(0,0,0,0.25);
 }
 
-/* 📱 PUHELIN – kori pomppaa esiin alhaalta */
 @media (max-width: 600px) {
-
     #toggleCart { display:block; }
-
     .main-wrapper { flex-direction:column; }
-
     .sidebar {
         width:100%;
         position:fixed;
@@ -122,18 +107,19 @@ textarea { resize:vertical; }
         border-radius:12px 12px 0 0;
         box-shadow:0 -4px 20px rgba(0,0,0,0.25);
     }
-
     .sidebar.open { display:block; }
-
-    .sidebar-content {
-        max-height:calc(100% - 120px);
-        overflow-y:auto;
-    }
+    .sidebar-content { max-height:calc(100% - 120px); overflow-y:auto; }
 }
 </style>
 </head>
 
 <body>
+
+<!-- MODAALI -->
+<div id="imgModal">
+    <span id="closeModal">&times;</span>
+    <img id="modalImage" src="">
+</div>
 
 <button id="toggleCart" onclick="toggleCart()">Näytä ostoskori</button>
 
@@ -209,8 +195,6 @@ textarea { resize:vertical; }
     </div>
 
 </div>
-
-
 
 <script id="rawData" type="text/plain">
 OLUTJÄÄHYT
@@ -1120,231 +1104,239 @@ T49461 HAPOTUSTESTERI
 T00678 BIB-LIITIN
 </script>
 
-
 <script>
-/* ————————————————————————————————
-   🔵 1) PARSE RAWDATA
-——————————————————————————————— */
-let products = [];
-let categories = [];
-let basket = [];
+/* -----------------------------
+   PARSE DATA
+------------------------------*/
+function parseData() {
+    const text = document.getElementById("rawData").textContent.trim();
+    const lines = text.split("\n");
 
-function parseRawData() {
-    const raw = document.getElementById("rawData").textContent.split(/\r?\n/);
-    let currentCategory = null;
+    let categories = {};
+    let current = null;
 
-    raw.forEach(line => {
-        const t = line.trim();
-        if (!t) return;
+    lines.forEach(line => {
+        if (!line.trim()) return;
 
-        if (!t.includes(" ")) {
-            currentCategory = t;
-            categories.push(t);
+        if (isNaN(line.trim().split(" ")[0])) {
+            current = line.trim();
+            categories[current] = [];
         } else {
-            const space = t.indexOf(" ");
-            const code = t.substring(0, space).trim();
-            const name = t.substring(space + 1).trim();
-            products.push({ code, name, category: currentCategory });
+            const [code, ...nameParts] = line.trim().split(" ");
+            const name = nameParts.join(" ");
+            categories[current].push({ code, name });
         }
     });
+
+    return categories;
 }
 
-/* ————————————————————————————————
-   🔵 2) RENDER PRODUCTS (piilottaa tyhjät kategoriat)
-——————————————————————————————— */
-function render(filter = "") {
-    const list = document.getElementById("main-list");
-    const nav = document.getElementById("cat-nav");
+const data = parseData();
+let cart = {};
 
-    list.innerHTML = "";
+/* -----------------------------
+   RENDER PRODUCTS
+------------------------------*/
+function render(filter = "") {
+    const container = document.getElementById("main-list");
+    container.innerHTML = "";
+
+    const nav = document.getElementById("cat-nav");
     nav.innerHTML = `<option value="">-- Hyppää kategoriaan --</option>`;
 
-    const lower = filter.toLowerCase();
-
-    categories.forEach(cat => {
-        const items = products.filter(p =>
-            p.category === cat &&
-            (p.name.toLowerCase().includes(lower) ||
-             p.code.toLowerCase().includes(lower))
+    Object.keys(data).forEach(cat => {
+        const products = data[cat].filter(p =>
+            p.name.toLowerCase().includes(filter.toLowerCase()) ||
+            p.code.includes(filter)
         );
 
-        if (items.length === 0) return; // 🔥 PIILOTA TYHJÄ KATEGORIA
+        if (products.length === 0) return;
 
         nav.innerHTML += `<option value="${cat}">${cat}</option>`;
 
         const block = document.createElement("div");
         block.className = "category-block";
-        block.id = "cat-" + cat.replace(/\s+/g, "_");
+        block.id = cat;
 
-        block.innerHTML = `<div class="category-name">${cat}</div>`;
-        list.appendChild(block);
+        const title = document.createElement("div");
+        title.className = "category-name";
+        title.textContent = cat;
+        block.appendChild(title);
 
-        items.forEach(p => {
+        products.forEach(p => {
             const row = document.createElement("div");
             row.className = "product-item";
 
             row.innerHTML = `
                 <div class="product-info">
-                    <div class="product-name">${p.name}</div>
+                    <div class="product-name" onclick="openImage('${p.code}')">${p.name}</div>
                     <div class="product-code">${p.code}</div>
                 </div>
+
                 <div class="qty-controls">
-                    <button class="qty-btn" onclick="addToBasket('${p.code}','${p.name}')">+</button>
+                    <button class="qty-btn" onclick="changeQtyFromList('${p.code}', -1)">-</button>
+                    <input id="qty_${p.code}" type="number" min="0" value="${cart[p.code]?.qty || 0}"
+                           oninput="setQtyFromInput('${p.code}', this.value)"
+                           style="width:45px; text-align:center; padding:6px; border:1px solid #ccc; border-radius:6px;">
+                    <button class="qty-btn" onclick="changeQtyFromList('${p.code}', 1)">+</button>
                 </div>
             `;
 
             block.appendChild(row);
         });
+
+        container.appendChild(block);
     });
 }
 
-/* ————————————————————————————————
-   🔵 3) OSTOSKORI (uusi + / – / numero)
-——————————————————————————————— */
-function addToBasket(code, name) {
-    const item = basket.find(b => b.code === code);
-    if (item) item.qty++;
-    else basket.push({ code, name, qty: 1 });
-    renderBasket();
+render();
+
+/* -----------------------------
+   CATEGORY JUMP
+------------------------------*/
+function jumpTo(cat) {
+    if (!cat) return;
+    document.getElementById(cat).scrollIntoView({ behavior: "smooth" });
 }
 
-function decreaseQty(code) {
-    const item = basket.find(b => b.code === code);
-    if (!item) return;
+/* -----------------------------
+   CART LOGIC
+------------------------------*/
+function findName(code) {
+    for (const cat in data) {
+        for (const item of data[cat]) {
+            if (item.code === code) return item.name;
+        }
+    }
+    return "";
+}
 
-    item.qty--;
-
-    if (item.qty <= 0) {
-        basket = basket.filter(b => b.code !== code);
+function changeQtyFromList(code, delta) {
+    if (!cart[code]) {
+        cart[code] = { code, name: findName(code), qty: 0 };
     }
 
-    renderBasket();
+    cart[code].qty += delta;
+
+    if (cart[code].qty < 0) cart[code].qty = 0;
+    if (cart[code].qty === 0) delete cart[code];
+
+    document.getElementById("qty_" + code).value = cart[code]?.qty || 0;
+
+    updateCart();
 }
 
-function updateQty(code, value) {
-    const item = basket.find(b => b.code === code);
-    if (!item) return;
+function setQtyFromInput(code, value) {
+    let qty = parseInt(value);
 
-    const n = parseInt(value);
-    if (isNaN(n) || n <= 0) {
-        basket = basket.filter(b => b.code !== code);
+    if (isNaN(qty) || qty < 0) qty = 0;
+
+    if (qty === 0) {
+        delete cart[code];
     } else {
-        item.qty = n;
+        if (!cart[code]) {
+            cart[code] = { code, name: findName(code), qty: qty };
+        } else {
+            cart[code].qty = qty;
+        }
     }
 
-    renderBasket();
+    updateCart();
 }
 
-function removeFromBasket(code) {
-    basket = basket.filter(b => b.code !== code);
-    renderBasket();
-}
+function updateCart() {
+    const div = document.getElementById("basket-items");
+    div.innerHTML = "";
 
-function renderBasket() {
-    const box = document.getElementById("basket-items");
-    const count = document.getElementById("basket-count");
+    const items = Object.values(cart);
 
-    box.innerHTML = "";
-
-    if (basket.length === 0) {
-        box.innerHTML = `<p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>`;
-        count.textContent = "0";
-        return;
+    if (items.length === 0) {
+        div.innerHTML = `<p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>`;
     }
 
-    basket.forEach(item => {
+    items.forEach(item => {
         const row = document.createElement("div");
         row.className = "basket-item";
 
         row.innerHTML = `
             <div class="basket-main">
-                <div class="basket-line1">${item.code}</div>
-                <div class="basket-line2">${item.name}</div>
+                <div class="basket-line1">${item.name}</div>
+                <div class="basket-line2">${item.code}</div>
             </div>
-
-            <div style="display:flex; align-items:center; gap:6px;">
-                <button class="qty-btn" onclick="decreaseQty('${item.code}')">−</button>
-
-                <input type="number" min="1" value="${item.qty}" 
-                       style="width:45px; text-align:center; font-weight:bold;"
-                       onchange="updateQty('${item.code}', this.value)">
-
-                <button class="qty-btn" onclick="addToBasket('${item.code}','${item.name}')">+</button>
+            <div class="qty-controls">
+                <button class="qty-btn" onclick="changeQtyFromList('${item.code}', -1)">-</button>
+                <span>${item.qty}</span>
+                <button class="qty-btn" onclick="changeQtyFromList('${item.code}', 1)">+</button>
             </div>
-
-            <button class="delete-btn" onclick="removeFromBasket('${item.code}')">×</button>
         `;
 
-        box.appendChild(row);
+        div.appendChild(row);
     });
 
-    count.textContent = basket.reduce((a, b) => a + b.qty, 0);
+    document.getElementById("basket-count").textContent = items.length;
 }
 
-/* ————————————————————————————————
-   🔵 4) SÄHKÖPOSTIN LÄHETYS
-——————————————————————————————— */
-function finalSubmit() {
-    const tilaaja = f_tilaaja.value.trim();
-    const varasto = f_varasto.value.trim();
-    const pvm = f_pvm.value.trim();
-    const toimitus = f_toimitus.value.trim();
-    const osoite = f_osoite.value.trim();
-    const posti = f_postinumero.value.trim();
-    const paikka = f_paikkakunta.value.trim();
-    const lisatiedot = f_lisatiedot.value.trim();
+/* -----------------------------
+   IMAGE MODAL
+------------------------------*/
+function openImage(code) {
+    const modal = document.getElementById("imgModal");
+    const img = document.getElementById("modalImage");
 
-    if (!tilaaja || !varasto || !pvm || !toimitus || !osoite || !posti || !paikka) {
-        alert("Täytä kaikki pakolliset kentät.");
-        return;
-    }
-
-    if (basket.length === 0) {
-        alert("Ostoskorissa ei ole tuotteita.");
-        return;
-    }
-
-    const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
-
-    let body = "";
-    body += `Varaosatilaus\n`;
-    body += `Tilaaja: ${tilaaja}\n`;
-    body += `Varasto: ${varasto}\n`;
-    body += `Päivämäärä: ${pvm}\n`;
-    body += `Toimitustapa: ${toimitus}\n`;
-    body += `Osoite: ${osoite}\n`;
-    body += `Postinumero: ${posti}\n`;
-    body += `Paikkakunta: ${paikka}\n\n`;
-
-    body += `Tilatut tuotteet:\n`;
-    basket.forEach(i => {
-        body += `- ${i.code} ${i.name} x ${i.qty}\n`;
-    });
-
-    if (lisatiedot) {
-        body += `\nLisätiedot:\n${lisatiedot}\n`;
-    }
-
-    const mailto = `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
+    img.src = `images/${code}.png`;
+    modal.style.display = "flex";
 }
 
-/* ————————————————————————————————
-   🔵 5) INIT
-——————————————————————————————— */
-function jumpTo(cat) {
-    if (!cat) return;
-    const el = document.getElementById("cat-" + cat.replace(/\s+/g, "_"));
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-}
+document.getElementById("closeModal").onclick = () => {
+    document.getElementById("imgModal").style.display = "none";
+};
 
+document.getElementById("imgModal").onclick = (e) => {
+    if (e.target.id === "imgModal") {
+        document.getElementById("imgModal").style.display = "none";
+    }
+};
+
+/* -----------------------------
+   MOBILE CART
+------------------------------*/
 function toggleCart() {
     document.querySelector(".sidebar").classList.toggle("open");
 }
 
-parseRawData();
-render();
-renderBasket();
+/* -----------------------------
+   SEND ORDER
+------------------------------*/
+function finalSubmit() {
+    const items = Object.values(cart)
+        .map(i => `${i.code} ${i.name} x ${i.qty}`)
+        .join("\n");
+
+    const tilaaja = document.getElementById("f_tilaaja").value;
+    const varasto = document.getElementById("f_varasto").value;
+    const pvm = document.getElementById("f_pvm").value;
+    const toimitus = document.getElementById("f_toimitus").value;
+    const osoite = document.getElementById("f_osoite").value;
+    const posti = document.getElementById("f_postinumero").value;
+    const paikka = document.getElementById("f_paikkakunta").value;
+    const lisatiedot = document.getElementById("f_lisatiedot").value;
+
+    const body =
+`Tilaaja: ${tilaaja}
+Varasto: ${varasto}
+Päivä: ${pvm}
+Toimitustapa: ${toimitus}
+Osoite: ${osoite}
+Postinumero: ${posti}
+Paikkakunta: ${paikka}
+Lisätiedot: ${lisatiedot}
+
+TILAUS:
+${items}`;
+
+    window.location.href =
+        `mailto:tomi.eskola@hartwall.fi?subject=Varaosatilaus&body=${encodeURIComponent(body)}`;
+}
 </script>
 
 </body>
