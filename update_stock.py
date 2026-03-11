@@ -2,37 +2,19 @@ import pandas as pd
 
 print("DEBUG: start")
 
-# Lue Excel yhtenä sarakkeena
-raw = pd.read_excel("Book1.xlsx", header=None)
+# Lue Excel ja ohita ensimmäiset 4 riviä
+df = pd.read_excel("Book1.xlsx", header=None, skiprows=4)
+
+# Ota vain sarakkeet B, C ja D (eli indeksit 1, 2, 3)
+df = df[[1, 2, 3]]
+
+# Nimeä sarakkeet
+df.columns = ["Material", "Material Description", "Unrestricted", "Unit"]
 
 # Poista tyhjät rivit
-raw = raw.dropna().reset_index(drop=True)
+df = df.dropna().reset_index(drop=True)
 
-print("DEBUG: Excel-rivejä:", len(raw))
-
-# Joka 4 rivi muodostaa yhden tuotteen
-materials = []
-descriptions = []
-quantities = []
-units = []
-
-for i in range(0, len(raw), 4):
-    try:
-        materials.append(str(raw.iloc[i, 0]).strip())
-        descriptions.append(str(raw.iloc[i+1, 0]).strip())
-        quantities.append(str(raw.iloc[i+2, 0]).strip())
-        units.append(str(raw.iloc[i+3, 0]).strip())
-    except:
-        pass
-
-df = pd.DataFrame({
-    "Material": materials,
-    "Material Description": descriptions,
-    "Unrestricted": quantities,
-    "Unit": units
-})
-
-print("DEBUG: Muodostettuja rivejä:", len(df))
+print("DEBUG: Excel-rivejä:", len(df))
 
 # Lue data.txt
 valid_materials = set()
@@ -49,7 +31,7 @@ with open("data.txt", "r", encoding="utf-8") as f:
 print("DEBUG: data.txt nimikkeitä:", len(valid_materials))
 
 # Suodata
-filtered = df[df["Material"].isin(valid_materials)]
+filtered = df[df["Material"].astype(str).isin(valid_materials)]
 
 print("DEBUG: Suodatettuja rivejä:", len(filtered))
 
