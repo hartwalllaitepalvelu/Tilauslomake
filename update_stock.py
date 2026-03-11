@@ -6,15 +6,9 @@ print("DEBUG: Python start OK")
 with open("sap_report.txt", "r", encoding="latin-1") as f:
     lines = f.readlines()
 
-# --- LUE DATA.TXT JA RAKENNA KATEGORIAT ---
-categories = {}
-current_category = None
+# --- LUE DATA.TXT JA POIMI SALLITUT MATERIAALIT ---
+valid_materials = set()
 
-# Regex materiaalinumerolle:
-# 10029
-# T49212
-# V02387
-# 272229
 material_number_regex = re.compile(r"^[A-Z]?\d{5,6}$")
 
 try:
@@ -27,25 +21,14 @@ try:
             parts = line.split()
             first = parts[0]
 
-            # Jos ensimmäinen sana on materiaalinumero → nimike
+            # Jos ensimmäinen sana näyttää materiaalinumerolta → lisää sallittuihin
             if material_number_regex.match(first):
-                material = first
-                if current_category:
-                    categories[current_category].append(material)
-                continue
-
-            # Muuten → kategoria
-            current_category = line
-            categories[current_category] = []
+                valid_materials.add(first)
 
 except FileNotFoundError:
     print("ERROR: data.txt puuttuu!")
 
-# Luo lista kaikista sallituista materiaaleista
-valid_materials = {m for mats in categories.values() for m in mats}
-
-print(f"DEBUG: Kategorioita: {len(categories)}")
-print(f"DEBUG: Sallittuja nimikkeitä: {len(valid_materials)}")
+print(f"DEBUG: Sallittuja nimikkeitä data.txt:stä: {len(valid_materials)}")
 
 # --- PARSE SAP-RAPORTTI ---
 stocks = {}
@@ -81,8 +64,12 @@ for line in lines:
             print(f"WARNING: Ei voitu muuntaa määrää numeroksi: {qty}")
         current_material = None
 
-# --- SUODATA VAIN KATEGORIOIDEN NIMIKKEET ---
+print(f"DEBUG: SAP:sta löytyi nimikkeitä: {len(stocks)}")
+
+# --- SUODATA VAIN DATA.TXT:N NIMIKKEET ---
 filtered_stocks = {m: q for m, q in stocks.items() if m in valid_materials}
+
+print(f"DEBUG: Suodatettuja nimikkeitä: {len(filtered_stocks)}")
 
 print("=== PARSED & FILTERED STOCKS ===")
 for material, qty in filtered_stocks.items():
