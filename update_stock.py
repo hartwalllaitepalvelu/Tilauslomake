@@ -56,3 +56,5 @@ for material, qty in filtered_stocks.items():
     print(material, qty)
 
 print("DEBUG: Parser finished OK")
+print("DEBUG: SAP materials:", list(stocks.keys()))
+print("DEBUG: data.txt materials:", valid_materials)
