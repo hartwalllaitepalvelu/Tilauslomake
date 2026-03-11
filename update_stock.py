@@ -2,21 +2,39 @@ import pandas as pd
 
 print("DEBUG: start")
 
-# --- LUE EXCEL JUURESTA ---
-df = pd.read_excel("Book1.xlsx", header=None)
+# Lue Excel yhtenä sarakkeena
+raw = pd.read_excel("Book1.xlsx", header=None)
 
-# Asetetaan sarakeotsikot manuaalisesti
-df.columns = ["Material", "Material Description", "Unrestricted", "Unit"]
+# Poista tyhjät rivit
+raw = raw.dropna().reset_index(drop=True)
 
-# Poistetaan otsikkorivi datasta
-df = df[1:]
+print("DEBUG: Excel-rivejä:", len(raw))
 
-# Varmistetaan, että materiaalinumero on merkkijono
-df["Material"] = df["Material"].astype(str).str.strip()
+# Joka 4 rivi muodostaa yhden tuotteen
+materials = []
+descriptions = []
+quantities = []
+units = []
 
-print("DEBUG: Excel-rivejä:", len(df))
+for i in range(0, len(raw), 4):
+    try:
+        materials.append(str(raw.iloc[i, 0]).strip())
+        descriptions.append(str(raw.iloc[i+1, 0]).strip())
+        quantities.append(str(raw.iloc[i+2, 0]).strip())
+        units.append(str(raw.iloc[i+3, 0]).strip())
+    except:
+        pass
 
-# --- LUE DATA.TXT JUURESTA ---
+df = pd.DataFrame({
+    "Material": materials,
+    "Material Description": descriptions,
+    "Unrestricted": quantities,
+    "Unit": units
+})
+
+print("DEBUG: Muodostettuja rivejä:", len(df))
+
+# Lue data.txt
 valid_materials = set()
 
 with open("data.txt", "r", encoding="utf-8") as f:
@@ -24,19 +42,18 @@ with open("data.txt", "r", encoding="utf-8") as f:
         line = line.strip()
         if not line:
             continue
-
         first = line.split()[0]
         if first.isdigit():
             valid_materials.add(first)
 
 print("DEBUG: data.txt nimikkeitä:", len(valid_materials))
 
-# --- SUODATA EXCELIN RIVIT ---
+# Suodata
 filtered = df[df["Material"].isin(valid_materials)]
 
 print("DEBUG: Suodatettuja rivejä:", len(filtered))
 
-# --- TULOSTA TULOS ---
+# Tulosta
 print("=== FILTERED RESULTS ===")
 for _, row in filtered.iterrows():
     print(row["Material"], row["Unrestricted"], row["Unit"])
