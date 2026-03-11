@@ -147,8 +147,33 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
     box-shadow:0 4px 10px rgba(0,0,0,0.25);
 }
 
-@media (max-width: 600px) {
+/* Takaisin ylös -nappi */
+#scrollTopBtn {
+    position:fixed;
+    bottom:30px;
+    right:20px;
+    background:var(--hw-blue);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    display:none;
+    z-index:3500;
+    box-shadow:0 4px 10px rgba(0,0,0,0.25);
+    transition:opacity 0.3s;
+}
+
+#scrollTopBtn.show {
+    display:block;
+    opacity:1;
+}
+
+@media (max-width:600px) {
     #toggleCart { display:block; }
+    #scrollTopBtn { bottom:150px; }
     .main-wrapper { flex-direction:column; }
     .sidebar {
         width:100%;
@@ -177,6 +202,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 </div>
 
 <button id="toggleCart" onclick="toggleCart()">Näytä ostoskori</button>
+<button id="scrollTopBtn" onclick="scrollToTop()">▲ Ylös</button>
 
 <div class="main-wrapper">
 
@@ -275,7 +301,6 @@ function parseData(text) {
         const parts = trimmed.split(" ");
         const first = parts[0];
 
-        // Tuote = jos ensimmäisessä sanassa on numeroita
         const isItem = /\d/.test(first);
 
         if (!isItem) {
@@ -445,6 +470,19 @@ function toggleCart() {
     document.querySelector(".sidebar").classList.toggle("open");
 }
 
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+window.addEventListener("scroll", () => {
+    const btn = document.getElementById("scrollTopBtn");
+    if (window.scrollY > 300) {
+        btn.classList.add("show");
+    } else {
+        btn.classList.remove("show");
+    }
+});
+
 function finalSubmit() {
     const items = Object.values(cart)
         .map(i => `${i.code} ${i.name} x ${i.qty}`)
@@ -466,18 +504,4 @@ Päivä: ${pvm}
 Toimitustapa: ${toimitus}
 Osoite: ${osoite}
 Postinumero: ${posti}
-Paikkakunta: ${paikka}
-Lisätiedot: ${lisatiedot}
-
-TILAUS:
-${items}`;
-
-    window.location.href =
-        `mailto:tomi.eskola@hartwall.fi?subject=Varaosatilaus&body=${encodeURIComponent(body)}`;
-}
-
-loadData();
-</script>
-
-</body>
-</html>
+Paikkak
