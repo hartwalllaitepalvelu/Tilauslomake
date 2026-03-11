@@ -15,9 +15,8 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Parse SAP report
-        run: |
-          echo "=== DEBUG: Näytetään sap_report.txt ==="
-          cat sap_report.txt
-          echo "=== DEBUG: Ajetaan parseri ==="
-          python update_stock.py
+      - name: Install dependencies
+        run: pip install pandas openpyxl
+
+      - name: Run stock update
+        run: python update_stock.py
