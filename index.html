@@ -82,7 +82,28 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .category-block { margin-top:35px; scroll-margin-top:200px; }
 .category-name { background:var(--hw-blue); color:white; padding:12px 15px; border-radius:8px; font-weight:bold; text-transform:uppercase; }
 
-.product-item { display:grid; grid-template-columns:1fr auto; padding:15px; border-bottom:1px solid #eee; background:white; }
+.product-item {
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:12px;
+    padding:15px;
+    border-bottom:1px solid #eee;
+    background:white;
+}
+
+.product-thumb {
+    width:40px;
+    height:40px;
+    object-fit:cover;
+    border-radius:6px;
+    cursor:pointer;
+    display:none;
+}
+
+@media (max-width:600px) {
+    .product-thumb { display:none !important; }
+}
+
 .product-info { display:flex; flex-direction:column; gap:3px; }
 .product-name { font-weight:600; cursor:pointer; color:var(--hw-blue); text-decoration:underline; }
 .product-code { font-size:12px; color:#666; }
@@ -172,8 +193,8 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 }
 
 @media (max-width:600px) {
-    #toggleCart { display:block; }
     #scrollTopBtn { bottom:150px; }
+    #toggleCart { display:block; }
     .main-wrapper { flex-direction:column; }
     .sidebar {
         width:100%;
@@ -348,6 +369,8 @@ function render(filter = "") {
             row.className = "product-item";
 
             row.innerHTML = `
+                <img class="product-thumb" id="thumb_${p.code}" onclick="openImage('${p.code}')">
+
                 <div class="product-info">
                     <div class="product-name" onclick="openImage('${p.code}')">${p.name}</div>
                     <div class="product-code">${p.code}</div>
@@ -366,6 +389,22 @@ function render(filter = "") {
         });
 
         container.appendChild(block);
+
+        // Lataa thumbnailit vain desktopissa
+        if (window.innerWidth > 600) {
+            products.forEach(p => {
+                const img = document.getElementById("thumb_" + p.code);
+                const url = `images/${p.code}.png`;
+
+                fetch(url, { method: "HEAD" })
+                    .then(res => {
+                        if (res.ok) {
+                            img.src = url;
+                            img.style.display = "block";
+                        }
+                    });
+            });
+        }
     });
 }
 
@@ -484,24 +523,3 @@ window.addEventListener("scroll", () => {
 });
 
 function finalSubmit() {
-    const items = Object.values(cart)
-        .map(i => `${i.code} ${i.name} x ${i.qty}`)
-        .join("\n");
-
-    const tilaaja = document.getElementById("f_tilaaja").value;
-    const varasto = document.getElementById("f_varasto").value;
-    const pvm = document.getElementById("f_pvm").value;
-    const toimitus = document.getElementById("f_toimitus").value;
-    const osoite = document.getElementById("f_osoite").value;
-    const posti = document.getElementById("f_postinumero").value;
-    const paikka = document.getElementById("f_paikkakunta").value;
-    const lisatiedot = document.getElementById("f_lisatiedot").value;
-
-    const body =
-`Tilaaja: ${tilaaja}
-Varasto: ${varasto}
-Päivä: ${pvm}
-Toimitustapa: ${toimitus}
-Osoite: ${osoite}
-Postinumero: ${posti}
-Paikkak
