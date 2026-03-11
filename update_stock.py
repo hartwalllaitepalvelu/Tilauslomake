@@ -2,7 +2,10 @@ import re
 
 print("DEBUG: start")
 
-# --- LUE DATA.TXT: POIMI MATERIAALINUMEROT ---
+def extract_digits(s):
+    return "".join(c for c in s if c.isdigit())
+
+# --- LUE DATA.TXT ---
 valid_materials = set()
 
 with open("data.txt", "r", encoding="utf-8") as f:
@@ -12,19 +15,16 @@ with open("data.txt", "r", encoding="utf-8") as f:
             continue
 
         first = line.split()[0]
-        if first[0].isdigit():
-            valid_materials.add(first)
+        code = extract_digits(first)
 
-print("DEBUG: data.txt nimikkeitä:", len(valid_materials))
+        if code:
+            valid_materials.add(code)
 
-# --- PARSE SAP-RAPORTTI ---
+print("DEBUG: data.txt materiaalinumeroita:", len(valid_materials))
+
+# --- PARSE SAP ---
 stocks = {}
 current_material = None
-
-# rivi, jossa on materiaalinumero + kuvaus (materiaalinumero = ensimmäinen "sana", jossa on numeroita)
-material_re = re.compile(r"^\s*(\d+)\s+")
-# rivi, jossa on määrä + yksikkö (ST tai SHT)
-qty_re = re.compile(r"^\s*([\d.,]+)\s+(ST|SHT)\s*$")
 
 with open("sap_report.txt", "r", encoding="latin-1") as f:
     for raw in f:
@@ -33,30 +33,33 @@ with open("sap_report.txt", "r", encoding="latin-1") as f:
         if not line.strip():
             continue
 
-        m_mat = material_re.match(line)
-        if m_mat:
-            current_material = m_mat.group(1)
+        parts = line.split()
+
+        # Materiaalinumero = ensimmäinen sana, jossa on numeroita
+        if parts and any(ch.isdigit() for ch in parts[0]):
+            current_material = extract_digits(parts[0])
             continue
 
-        m_qty = qty_re.match(line)
-        if m_qty and current_material:
-            qty_str = m_qty.group(1).replace(",", ".")
+        # Määrärivi
+        if len(parts) >= 2 and parts[-1] in ("ST", "SHT"):
+            qty_str = parts[-2].replace(",", ".")
             try:
                 qty = float(qty_str)
-                stocks[current_material] = qty
-            except ValueError:
+                if current_material:
+                    stocks[current_material] = qty
+            except:
                 pass
             current_material = None
 
 print("DEBUG: SAP:sta parsittuja nimikkeitä:", len(stocks))
 
-# --- LEIKKAUS: MITKÄ OVAT MOLEMMISSA? ---
-common = set(stocks.keys()) & valid_materials
-print("DEBUG: Yhteisiä nimikkeitä:", len(common))
+# --- SUODATA ---
+filtered = {m: q for m, q in stocks.items() if m in valid_materials}
 
-# --- TULOSTA VAIN YHTEISET ---
-print("=== FILTERED (vain molemmissa olevat) ===")
-for material in sorted(common):
-    print(material, stocks[material])
+print("DEBUG: Suodatettuja nimikkeitä:", len(filtered))
+
+print("=== FILTERED ===")
+for m, q in filtered.items():
+    print(m, q)
 
 print("DEBUG: done")
