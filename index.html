@@ -523,3 +523,38 @@ window.addEventListener("scroll", () => {
 });
 
 function finalSubmit() {
+    const items = Object.values(cart)
+        .map(i => `${i.code} ${i.name} x ${i.qty}`)
+        .join("\n");
+
+    const tilaaja = document.getElementById("f_tilaaja").value;
+    const varasto = document.getElementById("f_varasto").value;
+    const pvm = document.getElementById("f_pvm").value;
+    const toimitus = document.getElementById("f_toimitus").value;
+    const osoite = document.getElementById("f_osoite").value;
+    const posti = document.getElementById("f_postinumero").value;
+    const paikka = document.getElementById("f_paikkakunta").value;
+    const lisatiedot = document.getElementById("f_lisatiedot").value;
+
+    const body =
+`Tilaaja: ${tilaaja}
+Varasto: ${varasto}
+Päivä: ${pvm}
+Toimitustapa: ${toimitus}
+Osoite: ${osoite}
+Postinumero: ${posti}
+Paikkakunta: ${paikka}
+Lisätiedot: ${lisatiedot}
+
+TILAUS:
+${items}`;
+
+    window.location.href =
+        `mailto:tomi.eskola@hartwall.fi?subject=Varaosatilaus&body=${encodeURIComponent(body)}`;
+}
+
+loadData();
+</script>
+
+</body>
+</html>
