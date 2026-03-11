@@ -1,6 +1,6 @@
 import re
 
-with open("sap_report.txt", "r", encoding="utf-8") as f:
+with open("sap_report.txt", "r", encoding="latin-1") as f:
     lines = f.readlines()
 
 stocks = {}
