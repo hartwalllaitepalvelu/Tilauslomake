@@ -2,11 +2,12 @@ import re
 
 print("DEBUG: Python start OK")
 
-# --- FUNKTIO: PUHDISTA KOODI ---
+# --- PUHDISTA KOODI ---
 def clean_code(code):
+    # Poista kaikki merkit, jotka eivät ole A-Z tai 0-9
     return re.sub(r"[^A-Za-z0-9]", "", code)
 
-# --- LUE DATA.TXT JA POIMI SALLITUT MATERIAALINUMEROT ---
+# --- LUE DATA.TXT JA POIMI MATERIAALINUMEROT ---
 valid_materials = set()
 
 with open("data.txt", "r", encoding="utf-8") as f:
@@ -21,17 +22,11 @@ with open("data.txt", "r", encoding="utf-8") as f:
         if cleaned:
             valid_materials.add(cleaned)
 
-print(f"DEBUG: data.txt materiaalinumeroita: {len(valid_materials)}")
+print("DEBUG: data.txt materiaalinumeroita:", len(valid_materials))
 
 # --- PARSE SAP-RAPORTTI ---
 stocks = {}
 current_material = None
-
-# Materiaalinumero: sisennetty, 5–6 numeroa tai kirjain+numeroita
-material_regex = re.compile(r"^\s*([A-Za-z]?\d{5,6})\s+")
-
-# Määrä: sisennetty, numero + ST/SHT
-qty_regex = re.compile(r"^\s*([\d\.]+)\s+(ST|SHT)\s*$")
 
 with open("sap_report.txt", "r", encoding="latin-1") as f:
     for raw in f:
@@ -40,25 +35,31 @@ with open("sap_report.txt", "r", encoding="latin-1") as f:
         if not line.strip():
             continue
 
-        # Etsi materiaalinumero
-        mat = material_regex.match(line)
-        if mat:
-            current_material = clean_code(mat.group(1))
+        parts = line.split()
+
+        # Jos rivin ensimmäinen "sana" sisältää numeroita → se on materiaalinumero
+        if len(parts) >= 1 and any(c.isdigit() for c in parts[0]):
+            cleaned = clean_code(parts[0])
+            if cleaned:
+                current_material = cleaned
             continue
 
-        # Etsi määrä
-        qty = qty_regex.match(line)
-        if qty and current_material:
-            amount = float(qty.group(1))
-            stocks[current_material] = amount
-            current_material = None
+        # Jos rivillä on määrä + yksikkö
+        if len(parts) >= 2 and (parts[-1] in ("ST", "SHT")):
+            try:
+                qty = float(parts[-2].replace(",", "."))
+                if current_material:
+                    stocks[current_material] = qty
+                current_material = None
+            except:
+                pass
 
-print(f"DEBUG: SAP:sta löytyi nimikkeitä: {len(stocks)}")
+print("DEBUG: SAP:sta löytyi nimikkeitä:", len(stocks))
 
 # --- SUODATA ---
 filtered_stocks = {m: q for m, q in stocks.items() if m in valid_materials}
 
-print(f"DEBUG: Suodatettuja nimikkeitä: {len(filtered_stocks)}")
+print("DEBUG: Suodatettuja nimikkeitä:", len(filtered_stocks))
 
 print("=== PARSED & FILTERED STOCKS ===")
 for material, qty in filtered_stocks.items():
