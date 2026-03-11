@@ -17,16 +17,18 @@ try:
             if not line:
                 continue
 
-            # Jos rivi EI ala materiaalinumerolla → se on kategoria
-            if not re.match(r"^[A-Z]?\d{5}", line):
-                current_category = line
-                categories[current_category] = []
+            first = line.split()[0]
+
+            # Jos ensimmäinen sana on materiaalinumero → nimike
+            if re.match(r"^[A-Z]?\d{5,6}$", first):
+                material = first
+                if current_category:
+                    categories[current_category].append(material)
                 continue
 
-            # Muuten rivi on nimike → lisää se nykyiseen kategoriaan
-            material = line.split()[0]
-            if current_category:
-                categories[current_category].append(material)
+            # Muuten → kategoria
+            current_category = line
+            categories[current_category] = []
 
 except FileNotFoundError:
     print("ERROR: data.txt puuttuu!")
