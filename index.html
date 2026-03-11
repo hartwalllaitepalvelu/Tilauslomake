@@ -12,6 +12,64 @@ body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-siz
 .main-wrapper { display:flex; max-width:1550px; margin:0 auto; gap:20px; padding:15px; align-items:flex-start; }
 .content-area { flex:1; min-width:0; }
 
+/* ------------------------------
+   UUSI, PAREMPI LOMAKETYyLI
+------------------------------*/
+.form-box {
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    border:2px solid var(--hw-blue);
+    margin-bottom:20px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.08);
+}
+
+.form-box h2 {
+    margin-top:0;
+    color:var(--hw-blue);
+    font-size:22px;
+    font-weight:700;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.form-row {
+    display:flex;
+    flex-direction:column;
+    margin-bottom:18px;
+}
+
+.form-row label {
+    font-weight:600;
+    margin-bottom:6px;
+    color:#003366;
+    font-size:15px;
+}
+
+.form-row input,
+.form-row textarea {
+    padding:14px 16px;
+    font-size:16px;
+    border:2px solid #cfd6e3;
+    border-radius:10px;
+    background:#f8faff;
+    transition:0.2s;
+}
+
+.form-row input:focus,
+.form-row textarea:focus {
+    outline:none;
+    border-color:var(--hw-blue);
+    background:white;
+    box-shadow:0 0 0 3px rgba(0,69,147,0.15);
+}
+
+.form-row textarea {
+    resize:vertical;
+}
+
+/* ------------------------------ */
+
 header { background:white; padding:15px; border-radius:12px; border-bottom:4px solid var(--hw-blue);
          text-align:center; margin-bottom:15px; position:sticky; top:0; z-index:1000;
          box-shadow:0 2px 10px rgba(0,0,0,0.05); }
@@ -43,9 +101,6 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .basket-main { display:flex; flex-direction:column; font-size:12px; }
 .basket-line1 { font-weight:600; }
 .basket-line2 { color:#666; }
-
-.delete-btn { color:#dc3545; cursor:pointer; font-weight:bold; font-size:18px; border:none; background:none; padding:0 5px; }
-.delete-btn:hover { color:#a71d2a; }
 
 .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px;
             font-size:18px; font-weight:bold; cursor:pointer; }
