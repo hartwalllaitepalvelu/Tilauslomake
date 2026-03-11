@@ -1171,17 +1171,33 @@ function parseData() {
     let current = null;
 
     lines.forEach(line => {
-        if (!line.trim()) return;
+        const trimmed = line.trim();
+        if (!trimmed) return;
 
-        if (isNaN(line.trim().split(" ")[0])) {
-            current = line.trim();
-            categories[current] = [];
+        const parts = trimmed.split(" ");
+        const first = parts[0];
+
+        // Tuote = jos ensimmäisessä sanassa on numeroita
+        const isItem = /\d/.test(first);
+
+        if (!isItem) {
+            // KATEGORIA
+            current = trimmed;
+            if (!categories[current]) categories[current] = [];
         } else {
-            const [code, ...nameParts] = line.trim().split(" ");
-            const name = nameParts.join(" ");
+            // TUOTE
+            if (!current) return;
+            const code = first;
+            const name = parts.slice(1).join(" ");
             categories[current].push({ code, name });
         }
     });
+
+    return categories;
+}    });
+
+    return categories;
+}    });
 
     return categories;
 }
