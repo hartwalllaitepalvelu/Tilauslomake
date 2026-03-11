@@ -84,24 +84,21 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 
 .product-item {
     display:grid;
-    grid-template-columns:auto 1fr auto;
+    grid-template-columns:40px 1fr auto;
     gap:12px;
     padding:15px;
     border-bottom:1px solid #eee;
     background:white;
 }
 
+/* Thumbnail placeholder always takes space */
 .product-thumb {
     width:40px;
     height:40px;
     object-fit:cover;
     border-radius:6px;
     cursor:pointer;
-    display:none;
-}
-
-@media (max-width:600px) {
-    .product-thumb { display:none !important; }
+    opacity:0; /* invisible by default but keeps layout aligned */
 }
 
 .product-info { display:flex; flex-direction:column; gap:3px; }
@@ -213,7 +210,6 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 }
 </style>
 </head>
-
 <body>
 
 <!-- MODAALI -->
@@ -297,7 +293,6 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
     </div>
 
 </div>
-
 <script>
 let data = {};
 let cart = {};
@@ -390,24 +385,25 @@ function render(filter = "") {
 
         container.appendChild(block);
 
-        // Lataa thumbnailit vain desktopissa
-        if (window.innerWidth > 600) {
-            products.forEach(p => {
-                const img = document.getElementById("thumb_" + p.code);
-                const url = `images/${p.code}.png`;
+        // 🔵 Lataa thumbnailit kaikille laitteille
+        products.forEach(p => {
+            const img = document.getElementById("thumb_" + p.code);
+            const url = `images/${p.code}.png`;
 
-                fetch(url, { method: "HEAD" })
-                    .then(res => {
-                        if (res.ok) {
-                            img.src = url;
-                            img.style.display = "block";
-                        }
-                    });
-            });
-        }
+            fetch(url, { method: "HEAD" })
+                .then(res => {
+                    if (res.ok) {
+                        img.src = url;
+                        img.style.opacity = "1";   // näkyvä
+                        img.style.cursor = "pointer";
+                    } else {
+                        img.style.opacity = "0";   // näkymätön placeholder
+                        img.style.cursor = "default";
+                    }
+                });
+        });
     });
 }
-
 function jumpTo(cat) {
     if (!cat) return;
     document.getElementById(cat).scrollIntoView({ behavior: "smooth" });
