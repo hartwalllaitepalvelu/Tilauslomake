@@ -1,32 +1,23 @@
-import re
+name: Update Stock
 
-# SAP-raportit ovat yleensä Latin-1 / ISO-8859-1
-with open("sap_report.txt", "r", encoding="latin-1") as f:
-    lines = f.readlines()
+on:
+  workflow_dispatch:
 
-stocks = {}
-current_material = None
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-material_line_regex = re.compile(r"\|(\d{5})\s")
-qty_line_regex = re.compile(r"\|\s*01\s+([\d\.,]+)\s+ST")
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-for line in lines:
-    m = material_line_regex.search(line)
-    if m:
-        current_material = m.group(1)
-        continue
-
-    if current_material:
-        q = qty_line_regex.search(line)
-        if q:
-            qty_str = q.group(1).replace(".", "").replace(",", ".")
-            try:
-                qty = float(qty_str)
-            except ValueError:
-                qty = 0
-            stocks[current_material] = qty
-            current_material = None
-
-print("Parsed stocks:")
-for k, v in stocks.items():
-    print(k, v)
+      - name: Parse SAP report
+        run: |
+          echo "=== DEBUG: Näytetään sap_report.txt ==="
+          cat sap_report.txt
+          echo "=== DEBUG: Ajetaan parseri ==="
+          python update_stock.py
