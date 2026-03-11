@@ -10,6 +10,13 @@ with open("sap_report.txt", "r", encoding="latin-1") as f:
 categories = {}
 current_category = None
 
+# Regex materiaalinumerolle:
+# 10029
+# T49212
+# V02387
+# 272229
+material_number_regex = re.compile(r"^[A-Z]?\d{5,6}$")
+
 try:
     with open("data.txt", "r", encoding="utf-8") as f:
         for line in f:
@@ -17,10 +24,11 @@ try:
             if not line:
                 continue
 
-            first = line.split()[0]
+            parts = line.split()
+            first = parts[0]
 
             # Jos ensimmäinen sana on materiaalinumero → nimike
-            if re.match(r"^[A-Z]?\d{5,6}$", first):
+            if material_number_regex.match(first):
                 material = first
                 if current_category:
                     categories[current_category].append(material)
@@ -43,21 +51,27 @@ print(f"DEBUG: Sallittuja nimikkeitä: {len(valid_materials)}")
 stocks = {}
 current_material = None
 
+# Nimikerivi: |10029  POST-MIX...
 material_line_regex = re.compile(r"^\|(\w{5,6})\s{2,}")
+
+# Määrärivi: |      2  ST
 qty_line_regex = re.compile(r"^\|\s*([\d\.]+)\s+ST")
 
 for line in lines:
     line = line.rstrip("\n")
 
+    # Ohita viivarivit
     if line.startswith("-"):
         current_material = None
         continue
 
+    # Nimikerivi
     mat_match = material_line_regex.match(line)
     if mat_match:
         current_material = mat_match.group(1)
         continue
 
+    # Määrärivi
     qty_match = qty_line_regex.match(line)
     if qty_match and current_material:
         qty = qty_match.group(1)
