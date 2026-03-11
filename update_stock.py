@@ -3,7 +3,13 @@ import pandas as pd
 print("DEBUG: start")
 
 # --- LUE EXCEL JUURESTA ---
-df = pd.read_excel("Book1.xlsx")
+df = pd.read_excel("Book1.xlsx", header=None)
+
+# Asetetaan sarakeotsikot manuaalisesti
+df.columns = ["Material", "Material Description", "Unrestricted", "Unit"]
+
+# Poistetaan otsikkorivi datasta
+df = df[1:]
 
 # Varmistetaan, että materiaalinumero on merkkijono
 df["Material"] = df["Material"].astype(str).str.strip()
