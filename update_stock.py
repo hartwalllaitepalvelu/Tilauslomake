@@ -6,42 +6,44 @@ print("DEBUG: Python start OK")
 with open("sap_report.txt", "r", encoding="latin-1") as f:
     lines = f.readlines()
 
-# --- LUE DATA.TXT JA POIMI SALLITUT MATERIAALIT ---
+# --- LUE DATA.TXT JA POIMI SALLITUT MATERIAALINUMEROT ---
 valid_materials = set()
 
 material_number_regex = re.compile(r"^[A-Z]?\d{5,6}$")
 
 try:
     with open("data.txt", "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
+        for raw in f:
+            line = raw.strip()
+
             if not line:
                 continue
 
-            parts = line.split()
-            first = parts[0]
+            # Ota ensimmäinen sana
+            first = line.split()[0].strip()
 
-            # Jos ensimmäinen sana näyttää materiaalinumerolta → lisää sallittuihin
+            # Poista kaikki näkymättömät merkit
+            first = first.replace("\u200b", "").replace("\ufeff", "").strip()
+
+            # Jos näyttää materiaalinumerolta → lisää sallittuihin
             if material_number_regex.match(first):
                 valid_materials.add(first)
 
 except FileNotFoundError:
     print("ERROR: data.txt puuttuu!")
 
-print(f"DEBUG: Sallittuja nimikkeitä data.txt:stä: {len(valid_materials)}")
+print(f"DEBUG: data.txt materiaalinumeroita: {len(valid_materials)}")
+print(f"DEBUG: valid_materials: {sorted(valid_materials)}")
 
 # --- PARSE SAP-RAPORTTI ---
 stocks = {}
 current_material = None
 
-# Nimikerivi: |10029  POST-MIX...
 material_line_regex = re.compile(r"^\|(\w{5,6})\s{2,}")
-
-# Määrärivi: |      2  ST
 qty_line_regex = re.compile(r"^\|\s*([\d\.]+)\s+ST")
 
-for line in lines:
-    line = line.rstrip("\n")
+for raw in lines:
+    line = raw.rstrip("\n")
 
     # Ohita viivarivit
     if line.startswith("-"):
@@ -51,7 +53,7 @@ for line in lines:
     # Nimikerivi
     mat_match = material_line_regex.match(line)
     if mat_match:
-        current_material = mat_match.group(1)
+        current_material = mat_match.group(1).strip()
         continue
 
     # Määrärivi
@@ -66,8 +68,12 @@ for line in lines:
 
 print(f"DEBUG: SAP:sta löytyi nimikkeitä: {len(stocks)}")
 
-# --- SUODATA VAIN DATA.TXT:N NIMIKKEET ---
-filtered_stocks = {m: q for m, q in stocks.items() if m in valid_materials}
+# --- SUODATA VAIN DATA.TXT:N MATERIAALIT ---
+filtered_stocks = {}
+
+for material, qty in stocks.items():
+    if material.strip() in valid_materials:
+        filtered_stocks[material] = qty
 
 print(f"DEBUG: Suodatettuja nimikkeitä: {len(filtered_stocks)}")
 
