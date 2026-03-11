@@ -6,8 +6,8 @@ with open("sap_report.txt", "r", encoding="latin-1") as f:
 stocks = {}
 current_material = None
 
-material_line_regex = re.compile(r"\|(\d{5})\s")
-qty_line_regex = re.compile(r"\|\s*01\s+([\d\.,]+)\s+ST")
+material_line_regex = re.compile(r"^\|[TV]?\d{5}\s{2,}")
+qty_line_regex = re.compile(r"^\|01\s+([\d\.,]+)\s+ST")
 
 for line in lines:
     m = material_line_regex.search(line)
