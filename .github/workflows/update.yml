@@ -16,5 +16,8 @@ jobs:
           python-version: '3.10'
 
       - name: Parse SAP report
-        run: |
-          python update_stock.py
+       run: |
+  echo "=== DEBUG: Näytetään sap_report.txt ==="
+  cat sap_report.txt
+  echo "=== DEBUG: Ajetaan parseri ==="
+  python update_stock.py
