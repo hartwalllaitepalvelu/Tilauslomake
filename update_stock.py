@@ -2,7 +2,7 @@ import re
 
 print("DEBUG: start")
 
-# --- LUE DATA.TXT: POIMI MATERIAALINUMEROT (ENSIMMÄINEN SANA, JOS NUMEROIN ALKAVA) ---
+# --- LUE DATA.TXT: POIMI MATERIAALINUMEROT ---
 valid_materials = set()
 
 with open("data.txt", "r", encoding="utf-8") as f:
@@ -12,7 +12,6 @@ with open("data.txt", "r", encoding="utf-8") as f:
             continue
 
         first = line.split()[0]
-        # jos ensimmäinen merkki on numero → materiaalirivi
         if first[0].isdigit():
             valid_materials.add(first)
 
@@ -22,8 +21,8 @@ print("DEBUG: data.txt nimikkeitä:", len(valid_materials))
 stocks = {}
 current_material = None
 
-# rivi, jossa on materiaalinumero + kuvaus
-material_re = re.compile(r"^\s*(\d{5})\s+")
+# rivi, jossa on materiaalinumero + kuvaus (materiaalinumero = ensimmäinen "sana", jossa on numeroita)
+material_re = re.compile(r"^\s*(\d+)\s+")
 # rivi, jossa on määrä + yksikkö (ST tai SHT)
 qty_re = re.compile(r"^\s*([\d.,]+)\s+(ST|SHT)\s*$")
 
@@ -51,16 +50,13 @@ with open("sap_report.txt", "r", encoding="latin-1") as f:
 
 print("DEBUG: SAP:sta parsittuja nimikkeitä:", len(stocks))
 
-# --- SUODATUS: VAIN NE, JOTKA OVAT data.txt:SSÄ ---
-filtered_stocks = {
-    m: q for m, q in stocks.items()
-    if m in valid_materials
-}
+# --- LEIKKAUS: MITKÄ OVAT MOLEMMISSA? ---
+common = set(stocks.keys()) & valid_materials
+print("DEBUG: Yhteisiä nimikkeitä:", len(common))
 
-print("DEBUG: Suodatettuja nimikkeitä:", len(filtered_stocks))
-
-print("=== PARSED & FILTERED STOCKS ===")
-for material, qty in filtered_stocks.items():
-    print(material, qty)
+# --- TULOSTA VAIN YHTEISET ---
+print("=== FILTERED (vain molemmissa olevat) ===")
+for material in sorted(common):
+    print(material, stocks[material])
 
 print("DEBUG: done")
