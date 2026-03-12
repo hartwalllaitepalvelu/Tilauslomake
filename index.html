@@ -433,6 +433,16 @@ document.getElementById("relatedClose").onclick = () => document.getElementById(
 function jumpTo(cat) { if (cat) document.getElementById(cat).scrollIntoView({ behavior: "smooth" }); }
 function openImage(code) { document.getElementById("modalImage").src = `images/${code}.png`; document.getElementById("imgModal").style.display = "flex"; }
 document.getElementById("closeModal").onclick = () => document.getElementById("imgModal").style.display = "none";
+
+// --- TÄMÄ ON UUSI LISÄYS ---
+document.getElementById("imgModal").onclick = function(event) {
+    if (event.target === this) {
+        this.style.display = "none";
+    }
+};
+// ---------------------------
+
+function toggleCart() { document.querySelector(".sidebar").classList.toggle("open"); }document.getElementById("closeModal").onclick = () => document.getElementById("imgModal").style.display = "none";
 function toggleCart() { document.querySelector(".sidebar").classList.toggle("open"); }
 function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
 
