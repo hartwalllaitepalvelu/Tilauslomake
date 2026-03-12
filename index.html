@@ -452,7 +452,7 @@ function render(filter = "") {
     /* ASENNUSPAKETIT-KATEGORIA */
     const pkgBlock = document.createElement("div");
     pkgBlock.className = "category-block";
-    pkgBlock.id = "ASENNUSPAKETIT";
+    pkgBlock.id = "ASENNUSPAKETIT`;
 
     const pkgTitle = document.createElement("div");
     pkgTitle.className = "category-name";
@@ -575,7 +575,7 @@ function findName(code) {
 function togglePackage(name) {
     const box = document.getElementById("pkg_" + name);
     if (!box) return;
-    box.style.display = (box.style.display === "none" or box.style.display === "") ? "block" : "none";
+    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
 }
 
 /* PAKETIN LISÄYS KORIIN */
@@ -707,8 +707,6 @@ function finalSubmit() {
 
     const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
 
-    // 🔵 RAKENNETAAN KERÄILYLISTA
-
     let longestCode = 0;
     let longestName = 0;
 
@@ -773,7 +771,6 @@ ${list}
         `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }   // finalSubmit päättyy tähän
 
-// 🔵 VAIHE 1: Viivakoodifunktio
 function generateBarcodeBase64(code) {
     const canvas = document.createElement("canvas");
     JsBarcode(canvas, code, {
