@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hartwall Varaosatilaus</title>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
 <style>
 :root { --hw-blue:#004593; --hw-light:#eef4fb; --hw-green:#28a745; --sidebar:380px; }
 body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-size:14px; color:#333; padding-bottom:120px; }
@@ -445,7 +445,7 @@ function render(filter = "") {
             html += `${item.code} × ${item.qty} — ${findName(item.code)}<br>`;
         });
 
-        html += `<br><button onclick="event.stopPropagation(); addPackage('${pkg}')" 
+        html += `<br><button onclick="event.stopPropagation(); addPackage('${pkg}')"
                     style="margin-top:10px; padding:10px 15px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;">
                     Lisää paketti koriin
                  </button>`;
@@ -666,7 +666,7 @@ function finalSubmit() {
 
     const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
 
-    // 🔵 RAKENNETAAN KERÄILYLISTA
+    // KERÄILYLISTA
 
     let longestCode = 0;
     let longestName = 0;
@@ -679,9 +679,12 @@ function finalSubmit() {
     longestCode += 2;
     const maxNameLength = 40;
 
+    const okWidth = 7;
+    const jtWidth = 7;
+
     let list = "";
     list += "========================= KERÄILYLISTA =========================\n";
-    list += `Nro | ${"Nimike".padEnd(longestCode)} | ${"Nimi".padEnd(maxNameLength)} | Määrä\n`;
+    list += `Nro | ${"Koodi".padEnd(longestCode)} | ${"Nimi".padEnd(maxNameLength)} | Määrä | ${"OK".padStart(Math.floor((okWidth+2)/2)).padEnd(okWidth)} | ${"JT".padStart(Math.floor((jtWidth+2)/2)).padEnd(jtWidth)}\n`;
     list += "-----------------------------------------------------------------\n";
 
     let index = 1;
@@ -700,12 +703,11 @@ function finalSubmit() {
         nameLines.push(name);
 
         const qty = String(i.qty).padEnd(5, " ");
-        const barcode = generateBarcodeBase64(i.code);
 
-        list += `${nro} | ${code} | ${nameLines[0].padEnd(maxNameLength)} | ${qty}\n`;
+        list += `${nro} | ${code} | ${nameLines[0].padEnd(maxNameLength)} | ${qty} | ${"[   ]".padEnd(okWidth)} | ${"[   ]".padEnd(jtWidth)}\n`;
 
         for (let j = 1; j < nameLines.length; j++) {
-       list += `   | ${" ".repeat(longestCode)} | ${nameLines[j].padEnd(maxNameLength)} |\n`;
+            list += `   | ${" ".repeat(longestCode)} | ${nameLines[j].padEnd(maxNameLength)} |       | ${"[   ]".padEnd(okWidth)} | ${"[   ]".padEnd(jtWidth)}\n`;
         }
 
         index++;
@@ -730,18 +732,6 @@ ${list}
 
     window.location.href =
         `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}   <!-- finalSubmit päättyy tähän -->
-
-// 🔵 VAIHE 1: Viivakoodifunktio
-function generateBarcodeBase64(code) {
-    const canvas = document.createElement("canvas");
-    JsBarcode(canvas, code, {
-        format: "CODE128",
-        width: 2,
-        height: 40,
-        displayValue: false
-    });
-    return canvas.toDataURL("image/png");
 }
 
 /* KÄYNNISTYS */
