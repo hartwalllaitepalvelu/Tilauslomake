@@ -13,7 +13,7 @@ body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-siz
 .content-area { flex:1; min-width:0; }
 
 /* ------------------------------
-   UUSI, PAREMPI LOMAKETYYLI
+   LOMAKETYyLI
 ------------------------------*/
 .form-box {
     background:white;
@@ -33,18 +33,8 @@ body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-siz
     margin-bottom:20px;
 }
 
-.form-row {
-    display:flex;
-    flex-direction:column;
-    margin-bottom:18px;
-}
-
-.form-row label {
-    font-weight:600;
-    margin-bottom:6px;
-    color:#003366;
-    font-size:15px;
-}
+.form-row { display:flex; flex-direction:column; margin-bottom:18px; }
+.form-row label { font-weight:600; margin-bottom:6px; color:#003366; font-size:15px; }
 
 .form-row input,
 .form-row textarea {
@@ -64,41 +54,30 @@ body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-siz
     box-shadow:0 0 0 3px rgba(0,69,147,0.15);
 }
 
-.form-row textarea {
-    resize:vertical;
+header {
+    background:white; padding:15px; border-radius:12px; border-bottom:4px solid var(--hw-blue);
+    text-align:center; margin-bottom:15px; position:sticky; top:0; z-index:1000;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
 }
-
-/* ------------------------------ */
-
-header { background:white; padding:15px; border-radius:12px; border-bottom:4px solid var(--hw-blue);
-         text-align:center; margin-bottom:15px; position:sticky; top:0; z-index:1000;
-         box-shadow:0 2px 10px rgba(0,0,0,0.05); }
 
 .search-box { width:100%; padding:15px; border:2px solid #ddd; border-radius:8px; font-size:16px; }
 
-.nav-dropdown { width:100%; padding:12px; margin-top:10px; border-radius:8px; background:var(--hw-light);
-                font-weight:bold; cursor:pointer; border:1px solid #ccc; }
+.nav-dropdown {
+    width:100%; padding:12px; margin-top:10px; border-radius:8px;
+    background:var(--hw-light); font-weight:bold; cursor:pointer; border:1px solid #ccc;
+}
 
 .category-block { margin-top:35px; scroll-margin-top:200px; }
 .category-name { background:var(--hw-blue); color:white; padding:12px 15px; border-radius:8px; font-weight:bold; text-transform:uppercase; }
 
 .product-item {
-    display:grid;
-    grid-template-columns:40px 1fr auto;
-    gap:12px;
-    padding:15px;
-    border-bottom:1px solid #eee;
-    background:white;
+    display:grid; grid-template-columns:40px 1fr auto;
+    gap:12px; padding:15px; border-bottom:1px solid #eee; background:white;
 }
 
-/* Thumbnail placeholder always takes space */
 .product-thumb {
-    width:40px;
-    height:40px;
-    object-fit:cover;
-    border-radius:6px;
-    cursor:pointer;
-    opacity:0; /* invisible by default but keeps layout aligned */
+    width:40px; height:40px; object-fit:cover; border-radius:6px;
+    cursor:pointer; opacity:0;
 }
 
 .product-info { display:flex; flex-direction:column; gap:3px; }
@@ -106,108 +85,53 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .product-code { font-size:12px; color:#666; }
 
 .qty-controls { display:flex; align-items:center; gap:5px; }
-.qty-btn { width:32px; height:32px; border:none; background:#f0f0f0; color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px; }
+.qty-btn {
+    width:32px; height:32px; border:none; background:#f0f0f0;
+    color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px;
+}
 
-.sidebar { width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px); background:white;
-           border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; flex-direction:column;
-           border:2px solid var(--hw-blue); }
+.sidebar {
+    width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px);
+    background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15);
+    display:flex; flex-direction:column; border:2px solid var(--hw-blue);
+}
 
 .sidebar-header { background:var(--hw-blue); color:white; padding:15px; text-align:center; font-weight:bold; border-radius:10px 10px 0 0; }
 .sidebar-content { flex:1; overflow-y:auto; padding:12px; font-size:13px; }
 
-.basket-item { padding:10px; background:#fff; display:flex; justify-content:space-between; align-items:center; gap:8px; border-bottom:1px solid #eee; }
-.basket-main { display:flex; flex-direction:column; font-size:12px; }
-.basket-line1 { font-weight:600; }
-.basket-line2 { color:#666; }
+.basket-item {
+    padding:10px; background:#fff; display:flex;
+    justify-content:space-between; align-items:center; gap:8px; border-bottom:1px solid #eee;
+}
 
-.btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px;
-            font-size:18px; font-weight:bold; cursor:pointer; }
+.btn-send {
+    width:100%; padding:18px; background:var(--hw-green); color:white;
+    border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer;
+}
 
 /* MODAALI */
 #imgModal {
-    display:none;
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.85);
-    justify-content:center;
-    align-items:center;
-    z-index:5000;
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:5000;
 }
-#imgModal img {
-    max-width:90%;
-    max-height:90%;
-    border-radius:10px;
-}
-#closeModal {
-    position:absolute;
-    top:20px;
-    right:30px;
-    font-size:40px;
-    color:white;
-    cursor:pointer;
-}
+#imgModal img { max-width:90%; max-height:90%; border-radius:10px; }
+#closeModal { position:absolute; top:20px; right:30px; font-size:40px; color:white; cursor:pointer; }
 
-/* Mobiilin kori-nappi */
 #toggleCart {
-    display:none;
-    position:fixed;
-    bottom:90px;
-    right:20px;
-    background:var(--hw-blue);
-    color:white;
-    border:none;
-    padding:14px 20px;
-    border-radius:8px;
-    font-size:16px;
-    font-weight:bold;
-    z-index:3000;
-    box-shadow:0 4px 10px rgba(0,0,0,0.25);
+    display:none; position:fixed; bottom:90px; right:20px;
+    background:var(--hw-blue); color:white; border:none;
+    padding:14px 20px; border-radius:8px; font-size:16px; font-weight:bold;
+    z-index:3000; box-shadow:0 4px 10px rgba(0,0,0,0.25);
 }
 
-/* Takaisin ylös -nappi */
 #scrollTopBtn {
-    position:fixed;
-    bottom:30px;
-    right:20px;
-    background:var(--hw-blue);
-    color:white;
-    border:none;
-    padding:12px 18px;
-    border-radius:8px;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-    display:none;
-    z-index:3500;
-    box-shadow:0 4px 10px rgba(0,0,0,0.25);
-    transition:opacity 0.3s;
+    position:fixed; bottom:30px; right:20px; background:var(--hw-blue);
+    color:white; border:none; padding:12px 18px; border-radius:8px;
+    font-size:16px; font-weight:bold; cursor:pointer; display:none;
+    z-index:3500; box-shadow:0 4px 10px rgba(0,0,0,0.25);
 }
 
-#scrollTopBtn.show {
-    display:block;
-    opacity:1;
-}
-
-@media (max-width:600px) {
-    #scrollTopBtn { bottom:150px; }
-    #toggleCart { display:block; }
-    .main-wrapper { flex-direction:column; }
-    .sidebar {
-        width:100%;
-        position:fixed;
-        bottom:0;
-        left:0;
-        height:70%;
-        display:none;
-        background:white;
-        z-index:4000;
-        border-radius:12px 12px 0 0;
-        box-shadow:0 -4px 20px rgba(0,0,0,0.25);
-    }
-    .sidebar.open { display:block; }
-    .sidebar-content { max-height:calc(100% - 120px); overflow-y:auto; }
-}
+#scrollTopBtn.show { display:block; opacity:1; }
 </style>
 </head>
 <body>
@@ -229,45 +153,14 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
         <div class="form-box">
             <h2>Tilaustiedot</h2>
 
-            <div class="form-row">
-                <label>Tilaaja *</label>
-                <input id="f_tilaaja" required>
-            </div>
-
-            <div class="form-row">
-                <label>Varasto NRO *</label>
-                <input id="f_varasto" required>
-            </div>
-
-            <div class="form-row">
-                <label>Tilauspäivä *</label>
-                <input id="f_pvm" type="date" required>
-            </div>
-
-            <div class="form-row">
-                <label>Toimitustapa *</label>
-                <input id="f_toimitus" required>
-            </div>
-
-            <div class="form-row">
-                <label>Lähetysosoite *</label>
-                <input id="f_osoite" required>
-            </div>
-
-            <div class="form-row">
-                <label>Postinumero *</label>
-                <input id="f_postinumero" required>
-            </div>
-
-            <div class="form-row">
-                <label>Paikkakunta *</label>
-                <input id="f_paikkakunta" required>
-            </div>
-
-            <div class="form-row">
-                <label>Lisätiedot</label>
-                <textarea id="f_lisatiedot" rows="3"></textarea>
-            </div>
+            <div class="form-row"><label>Tilaaja *</label><input id="f_tilaaja" required></div>
+            <div class="form-row"><label>Varasto NRO *</label><input id="f_varasto" required></div>
+            <div class="form-row"><label>Tilauspäivä *</label><input id="f_pvm" type="date" required></div>
+            <div class="form-row"><label>Toimitustapa *</label><input id="f_toimitus" required></div>
+            <div class="form-row"><label>Lähetysosoite *</label><input id="f_osoite" required></div>
+            <div class="form-row"><label>Postinumero *</label><input id="f_postinumero" required></div>
+            <div class="form-row"><label>Paikkakunta *</label><input id="f_paikkakunta" required></div>
+            <div class="form-row"><label>Lisätiedot</label><textarea id="f_lisatiedot" rows="3"></textarea></div>
         </div>
 
         <header>
@@ -307,7 +200,6 @@ async function loadData() {
 
 function parseData(text) {
     const lines = text.split("\n");
-
     let categories = {};
     let current = null;
 
@@ -317,7 +209,6 @@ function parseData(text) {
 
         const parts = trimmed.split(" ");
         const first = parts[0];
-
         const isItem = /\d/.test(first);
 
         if (!isItem) {
@@ -366,12 +257,10 @@ function render(filter = "") {
 
             row.innerHTML = `
                 <img class="product-thumb" id="thumb_${p.code}" onclick="openImage('${p.code}')">
-
                 <div class="product-info">
                     <div class="product-name" onclick="openImage('${p.code}')">${p.name}</div>
                     <div class="product-code">${p.code}</div>
                 </div>
-
                 <div class="qty-controls">
                     <button class="qty-btn" onclick="changeQtyFromList('${p.code}', -1)">-</button>
                     <input id="qty_${p.code}" type="number" min="0" value="${cart[p.code]?.qty || 0}"
@@ -386,7 +275,6 @@ function render(filter = "") {
 
         container.appendChild(block);
 
-        // Lataa thumbnailit jos kuva löytyy
         products.forEach(p => {
             const img = document.getElementById("thumb_" + p.code);
             const url = `images/${p.code}.png`;
@@ -396,10 +284,6 @@ function render(filter = "") {
                     if (res.ok) {
                         img.src = url;
                         img.style.opacity = "1";
-                        img.style.cursor = "pointer";
-                    } else {
-                        img.style.opacity = "0";
-                        img.style.cursor = "default";
                     }
                 });
         });
@@ -421,34 +305,21 @@ function findName(code) {
 }
 
 function changeQtyFromList(code, delta) {
-    if (!cart[code]) {
-        cart[code] = { code, name: findName(code), qty: 0 };
-    }
-
+    if (!cart[code]) cart[code] = { code, name: findName(code), qty: 0 };
     cart[code].qty += delta;
 
-    if (cart[code].qty < 0) cart[code].qty = 0;
-    if (cart[code].qty === 0) delete cart[code];
-
-    document.getElementById("qty_" + code).value = cart[code]?.qty || 0;
+    if (cart[code].qty <= 0) delete cart[code];
+    else document.getElementById("qty_" + code).value = cart[code].qty;
 
     updateCart();
 }
 
 function setQtyFromInput(code, value) {
     let qty = parseInt(value);
-
     if (isNaN(qty) || qty < 0) qty = 0;
 
-    if (qty === 0) {
-        delete cart[code];
-    } else {
-        if (!cart[code]) {
-            cart[code] = { code, name: findName(code), qty: qty };
-        } else {
-            cart[code].qty = qty;
-        }
-    }
+    if (qty === 0) delete cart[code];
+    else cart[code] = { code, name: findName(code), qty };
 
     updateCart();
 }
@@ -468,9 +339,9 @@ function updateCart() {
         row.className = "basket-item";
 
         row.innerHTML = `
-            <div class="basket-main">
-                <div class="basket-line1">${item.name}</div>
-                <div class="basket-line2">${item.code}</div>
+            <div>
+                <div style="font-weight:600;">${item.name}</div>
+                <div style="color:#666;">${item.code}</div>
             </div>
             <div class="qty-controls">
                 <button class="qty-btn" onclick="changeQtyFromList('${item.code}', -1)">-</button>
@@ -486,21 +357,16 @@ function updateCart() {
 }
 
 function openImage(code) {
-    const modal = document.getElementById("imgModal");
-    const img = document.getElementById("modalImage");
-
-    img.src = `images/${code}.png`;
-    modal.style.display = "flex";
+    document.getElementById("modalImage").src = `images/${code}.png`;
+    document.getElementById("imgModal").style.display = "flex";
 }
 
-document.getElementById("closeModal").onclick = () => {
+document.getElementById("closeModal").onclick = () =>
     document.getElementById("imgModal").style.display = "none";
-};
 
-document.getElementById("imgModal").onclick = (e) => {
-    if (e.target.id === "imgModal") {
+document.getElementById("imgModal").onclick = e => {
+    if (e.target.id === "imgModal")
         document.getElementById("imgModal").style.display = "none";
-    }
 };
 
 function toggleCart() {
@@ -513,11 +379,8 @@ function scrollToTop() {
 
 window.addEventListener("scroll", () => {
     const btn = document.getElementById("scrollTopBtn");
-    if (window.scrollY > 300) {
-        btn.classList.add("show");
-    } else {
-        btn.classList.remove("show");
-    }
+    if (window.scrollY > 300) btn.classList.add("show");
+    else btn.classList.remove("show");
 });
 
 function finalSubmit() {
@@ -530,9 +393,20 @@ function finalSubmit() {
     const paikka = document.getElementById("f_paikkakunta").value;
     const lisatiedot = document.getElementById("f_lisatiedot").value;
 
-    const items = Object.values(cart)
-        .map(i => `${i.code} ${i.name} x ${i.qty}`)
-        .join("\n");
+    const items = Object.values(cart);
+
+    let list = "";
+    list += "KERÄILYLISTA\n\n";
+
+    list += "OK       Koodi     Määrä   Nimike\n";
+    list += "---------------------------------------------\n";
+
+    items.forEach(i => {
+        const ok = "[   ]".padEnd(9, " ");
+        const code = i.code.padEnd(9, " ");
+        const qty = String(i.qty).padEnd(7, " ");
+        list += `${ok}${code}${qty}${i.name}\n`;
+    });
 
     const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
 
@@ -546,8 +420,8 @@ Postinumero: ${posti}
 Paikkakunta: ${paikka}
 Lisätiedot: ${lisatiedot}
 
-TILAUS:
-${items}`;
+${list}
+`;
 
     window.location.href =
         `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
