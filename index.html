@@ -317,8 +317,28 @@ document.getElementById("relatedOverlay").onclick = (e) => {
 
 const original_changeQtyFromList = changeQtyFromList;
 
-changeQtyFromList = function(code, delta) {
+function changeQtyFromList(code, delta) {
 
+    /* 🔥 A-LOGIIKKA: popup avautuu heti kun + painetaan */
+    if (delta === 1 && relatedItems[code]) {
+        openRelatedPopup(code);
+    }
+
+    /* Alkuperäinen logiikka */
+    if (!cart[code]) cart[code] = { code, name: findName(code), qty: 0 };
+    cart[code].qty += delta;
+
+    if (cart[code].qty <= 0) {
+        delete cart[code];
+        const input = document.getElementById("qty_" + code);
+        if (input) input.value = 0;
+    } else {
+        const input = document.getElementById("qty_" + code);
+        if (input) input.value = cart[code].qty;
+    }
+
+    updateCart();
+}
     /* 🔥 A-LOGIIKKA: popup avautuu heti kun + painetaan */
     if (delta === 1 && relatedItems[code]) {
         openRelatedPopup(code);
