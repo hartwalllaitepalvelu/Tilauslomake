@@ -293,6 +293,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
     </div>
 
 </div>
+
 <script>
 let data = {};
 let cart = {};
@@ -385,7 +386,7 @@ function render(filter = "") {
 
         container.appendChild(block);
 
-        // 🔵 Lataa thumbnailit kaikille laitteille
+        // Lataa thumbnailit jos kuva löytyy
         products.forEach(p => {
             const img = document.getElementById("thumb_" + p.code);
             const url = `images/${p.code}.png`;
@@ -394,16 +395,17 @@ function render(filter = "") {
                 .then(res => {
                     if (res.ok) {
                         img.src = url;
-                        img.style.opacity = "1";   // näkyvä
+                        img.style.opacity = "1";
                         img.style.cursor = "pointer";
                     } else {
-                        img.style.opacity = "0";   // näkymätön placeholder
+                        img.style.opacity = "0";
                         img.style.cursor = "default";
                     }
                 });
         });
     });
 }
+
 function jumpTo(cat) {
     if (!cat) return;
     document.getElementById(cat).scrollIntoView({ behavior: "smooth" });
@@ -519,10 +521,6 @@ window.addEventListener("scroll", () => {
 });
 
 function finalSubmit() {
-    const items = Object.values(cart)
-        .map(i => `${i.code} ${i.name} x ${i.qty}`)
-        .join("\n");
-
     const tilaaja = document.getElementById("f_tilaaja").value;
     const varasto = document.getElementById("f_varasto").value;
     const pvm = document.getElementById("f_pvm").value;
@@ -531,6 +529,12 @@ function finalSubmit() {
     const posti = document.getElementById("f_postinumero").value;
     const paikka = document.getElementById("f_paikkakunta").value;
     const lisatiedot = document.getElementById("f_lisatiedot").value;
+
+    const items = Object.values(cart)
+        .map(i => `${i.code} ${i.name} x ${i.qty}`)
+        .join("\n");
+
+    const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
 
     const body =
 `Tilaaja: ${tilaaja}
@@ -545,10 +549,8 @@ Lisätiedot: ${lisatiedot}
 TILAUS:
 ${items}`;
 
-    const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
-
-window.location.href =
-    `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href =
+        `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 loadData();
@@ -556,4 +558,3 @@ loadData();
 
 </body>
 </html>
-
