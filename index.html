@@ -545,8 +545,10 @@ Lisätiedot: ${lisatiedot}
 TILAUS:
 ${items}`;
 
-    window.location.href =
-        `mailto:tomi.eskola@hartwall.fi?subject=Varaosatilaus&body=${encodeURIComponent(body)}`;
+    const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
+
+window.location.href =
+    `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 loadData();
@@ -554,3 +556,4 @@ loadData();
 
 </body>
 </html>
+
