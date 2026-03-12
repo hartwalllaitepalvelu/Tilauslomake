@@ -187,9 +187,7 @@ header {
 <button id="toggleCart" onclick="toggleCart()">Näytä ostoskori</button>
 <button id="scrollTopBtn" onclick="scrollToTop()">▲ Ylös</button>
 
-<div class="main-wrapper">
-    <div class="content-area">
-        <div class="form-box">
+<div class="form-box">
             <h2>Tilaustiedot</h2>
             <div class="form-row"><label>Tilaaja *</label><input id="f_tilaaja" required></div>
             <div class="form-row"><label>Varasto NRO *</label><input id="f_varasto" required></div>
@@ -199,6 +197,11 @@ header {
             <div class="form-row"><label>Postinumero *</label><input id="f_postinumero" required></div>
             <div class="form-row"><label>Paikkakunta *</label><input id="f_paikkakunta" required></div>
             <div class="form-row"><label>Lisätiedot</label><textarea id="f_lisatiedot" rows="3"></textarea></div>
+            
+            <div class="form-row">
+                <label>Muut tuotteet (jos ei löydy listalta)</label>
+                <textarea id="f_vapaat_tuotteet" rows="4" placeholder="Kirjoita tähän tuotteen nimi ja määrä..."></textarea>
+            </div>
         </div>
 
         <header>
@@ -485,6 +488,35 @@ window.addEventListener("scroll", () => {
 });
 
 function finalSubmit() {
+    // 1. Määritellään pakolliset kentät (tähdellä merkityt)
+    const requiredFields = [
+        { id: "f_tilaaja", name: "Tilaaja" },
+        { id: "f_varasto", name: "Varasto NRO" },
+        { id: "f_pvm", name: "Tilauspäivä" },
+        { id: "f_toimitus", name: "Toimitustapa" },
+        { id: "f_osoite", name: "Lähetysosoite" },
+        { id: "f_postinumero", name: "Postinumero" },
+        { id: "f_paikkakunta", name: "Paikkakunta" }
+    ];
+
+    // 2. Tarkistetaan onko kentät täytetty
+    let missing = [];
+    requiredFields.forEach(field => {
+        const element = document.getElementById(field.id);
+        if (!element.value.trim()) {
+            missing.push(field.name);
+            element.style.border = "2px solid red"; // Korostetaan puuttuva kenttä
+        } else {
+            element.style.border = ""; // Palautetaan normaali väri
+        }
+    });
+
+    if (missing.length > 0) {
+        alert("Ole hyvä ja täytä seuraavat pakolliset kentät:\n- " + missing.join("\n- "));
+        return; // Pysäytetään funktion suoritus
+    }
+
+    // 3. Haetaan kenttien arvot
     const tilaaja = document.getElementById("f_tilaaja").value;
     const varasto = document.getElementById("f_varasto").value;
     const pvm = document.getElementById("f_pvm").value;
@@ -493,13 +525,24 @@ function finalSubmit() {
     const posti = document.getElementById("f_postinumero").value;
     const paikka = document.getElementById("f_paikkakunta").value;
     const lisatiedot = document.getElementById("f_lisatiedot").value;
+    
+    // UUSI: Haetaan vapaa tekstikenttä
+    const vapaatTuotteet = document.getElementById("f_vapaat_tuotteet").value;
 
     const items = Object.values(cart).filter(i => !isOutOfStock(i.code));
+    
+    // Tarkistetaan, että on jotain tilattavaa (joko korissa tai vapaassa kentässä)
+    if (items.length === 0 && !vapaatTuotteet.trim()) {
+        alert("Valitse tuotteita ostoskoriin tai kirjoita vapaaseen kenttään.");
+        return;
+    }
+
     const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
     let longestCode = 0;
     items.forEach(i => { if (i.code.length > longestCode) longestCode = i.code.length; });
     longestCode += 2;
     const maxNameLength = 40;
+
     let list = "========================= KERÄILYLISTA =========================\nNro | " + "Nimike".padEnd(longestCode) + " | " + "Nimi".padEnd(maxNameLength) + " | Määrä\n-----------------------------------------------------------------\n";
     let index = 1;
     items.forEach(i => {
@@ -511,10 +554,17 @@ function finalSubmit() {
         index++;
     });
     list += "-----------------------------------------------------------------\nTuoterivejä yhteensä: " + items.length + "\n=================================================================\n";
-    const body = `Tilaaja: ${tilaaja}\nVarasto: ${varasto}\nPäivä: ${pvm}\nToimitustapa: ${toimitus}\nOsoite: ${osoite}\nPostinumero: ${posti}\nPaikkakunta: ${paikka}\nLisätiedot: ${lisatiedot}\n\n${list}`;
+
+    // Lisätään vapaasti täytetyt tuotteet sähköpostin loppuun jos niitä on
+    let muutaOsa = "";
+    if (vapaatTuotteet.trim() !== "") {
+        muutaOsa = `\nMUUT TUOTTEET (LISTAN ULKOPUOLELTA):\n${vapaatTuotteet}\n-----------------------------------------------------------------\n`;
+    }
+
+    const body = `Tilaaja: ${tilaaja}\nVarasto: ${varasto}\nPäivä: ${pvm}\nToimitustapa: ${toimitus}\nOsoite: ${osoite}\nPostinumero: ${posti}\nPaikkakunta: ${paikka}\nLisätiedot: ${lisatiedot}\n\n${list}${muutaOsa}`;
+    
     window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
-
 function adminLogin() {
     const user = document.getElementById("adminUser").value.trim();
     const pass = document.getElementById("adminPass").value.trim();
