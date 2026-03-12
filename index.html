@@ -99,6 +99,29 @@ header {
     border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer;
 }
 
+/* MODAALI */
+#imgModal {
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:5000;
+}
+#imgModal img { max-width:90%; max-height:90%; border-radius:10px; }
+#closeModal { position:absolute; top:20px; right:30px; font-size:40px; color:white; cursor:pointer; }
+
+/* NAPIT */
+#toggleCart {
+    display:none; position:fixed; bottom:90px; right:20px;
+    background:var(--hw-blue); color:white; border:none;
+    padding:14px 20px; border-radius:8px; font-size:16px; font-weight:bold;
+    z-index:3000; box-shadow:0 4px 10px rgba(0,0,0,0.25);
+}
+#scrollTopBtn {
+    position:fixed; bottom:30px; right:20px; background:var(--hw-blue);
+    color:white; border:none; padding:12px 18px; border-radius:8px;
+    font-size:16px; font-weight:bold; cursor:pointer; display:none;
+    z-index:3500; box-shadow:0 4px 10px rgba(0,0,0,0.25);
+}
+#scrollTopBtn.show { display:block; opacity:1; }
+
 /* POPUP OVERLAY */
 #relatedOverlay {
     display:none;
@@ -179,7 +202,6 @@ header {
 }
 </style>
 </head>
-
 <body>
 
 <!-- POPUP -->
@@ -201,6 +223,7 @@ header {
 <button id="scrollTopBtn" onclick="scrollToTop()">▲ Ylös</button>
 
 <div class="main-wrapper">
+
     <div class="content-area">
 
         <!-- TILAUSTIEDOT -->
@@ -242,12 +265,10 @@ header {
         </div>
     </div>
 
-</div> <!-- main-wrapper päättyy -->
-<script>
-/* ============================
-   SUOSITELLUT LISÄOSAT (UUSI)
-   ============================ */
+</div>
 
+<script>
+/* SUOSITELLUT LISÄOSAT */
 const relatedItems = {
     "V02363": ["V03010","V02257","V02351","T00457","T02256","T41430","T00613","T00609","T41101","T41002"],
     "V02364": ["V03010","V02257","V02351","T00457","T02256","T41430","T00613","T00609","T41101","T41002"],
@@ -255,15 +276,11 @@ const relatedItems = {
     "V02356": ["V03010","V02257","V02351","T00457","T02256","T41430","T00613","T00609","T41101","T41002"]
 };
 
-/* ============================
-   POPUPIN AVAAMINEN (UUSI)
-   ============================ */
-
 function openRelatedPopup(code) {
     const overlay = document.getElementById("relatedOverlay");
     const content = document.getElementById("relatedContent");
 
-    content.innerHTML = ""; // tyhjennä vanhat
+    content.innerHTML = "";
 
     const list = relatedItems[code];
     if (!list) return;
@@ -283,10 +300,6 @@ function openRelatedPopup(code) {
     overlay.style.display = "flex";
 }
 
-/* ============================
-   LISÄOSAN LISÄYS (UUSI)
-   ============================ */
-
 function addRelatedItem(code) {
     if (!cart[code]) {
         cart[code] = { code, name: findName(code), qty: 1 };
@@ -296,10 +309,6 @@ function addRelatedItem(code) {
 
     updateCart();
 }
-
-/* ============================
-   POPUPIN SULKEMINEN (UUSI)
-   ============================ */
 
 document.getElementById("relatedClose").onclick = () => {
     document.getElementById("relatedOverlay").style.display = "none";
@@ -311,44 +320,6 @@ document.getElementById("relatedOverlay").onclick = (e) => {
     }
 };
 
-/* ============================================================
-   MUOKATTU changeQtyFromList() — POPUP AINA ENNEN LISÄYSTÄ
-   ============================================================ */
-
-const original_changeQtyFromList = changeQtyFromList;
-
-function changeQtyFromList(code, delta) {
-
-    /* 🔥 A-LOGIIKKA: popup avautuu heti kun + painetaan */
-    if (delta === 1 && relatedItems[code]) {
-        openRelatedPopup(code);
-    }
-
-    /* Alkuperäinen logiikka */
-    if (!cart[code]) cart[code] = { code, name: findName(code), qty: 0 };
-    cart[code].qty += delta;
-
-    if (cart[code].qty <= 0) {
-        delete cart[code];
-        const input = document.getElementById("qty_" + code);
-        if (input) input.value = 0;
-    } else {
-        const input = document.getElementById("qty_" + code);
-        if (input) input.value = cart[code].qty;
-    }
-
-    updateCart();
-}
-    /* 🔥 A-LOGIIKKA: popup avautuu heti kun + painetaan */
-    if (delta === 1 && relatedItems[code]) {
-        openRelatedPopup(code);
-    }
-
-    /* Suoritetaan alkuperäinen toiminto */
-    original_changeQtyFromList(code, delta);
-};
-</script>
-<script>
 let data = {};
 let cart = {};
 
@@ -519,7 +490,7 @@ function render(filter = "") {
                     <button class="qty-btn" onclick="changeQtyFromList('${p.code}', -1)">-</button>
                     <input id="qty_${p.code}" type="number" min="0" value="${cart[p.code]?.qty || 0}"
                            oninput="setQtyFromInput('${p.code}', this.value)"
-                           style="width:45px; text-align:center; padding:6px; border:1px solid #ccc; border-radius:6px;">
+                           style="width:45px; text-align:center; padding:6px; border:1px solid:#ccc; border-radius:6px;">
                     <button class="qty-btn" onclick="changeQtyFromList('${p.code}', 1)">+</button>
                 </div>
             `;
@@ -582,6 +553,28 @@ function addPackage(name) {
             cart[p.code].qty += p.qty;
         }
     });
+
+    updateCart();
+}
+
+/* MÄÄRÄN MUUTOS LISTASTA + POPUP */
+function changeQtyFromList(code, delta) {
+
+    if (delta === 1 && relatedItems[code]) {
+        openRelatedPopup(code);
+    }
+
+    if (!cart[code]) cart[code] = { code, name: findName(code), qty: 0 };
+    cart[code].qty += delta;
+
+    if (cart[code].qty <= 0) {
+        delete cart[code];
+        const input = document.getElementById("qty_" + code);
+        if (input) input.value = 0;
+    } else {
+        const input = document.getElementById("qty_" + code);
+        if (input) input.value = cart[code].qty;
+    }
 
     updateCart();
 }
