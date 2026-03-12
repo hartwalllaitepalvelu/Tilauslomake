@@ -187,7 +187,9 @@ header {
 <button id="toggleCart" onclick="toggleCart()">Näytä ostoskori</button>
 <button id="scrollTopBtn" onclick="scrollToTop()">▲ Ylös</button>
 
-<div class="form-box">
+<div class="main-wrapper">
+    <div class="content-area">
+        <div class="form-box">
             <h2>Tilaustiedot</h2>
             <div class="form-row"><label>Tilaaja *</label><input id="f_tilaaja" required></div>
             <div class="form-row"><label>Varasto NRO *</label><input id="f_varasto" required></div>
@@ -197,11 +199,6 @@ header {
             <div class="form-row"><label>Postinumero *</label><input id="f_postinumero" required></div>
             <div class="form-row"><label>Paikkakunta *</label><input id="f_paikkakunta" required></div>
             <div class="form-row"><label>Lisätiedot</label><textarea id="f_lisatiedot" rows="3"></textarea></div>
-            
-            <div class="form-row">
-                <label>Muut tuotteet (jos ei löydy listalta)</label>
-                <textarea id="f_vapaat_tuotteet" rows="4" placeholder="Kirjoita tähän tuotteen nimi ja määrä..."></textarea>
-            </div>
         </div>
 
         <header>
