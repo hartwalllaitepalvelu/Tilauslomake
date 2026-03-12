@@ -201,11 +201,6 @@ header {
     to { opacity:1; transform:scale(1); }
 }
 </style>
-
-<!-- jsPDF ja JsBarcode -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-
 </head>
 <body>
 
@@ -267,11 +262,6 @@ header {
         </div>
         <div style="padding:15px;">
             <button class="btn-send" onclick="finalSubmit()">LÄHETÄ TILAUS</button>
-
-            <!-- PDF-nappi -->
-            <button id="generatePdfBtn" class="btn-send" style="margin-top:10px;">
-                LUO PDF‑KERÄILYLISTA
-            </button>
         </div>
     </div>
 
@@ -707,137 +697,6 @@ ${list}
 
 /* KÄYNNISTYS */
 loadData();
-</script>
-
-<!-- PDF-KOODI (täydellinen, valmis) -->
-<script>
-document.getElementById("generatePdfBtn").addEventListener("click", generatePDF);
-
-async function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 10;
-
-    // --- LOGO ---
-    const logo = await loadImage("392px-Hartwallin_logo.svg.png");
-    doc.addImage(logo, "PNG", 10, y, 40, 20);
-    y += 30;
-
-    // --- OTSIKKO ---
-    doc.setFontSize(18);
-    doc.text("KERÄILYLISTA – VARAOSATILAUS", pageWidth / 2, y, { align: "center" });
-    y += 12;
-
-    // --- TILAUSTIEDOT ---
-    doc.setFontSize(14);
-    doc.text("Tilaustiedot", 10, y);
-    y += 8;
-
-    doc.setFontSize(11);
-
-    const fields = document.querySelectorAll("input, textarea, select");
-
-    fields.forEach(field => {
-        const label = getLabel(field);
-        const value = field.value.trim();
-
-        if (value !== "") {
-            doc.text(`${label}: ${value}`, 10, y);
-            y += 6;
-
-            if (y > 260) {
-                doc.addPage();
-                y = 10;
-            }
-        }
-    });
-
-    y += 5;
-    doc.line(10, y, pageWidth - 10, y);
-    y += 10;
-
-    // --- TAULUKON OTSIKOT ---
-    doc.setFontSize(12);
-    doc.text("OK", 10, y);
-    doc.text("Koodi", 25, y);
-    doc.text("Määrä", 55, y);
-    doc.text("Nimike", 75, y);
-    doc.text("Viivakoodi", 150, y);
-    y += 4;
-
-    doc.line(10, y, pageWidth - 10, y);
-    y += 6;
-
-    // --- OSTOSKORIN TUOTTEET (basket-item) ---
-    const rows = Array.from(document.querySelectorAll(".basket-item")).map(row => {
-        const name = row.querySelector("div div:nth-child(1)").textContent.trim();
-        const code = row.querySelector("div div:nth-child(2)").textContent.trim();
-        const qty = row.querySelector(".qty-controls span").textContent.trim();
-        return { code, qty, name };
-    });
-
-    for (let item of rows) {
-
-        if (y > 260) {
-            doc.addPage();
-            y = 10;
-        }
-
-        doc.text(item.code, 25, y);
-        doc.text(item.qty, 55, y);
-        doc.text(item.name.substring(0, 40), 75, y);
-
-        const barcodeCanvas = document.createElement("canvas");
-        JsBarcode(barcodeCanvas, item.code, {
-            format: "CODE128",
-            width: 1.2,
-            height: 20,
-            displayValue: false
-        });
-
-        const barcodeImg = barcodeCanvas.toDataURL("image/png");
-        doc.addImage(barcodeImg, "PNG", 150, y - 5, 40, 20);
-
-        y += 25;
-    }
-
-    // --- SIVUNUMEROT ---
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(10);
-        doc.text(`Sivu ${i} / ${pageCount}`, pageWidth - 20, 290);
-    }
-
-    // --- AVAA PDF ---
-    const pdfBlob = doc.output("blob");
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    window.open(pdfUrl, "_blank");
-}
-
-function getLabel(field) {
-    const id = field.id;
-
-    if (id) {
-        const label = document.querySelector(`label[for='${id}']`);
-        if (label) return label.textContent.trim();
-    }
-
-    if (field.name) return field.name;
-    if (field.placeholder) return field.placeholder;
-
-    return "Kenttä";
-}
-
-function loadImage(src) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.src = src;
-    });
-}
 </script>
 
 </body>
