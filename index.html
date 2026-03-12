@@ -75,11 +75,17 @@ header {
 .product-info { display:flex; flex-direction:column; gap:3px; }
 .product-name { font-weight:600; cursor:pointer; color:var(--hw-blue); text-decoration:underline; }
 .product-code { font-size:12px; color:#666; }
+.product-status { font-size:12px; color:#c62828; }
 
+/* Määrän napit */
 .qty-controls { display:flex; align-items:center; gap:5px; }
 .qty-btn {
     width:32px; height:32px; border:none; background:#f0f0f0;
     color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px;
+}
+.qty-btn[disabled] {
+    opacity:0.4;
+    cursor:not-allowed;
 }
 
 /* SIVUPALKKI */
@@ -234,7 +240,8 @@ header {
 }
 </style>
 </head>
-<body><!-- POPUP -->
+<body>
+<!-- POPUP -->
 <div id="relatedOverlay">
     <div id="relatedPopup">
         <div id="relatedHeader">Suositellut lisäosat</div>
@@ -284,26 +291,75 @@ header {
 
     </div>
 
-<!-- OSTOSKORI -->
-<div class="sidebar">
+    <!-- OSTOSKORI -->
+    <div class="sidebar">
 
-    <!-- 📱 Mobiilin sulkunappi -->
-    <button onclick="toggleCart()" 
-            class="close-cart-mobile"
-            style="display:none; background:#004593; color:white; border:none; padding:12px; width:100%; font-size:16px; font-weight:bold;">
-        Sulje ostoskori
+        <!-- 📱 Mobiilin sulkunappi -->
+        <button onclick="toggleCart()"
+                class="close-cart-mobile"
+                style="display:none; background:#004593; color:white; border:none; padding:12px; width:100%; font-size:16px; font-weight:bold;">
+            Sulje ostoskori
+        </button>
+
+        <div class="sidebar-header">OSTOSKORI (<span id="basket-count">0</span>)</div>
+
+        <div id="basket-items" class="sidebar-content">
+            <p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>
+        </div>
+
+        <div style="padding:15px;">
+            <button class="btn-send" onclick="finalSubmit()">LÄHETÄ TILAUS</button>
+        </div>
+
+    </div>
+
+</div> <!-- main-wrapper loppuu tähän -->
+
+<!-- ADMIN LOGIN + PANEELI -->
+<button id="adminLoginBtn"
+        style="position:fixed; bottom:150px; left:20px; padding:10px 15px;
+               background:#444; color:white; border:none; border-radius:6px; z-index:6000;">
+    Kirjaudu ylläpitäjänä
+</button>
+
+<div id="adminLoginPopup"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:7000;">
+    <div style="background:white; padding:20px; border-radius:10px; width:300px;">
+        <h3>Ylläpitäjän kirjautuminen</h3>
+        <input id="adminUser" placeholder="Käyttäjätunnus" style="width:100%; padding:8px; margin-bottom:10px;">
+        <input id="adminPass" type="password" placeholder="Salasana" style="width:100%; padding:8px;">
+        <button onclick="adminLogin()" style="margin-top:10px; width:100%; padding:10px; background:#004593; color:white; border:none; border-radius:6px;">
+            Kirjaudu
+        </button>
+    </div>
+</div>
+
+<div id="adminPanel"
+     style="display:none; position:fixed; bottom:0; left:0; width:100%; background:white;
+            border-top:3px solid #004593; padding:15px; z-index:6500;">
+    <h3>Ylläpitopaneeli</h3>
+    <label>Tuotekoodi:</label>
+    <input id="adminCode" style="width:150px; padding:6px; margin-bottom:10px;">
+
+    <div>
+        <label><input type="checkbox" id="adminOutOfStock"> Tilapäisesti loppu</label>
+    </div>
+
+    <div>
+        <label>Uusi erä saapuu:</label>
+        <input id="adminETA" type="date" style="padding:6px;">
+    </div>
+
+    <button onclick="saveStockStatus()"
+            style="margin-top:10px; padding:10px 15px; background:#28a745; color:white; border:none; border-radius:6px;">
+        Tallenna
     </button>
 
-    <div class="sidebar-header">OSTOSKORI (<span id="basket-count">0</span>)</div>
-
-    <div id="basket-items" class="sidebar-content">
-        <p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>
-    </div>
-
-    <div style="padding:15px;">
-        <button class="btn-send" onclick="finalSubmit()">LÄHETÄ TILAUS</button>
-    </div>
-
+    <button onclick="clearStockStatus()"
+            style="margin-top:10px; padding:10px 15px; background:#c62828; color:white; border:none; border-radius:6px;">
+        Poista loppu‑merkintä
+    </button>
 </div>
 
 <script>
@@ -361,6 +417,7 @@ document.getElementById("relatedOverlay").onclick = (e) => {
 
 let data = {};
 let cart = {};
+let stockStatus = {}; // { code: { outOfStock: bool, eta: 'YYYY-MM-DD' } }
 
 /* ASENNUSPAKETIT */
 const packages = {
@@ -400,7 +457,8 @@ const packages = {
         { code: "T41101", qty: 2 },
         { code: "T41002", qty: 2 },
         { code: "10172", qty: 1 }
-    ],"LD Hightower tiskin alle": [
+    ],
+    "LD Hightower tiskin alle": [
         { code: "30105", qty: 1 },
         { code: "T41460", qty: 3 },
         { code: "T41469", qty: 3 },
@@ -413,15 +471,15 @@ const packages = {
         { code: "T41101", qty: 1 },
         { code: "T00609", qty: 1 },
         { code: "V02257", qty: 1 },
-        { code: "V03010", qty: 1 },
-    ],
-
+        { code: "V03010", qty: 1 }
+    ]
 };
 
 async function loadData() {
     const response = await fetch("data.txt");
     const text = await response.text();
     data = parseData(text);
+    loadStockStatus();
     render();
 }
 
@@ -450,6 +508,16 @@ function parseData(text) {
     });
 
     return categories;
+}
+
+function isOutOfStock(code) {
+    const s = stockStatus[code];
+    return s && s.outOfStock;
+}
+
+function getEta(code) {
+    const s = stockStatus[code];
+    return s && s.eta ? s.eta : "";
 }
 
 function render(filter = "") {
@@ -496,7 +564,12 @@ function render(filter = "") {
         let html = "<b>Sisältää:</b><br><br>";
 
         packages[pkg].forEach(item => {
-            html += `${item.code} × ${item.qty} — ${findName(item.code)}<br>`;
+            const status = stockStatus[item.code];
+            let statusText = "";
+            if (status && status.outOfStock) {
+                statusText = ` <span style="color:#c62828;">(Tilapäisesti loppu${status.eta ? ", uusi erä: " + status.eta : ""})</span>`;
+            }
+            html += `${item.code} × ${item.qty} — ${findName(item.code)}${statusText}<br>`;
         });
 
         html += `<br><button onclick="event.stopPropagation(); addPackage('${pkg}')" 
@@ -531,6 +604,9 @@ function render(filter = "") {
         block.appendChild(title);
 
         products.forEach(p => {
+            const out = isOutOfStock(p.code);
+            const eta = getEta(p.code);
+
             const row = document.createElement("div");
             row.className = "product-item";
 
@@ -539,13 +615,15 @@ function render(filter = "") {
                 <div class="product-info">
                     <div class="product-name" onclick="openImage('${p.code}')">${p.name}</div>
                     <div class="product-code">${p.code}</div>
+                    ${out ? `<div class="product-status">Tilapäisesti loppu${eta ? ` – uusi erä: ${eta}` : ""}</div>` : ""}
                 </div>
                 <div class="qty-controls">
-                    <button class="qty-btn" onclick="changeQtyFromList('${p.code}', -1)">-</button>
+                    <button class="qty-btn" ${out ? "disabled" : ""} onclick="changeQtyFromList('${p.code}', -1)">-</button>
                     <input id="qty_${p.code}" type="number" min="0" value="${cart[p.code]?.qty || 0}"
+                           ${out ? "disabled" : ""}
                            oninput="setQtyFromInput('${p.code}', this.value)"
                            style="width:45px; text-align:center; padding:6px; border:1px solid:#ccc; border-radius:6px;">
-                    <button class="qty-btn" onclick="changeQtyFromList('${p.code}', 1)">+</button>
+                    <button class="qty-btn" ${out ? "disabled" : ""} onclick="changeQtyFromList('${p.code}', 1)">+</button>
                 </div>
             `;
 
@@ -597,6 +675,7 @@ function addPackage(name) {
     if (!items) return;
 
     items.forEach(p => {
+        if (isOutOfStock(p.code)) return;
         if (!cart[p.code]) {
             cart[p.code] = {
                 code: p.code,
@@ -613,6 +692,7 @@ function addPackage(name) {
 
 /* MÄÄRÄN MUUTOS LISTASTA + POPUP */
 function changeQtyFromList(code, delta) {
+    if (isOutOfStock(code)) return;
 
     if (delta === 1 && relatedItems[code]) {
         openRelatedPopup(code);
@@ -635,6 +715,12 @@ function changeQtyFromList(code, delta) {
 
 /* MÄÄRÄN ASETUS KENTÄSTÄ */
 function setQtyFromInput(code, value) {
+    if (isOutOfStock(code)) {
+        const input = document.getElementById("qty_" + code);
+        if (input) input.value = cart[code]?.qty || 0;
+        return;
+    }
+
     let qty = parseInt(value);
     if (isNaN(qty) || qty < 0) qty = 0;
 
@@ -652,7 +738,7 @@ function updateCart() {
     const div = document.getElementById("basket-items");
     div.innerHTML = "";
 
-    const items = Object.values(cart);
+    const items = Object.values(cart).filter(i => !isOutOfStock(i.code));
 
     if (items.length === 0) {
         div.innerHTML = `<p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>`;
@@ -716,11 +802,9 @@ function finalSubmit() {
     const paikka = document.getElementById("f_paikkakunta").value;
     const lisatiedot = document.getElementById("f_lisatiedot").value;
 
-    const items = Object.values(cart);
+    const items = Object.values(cart).filter(i => !isOutOfStock(i.code));
 
     const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
-
-    // 🔵 RAKENNETAAN KERÄILYLISTA
 
     let longestCode = 0;
     let longestName = 0;
@@ -759,7 +843,7 @@ function finalSubmit() {
         list += `${nro} | ${code} | ${nameLines[0].padEnd(maxNameLength)} | ${qty}\n`;
 
         for (let j = 1; j < nameLines.length; j++) {
-       list += `   | ${" ".repeat(longestCode)} | ${nameLines[j].padEnd(maxNameLength)} |\n`;
+            list += `   | ${" ".repeat(longestCode)} | ${nameLines[j].padEnd(maxNameLength)} |\n`;
         }
 
         index++;
@@ -782,11 +866,11 @@ Lisätiedot: ${lisatiedot}
 ${list}
 `;
 
-window.location.href =
-    `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}   // finalSubmit päättyy tähän
+    window.location.href =
+        `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
 
-// 🔵 VAIHE 1: Viivakoodifunktio
+/* Viivakoodifunktio */
 function generateBarcodeBase64(code) {
     const canvas = document.createElement("canvas");
     JsBarcode(canvas, code, {
@@ -796,6 +880,84 @@ function generateBarcodeBase64(code) {
         displayValue: false
     });
     return canvas.toDataURL("image/png");
+}
+
+/* ADMIN LOGIN + VARASTOLOGIIKKA */
+
+function adminLogin() {
+    const user = document.getElementById("adminUser").value.trim();
+    const pass = document.getElementById("adminPass").value.trim();
+
+    // Voit vaihtaa nämä haluamiksi arvoiksi
+    const validUser = "admin";
+    const validPass = "hartwall";
+
+    if (user === validUser && pass === validPass) {
+        document.getElementById("adminLoginPopup").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+        alert("Kirjautuminen onnistui.");
+    } else {
+        alert("Virheellinen käyttäjätunnus tai salasana.");
+    }
+}
+
+document.getElementById("adminLoginBtn").onclick = () => {
+    document.getElementById("adminLoginPopup").style.display = "flex";
+};
+
+document.getElementById("adminLoginPopup").onclick = (e) => {
+    if (e.target.id === "adminLoginPopup") {
+        document.getElementById("adminLoginPopup").style.display = "none";
+    }
+};
+
+function loadStockStatus() {
+    try {
+        const raw = localStorage.getItem("stockStatus");
+        if (raw) {
+            stockStatus = JSON.parse(raw);
+        }
+    } catch (e) {
+        stockStatus = {};
+    }
+}
+
+function saveStockStatusToStorage() {
+    localStorage.setItem("stockStatus", JSON.stringify(stockStatus));
+}
+
+function saveStockStatus() {
+    const code = document.getElementById("adminCode").value.trim();
+    const out = document.getElementById("adminOutOfStock").checked;
+    const eta = document.getElementById("adminETA").value;
+
+    if (!code) {
+        alert("Anna tuotekoodi.");
+        return;
+    }
+
+    if (!stockStatus[code]) stockStatus[code] = {};
+    stockStatus[code].outOfStock = out;
+    stockStatus[code].eta = eta || "";
+
+    saveStockStatusToStorage();
+    render();
+    updateCart();
+    alert("Varastotilanne tallennettu.");
+}
+
+function clearStockStatus() {
+    const code = document.getElementById("adminCode").value.trim();
+    if (!code) {
+        alert("Anna tuotekoodi.");
+        return;
+    }
+
+    delete stockStatus[code];
+    saveStockStatusToStorage();
+    render();
+    updateCart();
+    alert("Loppu‑merkintä poistettu.");
 }
 
 /* KÄYNNISTYS */
