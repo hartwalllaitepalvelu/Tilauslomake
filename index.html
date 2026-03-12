@@ -666,71 +666,54 @@ function finalSubmit() {
 
     const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
 
-    // ============================
-    //  EXCEL-TYYLINEN KERÄILYLISTA
-    // ============================
+    // 🔵 RAKENNETAAN KERÄILYLISTA
 
-    // Sarakeleveydet
-    const colNro = 4;
-    const colCode = 10;
-    const colName = 30;
-    const colQty = 6;
-    const colOK = 6;
-    const colJT = 6;
+    let longestCode = 0;
+    let longestName = 0;
 
-    // Apufunktio tasaamiseen
-    const pad = (txt, len) => (txt + " ".repeat(len)).substring(0, len);
+    items.forEach(i => {
+        if (i.code.length > longestCode) longestCode = i.code.length;
+        if (i.name.length > longestName) longestName = i.name.length;
+    });
 
-    // Taulukon vaakaviiva
-    const line =
-        "+" +
-        "-".repeat(colNro + 2) + "+" +
-        "-".repeat(colCode + 2) + "+" +
-        "-".repeat(colName + 2) + "+" +
-        "-".repeat(colQty + 2) + "+" +
-        "-".repeat(colOK + 2) + "+" +
-        "-".repeat(colJT + 2) + "+\n";
+    longestCode += 2;
+    const maxNameLength = 40;
 
     let list = "";
     list += "========================= KERÄILYLISTA =========================\n";
-    list += line;
-    list += `| ${pad("Nro", colNro)} | ${pad("Koodi", colCode)} | ${pad("Nimi", colName)} | ${pad("Määrä", colQty)} | ${pad("OK", colOK)} | ${pad("JT", colJT)} |\n`;
-    list += line;
+    list += `Nro | ${"Nimike".padEnd(longestCode)} | ${"Nimi".padEnd(maxNameLength)} | Määrä\n`;
+    list += "-----------------------------------------------------------------\n";
 
     let index = 1;
 
     items.forEach(i => {
         const nro = String(index).padStart(2, "0");
-        const itemName = (i.name && i.name.trim() !== "") ? i.name : i.code;
+        const code = i.code.padEnd(longestCode, " ");
 
-        // Pilkotaan nimi usealle riville
         const nameLines = [];
-        let name = itemName;
+        let name = i.name;
 
-        while (name.length > colName) {
-            nameLines.push(name.substring(0, colName));
-            name = name.substring(colName);
+        while (name.length > maxNameLength) {
+            nameLines.push(name.substring(0, maxNameLength));
+            name = name.substring(maxNameLength);
         }
         nameLines.push(name);
 
-        // Ensimmäinen rivi
-        list += `| ${pad(nro, colNro)} | ${pad(i.code, colCode)} | ${pad(nameLines[0], colName)} | ${pad(String(i.qty), colQty)} | ${pad("[   ]", colOK)} | ${pad("[   ]", colJT)} |\n`;
+        const qty = String(i.qty).padEnd(5, " ");
+        const barcode = generateBarcodeBase64(i.code);
 
-        // Jatkorivit
+        list += `${nro} | ${code} | ${nameLines[0].padEnd(maxNameLength)} | ${qty}\n`;
+
         for (let j = 1; j < nameLines.length; j++) {
-            list += `| ${pad("", colNro)} | ${pad("", colCode)} | ${pad(nameLines[j], colName)} | ${pad("", colQty)} | ${pad("[   ]", colOK)} | ${pad("[   ]", colJT)} |\n`;
+       list += `   | ${" ".repeat(longestCode)} | ${nameLines[j].padEnd(maxNameLength)} |\n`;
         }
 
-        list += line;
         index++;
     });
 
+    list += "-----------------------------------------------------------------\n";
     list += `Tuoterivejä yhteensä: ${items.length}\n`;
-    list += "==========================================================================\n";
-
-    // ============================
-    //  SÄHKÖPOSTI
-    // ============================
+    list += "=================================================================\n";
 
     const body =
 `Tilaaja: ${tilaaja}
@@ -747,7 +730,7 @@ ${list}
 
     window.location.href =
         `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}}   <!-- finalSubmit päättyy tähän -->
+}   <!-- finalSubmit päättyy tähän -->
 
 // 🔵 VAIHE 1: Viivakoodifunktio
 function generateBarcodeBase64(code) {
