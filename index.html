@@ -782,9 +782,9 @@ Lisätiedot: ${lisatiedot}
 ${list}
 `;
 
-    window.location.href =
-        `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}   <!-- finalSubmit päättyy tähän -->
+window.location.href =
+    `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}   // finalSubmit päättyy tähän
 
 // 🔵 VAIHE 1: Viivakoodifunktio
 function generateBarcodeBase64(code) {
