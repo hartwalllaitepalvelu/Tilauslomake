@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hartwall Varaosatilaus</title>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <style>
 :root { --hw-blue:#004593; --hw-light:#eef4fb; --hw-green:#28a745; --sidebar:380px; }
 body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-size:14px; color:#333; padding-bottom:120px; }
@@ -141,6 +142,7 @@ header {
     border-radius:12px;
     box-shadow:0 6px 25px rgba(0,0,0,0.35);
     overflow:hidden;
+    animation:fadeIn 0.25s ease-out;
 }
 
 /* POPUP HEADER */
@@ -272,6 +274,50 @@ const relatedItems = {
     "V02364": ["V03010","V02257","V02351","T00457","T02256","T41430","T00613","T00609","T41101","T41002"],
     "V02355": ["V03010","V02257","V02351","T00457","T02256","T41430","T00613","T00609","T41101","T41002"],
     "V02356": ["V03010","V02257","V02351","T00457","T02256","T41430","T00613","T00609","T41101","T41002"]
+};
+
+function openRelatedPopup(code) {
+    const overlay = document.getElementById("relatedOverlay");
+    const content = document.getElementById("relatedContent");
+
+    content.innerHTML = "";
+
+    const list = relatedItems[code];
+    if (!list) return;
+
+    list.forEach(rel => {
+        const div = document.createElement("div");
+        div.className = "related-item";
+
+        div.innerHTML = `
+            <div><strong>${rel}</strong> — ${findName(rel) || ""}</div>
+            <button class="related-btn" onclick="addRelatedItem('${rel}')">Lisää</button>
+        `;
+
+        content.appendChild(div);
+    });
+
+    overlay.style.display = "flex";
+}
+
+function addRelatedItem(code) {
+    if (!cart[code]) {
+        cart[code] = { code, name: findName(code), qty: 1 };
+    } else {
+        cart[code].qty++;
+    }
+
+    updateCart();
+}
+
+document.getElementById("relatedClose").onclick = () => {
+    document.getElementById("relatedOverlay").style.display = "none";
+};
+
+document.getElementById("relatedOverlay").onclick = (e) => {
+    if (e.target.id === "relatedOverlay") {
+        document.getElementById("relatedOverlay").style.display = "none";
+    }
 };
 
 let data = {};
@@ -497,11 +543,10 @@ function addPackage(name) {
     if (!items) return;
 
     items.forEach(p => {
-        const itemName = findName(p.code) || p.code;
         if (!cart[p.code]) {
             cart[p.code] = {
                 code: p.code,
-                name: itemName,
+                name: findName(p.code),
                 qty: p.qty
             };
         } else {
@@ -512,17 +557,6 @@ function addPackage(name) {
     updateCart();
 }
 
-/* SUOSITELLUN LISÄOSAN LISÄYS */
-function addRelatedItem(code) {
-    const itemName = findName(code) || code;
-    if (!cart[code]) {
-        cart[code] = { code, name: itemName, qty: 1 };
-    } else {
-        cart[code].qty++;
-    }
-    updateCart();
-}
-
 /* MÄÄRÄN MUUTOS LISTASTA + POPUP */
 function changeQtyFromList(code, delta) {
 
@@ -530,9 +564,7 @@ function changeQtyFromList(code, delta) {
         openRelatedPopup(code);
     }
 
-    const itemName = findName(code) || code;
-
-    if (!cart[code]) cart[code] = { code, name: itemName, qty: 0 };
+    if (!cart[code]) cart[code] = { code, name: findName(code), qty: 0 };
     cart[code].qty += delta;
 
     if (cart[code].qty <= 0) {
@@ -552,12 +584,10 @@ function setQtyFromInput(code, value) {
     let qty = parseInt(value);
     if (isNaN(qty) || qty < 0) qty = 0;
 
-    const itemName = findName(code) || code;
-
     if (qty === 0) {
         delete cart[code];
     } else {
-        cart[code] = { code, name: itemName, qty };
+        cart[code] = { code, name: findName(code), qty };
     }
 
     updateCart();
@@ -621,42 +651,7 @@ window.addEventListener("scroll", () => {
     else btn.classList.remove("show");
 });
 
-/* POPUP AVAUS */
-function openRelatedPopup(code) {
-    const overlay = document.getElementById("relatedOverlay");
-    const content = document.getElementById("relatedContent");
-
-    content.innerHTML = "";
-
-    const list = relatedItems[code];
-    if (!list) return;
-
-    list.forEach(rel => {
-        const div = document.createElement("div");
-        div.className = "related-item";
-
-        div.innerHTML = `
-            <div><strong>${rel}</strong> — ${findName(rel) || ""}</div>
-            <button class="related-btn" onclick="addRelatedItem('${rel}')">Lisää</button>
-        `;
-
-        content.appendChild(div);
-    });
-
-    overlay.style.display = "flex";
-}
-
-document.getElementById("relatedClose").onclick = () => {
-    document.getElementById("relatedOverlay").style.display = "none";
-};
-
-document.getElementById("relatedOverlay").onclick = (e) => {
-    if (e.target.id === "relatedOverlay") {
-        document.getElementById("relatedOverlay").style.display = "none";
-    }
-};
-
-/* LOPULLINEN LÄHETYS – EXCEL-TYYLINEN KERÄILYLISTA */
+/* LOPULLINEN LÄHETYS */
 function finalSubmit() {
     const tilaaja = document.getElementById("f_tilaaja").value;
     const varasto = document.getElementById("f_varasto").value;
@@ -671,48 +666,54 @@ function finalSubmit() {
 
     const subject = `Varaosatilaus - ${tilaaja} - ${varasto}`;
 
-    // Sarakeleveydet
-    const colNro = 4;
-    const colCode = 10;
-    const colName = 30;
-    const colQty = 6;
-    const colOK = 7;
-    const colJT = 7;
+    // 🔵 RAKENNETAAN KERÄILYLISTA
 
-    const pad = (txt, len) => (txt + " ".repeat(len)).substring(0, len);
+    let longestCode = 0;
+    let longestName = 0;
+
+    items.forEach(i => {
+        if (i.code.length > longestCode) longestCode = i.code.length;
+        if (i.name.length > longestName) longestName = i.name.length;
+    });
+
+    longestCode += 2;
+    const maxNameLength = 40;
 
     let list = "";
     list += "========================= KERÄILYLISTA =========================\n";
-    list += `| ${pad("Nro", colNro)} | ${pad("Koodi", colCode)} | ${pad("Nimi", colName)} | ${pad("Määrä", colQty)} | ${pad("OK", colOK)} | ${pad("JT", colJT)} |\n`;
-    list += "--------------------------------------------------------------------------\n";
+    list += `Nro | ${"Nimike".padEnd(longestCode)} | ${"Nimi".padEnd(maxNameLength)} | Määrä\n`;
+    list += "-----------------------------------------------------------------\n";
 
     let index = 1;
 
     items.forEach(i => {
         const nro = String(index).padStart(2, "0");
-        const itemName = (i.name && i.name.trim() !== "") ? i.name : i.code;
+        const code = i.code.padEnd(longestCode, " ");
 
         const nameLines = [];
-        let name = itemName;
+        let name = i.name;
 
-        while (name.length > colName) {
-            nameLines.push(name.substring(0, colName));
-            name = name.substring(colName);
+        while (name.length > maxNameLength) {
+            nameLines.push(name.substring(0, maxNameLength));
+            name = name.substring(maxNameLength);
         }
         nameLines.push(name);
 
-        list += `| ${pad(nro, colNro)} | ${pad(i.code, colCode)} | ${pad(nameLines[0], colName)} | ${pad(String(i.qty), colQty)} | ${pad("[   ]", colOK)} | ${pad("[   ]", colJT)} |\n`;
+        const qty = String(i.qty).padEnd(5, " ");
+        const barcode = generateBarcodeBase64(i.code);
+
+        list += `${nro} | ${code} | ${nameLines[0].padEnd(maxNameLength)} | ${qty}\n`;
 
         for (let j = 1; j < nameLines.length; j++) {
-            list += `| ${pad("", colNro)} | ${pad("", colCode)} | ${pad(nameLines[j], colName)} | ${pad("", colQty)} | ${pad("[   ]", colOK)} | ${pad("[   ]", colJT)} |\n`;
+       list += `   | ${" ".repeat(longestCode)} | ${nameLines[j].padEnd(maxNameLength)} |\n`;
         }
 
         index++;
     });
 
-    list += "--------------------------------------------------------------------------\n";
+    list += "-----------------------------------------------------------------\n";
     list += `Tuoterivejä yhteensä: ${items.length}\n`;
-    list += "==========================================================================\n";
+    list += "=================================================================\n";
 
     const body =
 `Tilaaja: ${tilaaja}
@@ -729,6 +730,18 @@ ${list}
 
     window.location.href =
         `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}   <!-- finalSubmit päättyy tähän -->
+
+// 🔵 VAIHE 1: Viivakoodifunktio
+function generateBarcodeBase64(code) {
+    const canvas = document.createElement("canvas");
+    JsBarcode(canvas, code, {
+        format: "CODE128",
+        width: 2,
+        height: 40,
+        displayValue: false
+    });
+    return canvas.toDataURL("image/png");
 }
 
 /* KÄYNNISTYS */
