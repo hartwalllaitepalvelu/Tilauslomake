@@ -202,7 +202,7 @@ header {
 }
 </style>
 
-<!-- jsPDF ja JsBarcode tänne -->
+<!-- jsPDF ja JsBarcode -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
@@ -259,21 +259,21 @@ header {
 
     </div>
 
-   <!-- OSTOSKORI -->
-<div class="sidebar">
-    <div class="sidebar-header">OSTOSKORI (<span id="basket-count">0</span>)</div>
-    <div id="basket-items" class="sidebar-content">
-        <p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>
-    </div>
-    <div style="padding:15px;">
-        <button class="btn-send" onclick="finalSubmit()">LÄHETÄ TILAUS</button>
+    <!-- OSTOSKORI -->
+    <div class="sidebar">
+        <div class="sidebar-header">OSTOSKORI (<span id="basket-count">0</span>)</div>
+        <div id="basket-items" class="sidebar-content">
+            <p style="text-align:center; color:#999; padding:20px;">Kori on tyhjä.</p>
+        </div>
+        <div style="padding:15px;">
+            <button class="btn-send" onclick="finalSubmit()">LÄHETÄ TILAUS</button>
 
-        <!-- PDF-nappi tähän -->
-        <button id="generatePdfBtn" class="btn-send" style="margin-top:10px;">
-            LUO PDF‑KERÄILYLISTA
-        </button>
+            <!-- PDF-nappi -->
+            <button id="generatePdfBtn" class="btn-send" style="margin-top:10px;">
+                LUO PDF‑KERÄILYLISTA
+            </button>
+        </div>
     </div>
-</div>
 
 </div>
 
@@ -709,7 +709,7 @@ ${list}
 loadData();
 </script>
 
-<!-- PDF-KOODI -->
+<!-- PDF-KOODI (täydellinen, valmis) -->
 <script>
 document.getElementById("generatePdfBtn").addEventListener("click", generatePDF);
 
@@ -770,12 +770,13 @@ async function generatePDF() {
     doc.line(10, y, pageWidth - 10, y);
     y += 6;
 
-    // --- OSTOSKORIN TUOTTEET ---
-    const rows = Array.from(document.querySelectorAll(".cart-item")).map(row => ({
-        code: row.dataset.code,
-        qty: row.querySelector(".qty").textContent,
-        name: row.querySelector(".name").textContent
-    }));
+    // --- OSTOSKORIN TUOTTEET (basket-item) ---
+    const rows = Array.from(document.querySelectorAll(".basket-item")).map(row => {
+        const name = row.querySelector("div div:nth-child(1)").textContent.trim();
+        const code = row.querySelector("div div:nth-child(2)").textContent.trim();
+        const qty = row.querySelector(".qty-controls span").textContent.trim();
+        return { code, qty, name };
+    });
 
     for (let item of rows) {
 
