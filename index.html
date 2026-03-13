@@ -44,7 +44,9 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .sidebar { width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px); background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; flex-direction:column; border:2px solid var(--hw-blue); }
 .sidebar-header { background:var(--hw-blue); color:white; padding:15px; text-align:center; font-weight:bold; border-radius:10px 10px 0 0; }
 .sidebar-content { flex:1; overflow-y:auto; padding:12px; }
-.basket-item { padding:10px; background:#fff; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; }
+.basket-item { padding:12px; background:#fff; border-bottom:1px solid #eee; display:flex; flex-direction:column; gap:5px; }
+.basket-item-info { font-weight:600; color:var(--hw-blue); }
+
 .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; }
 
 /* MODAALIT JA SUOSITUKSET */
@@ -124,14 +126,14 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 <script>
 const relatedItems = {
     "V02363": ["V03010","V02257","V02351","T00457","T02256","T41430"],
-"V02355": ["V03010","V02257","V02351","T00457","T02256","T41430"],
-"V02356": ["V03010","V02257","V02351","T00457","T02256","T41430"],
-"V02340": ["V03010","V02257","V02351","T00457","T02256","T41430"],
- "V02351": ["V03010","V02257","V02351","T00457","T02256","T41430"],
-     "V02364": ["V03010","V02257","V02351","T00457","T02256","T41430"]
+    "V02355": ["V03010","V02257","V02351","T00457","T02256","T41430"],
+    "V02356": ["V03010","V02257","V02351","T00457","T02256","T41430"],
+    "V02340": ["V03010","V02257","V02351","T00457","T02256","T41430"],
+    "V02351": ["V03010","V02257","V02351","T00457","T02256","T41430"],
+    "V02364": ["V03010","V02257","V02351","T00457","T02256","T41430"]
 };
 
-let data = {}; let cart = {}; let stockStatus = {};
+let data = {}; let cart = {};
 
 function doAppLogin() {
     const u = document.getElementById("uField").value.trim();
@@ -217,7 +219,17 @@ function openRelatedPopup(code) {
 
 function updateCart() {
     const div = document.getElementById("basket-items"); div.innerHTML = "";
-    Object.values(cart).forEach(i => { div.innerHTML += `<div class="basket-item"><span><b>${i.qty} kpl</b> - ${i.name}</span></div>`; });
+    Object.values(cart).forEach(i => {
+        div.innerHTML += `
+            <div class="basket-item">
+                <div class="basket-item-info">${i.name} (${i.code})</div>
+                <div class="qty-controls">
+                    <button class="qty-btn" onclick="changeQtyFromList('${i.code}', -1)">-</button>
+                    <span style="min-width:30px; text-align:center; font-weight:bold;">${i.qty}</span>
+                    <button class="qty-btn" onclick="changeQtyFromList('${i.code}', 1)">+</button>
+                </div>
+            </div>`;
+    });
     document.getElementById("basket-count").textContent = Object.values(cart).length;
 }
 
