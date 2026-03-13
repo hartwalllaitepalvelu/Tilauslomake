@@ -262,7 +262,6 @@ function render(filter = "") {
     const pkgBlock = document.createElement("div");
     pkgBlock.className = "category-block"; pkgBlock.id = pkgCat;
     pkgBlock.innerHTML = `<div class="category-name">${pkgCat}</div>`;
-    
     Object.keys(asennusPaketit).forEach(name => {
         if (name.toLowerCase().includes(filter.toLowerCase())) {
             const row = document.createElement("div");
@@ -336,11 +335,13 @@ function addPackageToCart(pkgName) {
 function changeQtyFromList(code, delta, skipRelated = false) {
     if (stockStatus[code]?.outOfStock && delta > 0) return;
     if (!cart[code]) {
-        let name = ""; for (let cat in data) { let p = data[cat].find(x => x.code === code); if (p) { name = p.name; break; } }
+        let name = "";
+        for (let cat in data) { let p = data[cat].find(x => x.code === code); if (p) { name = p.name; break; } }
         cart[code] = { code, name, qty: 0 };
     }
     if (delta > 0 && relatedItems[code] && !skipRelated) openRelatedPopup(code);
-    cart[code].qty += delta; if (cart[code].qty <= 0) delete cart[code];
+    cart[code].qty += delta;
+    if (cart[code].qty <= 0) delete cart[code];
     updateCart();
     const display = document.getElementById("qty_display_" + code); if (display) display.textContent = cart[code]?.qty || 0;
 }
@@ -378,18 +379,45 @@ function updateCart() {
 }
 
 function finalSubmit() {
-    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, p: document.getElementById("f_pvm").value, tapa: document.getElementById("f_tapa").value, o: document.getElementById("f_osoite").value, nro: document.getElementById("f_postinro").value, paikka: document.getElementById("f_paikka").value };
-    if(!f.t || !f.v || !f.p || !f.tapa || !f.o || !f.nro || !f.paikka) { alert("Täytä kaikki pakolliset kentät!"); return; }
+    const f = { 
+        t: document.getElementById("f_tilaaja").value, 
+        v: document.getElementById("f_varasto").value, 
+        p: document.getElementById("f_pvm").value, 
+        tapa: document.getElementById("f_tapa").value, 
+        o: document.getElementById("f_osoite").value, 
+        nro: document.getElementById("f_postinro").value, 
+        paikka: document.getElementById("f_paikka").value,
+        lisatiedot: document.getElementById("f_lisatiedot").value,
+        vapaat: document.getElementById("f_vapaat").value
+    };
+
+    if(!f.t || !f.v || !f.p || !f.tapa || !f.o || !f.nro || !f.paikka) { 
+        alert("Täytä kaikki pakolliset kentät!"); 
+        return; 
+    }
+
     const subject = `Varaosatilaus: ${f.t} / ${f.v}`;
-    let body = `Tilaaja: ${f.t}\nVarastonumero: ${f.v}\nPäivämäärä: ${f.p}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.nro} ${f.paikka}\n\nTUOTTEET:\n`;
+    let body = `Tilaaja: ${f.t}\nVarastonumero: ${f.v}\nPäivämäärä: ${f.p}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.nro} ${f.paikka}\n`;
+
+    // Lisätään Lisätiedot-kenttä näkyvästi
+    if(f.lisatiedot) {
+        body += `\nLISÄTIEDOT:\n${f.lisatiedot}\n`;
+    }
+
+    body += `\nTUOTTEET:\n`;
     Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
-    if(document.getElementById("f_vapaat").value) body += `\nMUUT: ${document.getElementById("f_vapaat").value}`;
+
+    // Lisätään Muut tuotteet -kenttä selkeästi omana osionaan
+    if(f.vapaat) {
+        body += `\nMUUT TUOTTEET (Listan ulkopuoliset):\n${f.vapaat}\n`;
+    }
+
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function adminLogin() { 
     if (document.getElementById("adminUser").value === "admin" && document.getElementById("adminPass").value === "hartwall") { 
-        document.getElementById("adminLoginPopup").style.display = "none"; 
+        document.getElementById("adminLoginPopup").style.display = "none";
         document.getElementById("adminSection").classList.add("active"); 
     } else { alert("Virhe!"); } 
 }
@@ -410,5 +438,3 @@ document.getElementById("imgModal").onclick = function(e) { if(e.target === this
 </script>
 </body>
 </html>
-
-
