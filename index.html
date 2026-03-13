@@ -6,42 +6,53 @@
 <title>Hartwall Varaosatilaus</title>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <style>
-/* --- ALKUPERÄISET TYYLIT --- */
 :root { --hw-blue:#004593; --hw-light:#eef4fb; --hw-green:#28a745; --sidebar:380px; }
 body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-size:14px; color:#333; padding-bottom:120px; }
+
+/* LISÄTTY: Kirjautumisruudun tyylit */
+#loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--hw-blue); display:flex; justify-content:center; align-items:center; z-index:10000; }
+.login-box { background:white; padding:30px; border-radius:15px; width:320px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
+#appWrapper { display:none; } /* Piilotetaan sovellus ennen kirjautumista */
+
 .main-wrapper { display:flex; max-width:1550px; margin:0 auto; gap:20px; padding:15px; align-items:flex-start; }
 .content-area { flex:1; min-width:0; }
+
+/* LOMAKE - Alkuperäinen */
 .form-box { background:white; padding:25px; border-radius:12px; border:2px solid var(--hw-blue); margin-bottom:20px; box-shadow:0 3px 12px rgba(0,0,0,0.08); }
 .form-box h2 { margin-top:0; color:var(--hw-blue); font-size:22px; font-weight:700; text-align:center; margin-bottom:20px; }
 .form-row { display:flex; flex-direction:column; margin-bottom:18px; }
 .form-row label { font-weight:600; margin-bottom:6px; color:#003366; font-size:15px; }
 .form-row input, .form-row textarea { padding:14px 16px; font-size:16px; border:2px solid #cfd6e3; border-radius:10px; background:#f8faff; transition:0.2s; }
+
 header { background:white; padding:15px; border-radius:12px; border-bottom:4px solid var(--hw-blue); text-align:center; margin-bottom:15px; position:sticky; top:0; z-index:1000; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
 .search-box { width:100%; padding:15px; border:2px solid #ddd; border-radius:8px; font-size:16px; box-sizing:border-box; }
 .nav-dropdown { width:100%; padding:12px; margin-top:10px; border-radius:8px; background:var(--hw-light); font-weight:bold; cursor:pointer; border:1px solid #ccc; }
+
 .category-block { margin-top:35px; scroll-margin-top:200px; }
 .category-name { background:var(--hw-blue); color:white; padding:12px 15px; border-radius:8px; font-weight:bold; text-transform:uppercase; }
+
 .product-item { display:grid; grid-template-columns:40px 1fr auto; gap:12px; padding:15px; border-bottom:1px solid #eee; background:white; align-items:center; }
 .product-thumb { width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer; opacity:0; transition:opacity 0.3s; }
 .product-info { display:flex; flex-direction:column; gap:3px; }
 .product-name { font-weight:600; cursor:pointer; color:var(--hw-blue); text-decoration:underline; }
 .product-code { font-size:12px; color:#666; }
+
 .qty-controls { display:flex; align-items:center; gap:5px; }
 .qty-btn { width:32px; height:32px; border:none; background:#f0f0f0; color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px; }
+
 .sidebar { width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px); background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; flex-direction:column; border:2px solid var(--hw-blue); }
 .sidebar-header { background:var(--hw-blue); color:white; padding:15px; text-align:center; font-weight:bold; border-radius:10px 10px 0 0; }
 .sidebar-content { flex:1; overflow-y:auto; padding:12px; }
 .basket-item { padding:10px; background:#fff; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; }
 .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; }
 
-/* --- UUDET TYYLIT --- */
-#loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#004593; display:flex; justify-content:center; align-items:center; z-index:10000; }
-.login-box { background:white; padding:30px; border-radius:15px; width:320px; text-align:center; }
-#appWrapper { display:none; }
 #historyBox { display:none; background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; font-size:12px; border:1px solid #ddd; }
+
+/* MODAALIT JA ADMIN */
 #imgModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:5000; }
 #modalImage { max-width:90%; max-height:90%; border-radius:10px; }
 #closeModal { position:absolute; top:20px; right:30px; font-size:40px; color:white; cursor:pointer; }
+
 #adminLoginPopup { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:6000; }
 #adminPanel { display:none; position:fixed; top:10%; left:10%; width:80%; height:80%; background:white; z-index:7000; padding:20px; border-radius:15px; box-shadow:0 0 20px rgba(0,0,0,0.5); overflow-y:auto; }
 
@@ -56,10 +67,10 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h2 style="color:#004593">Hartwall Varaosat</h2>
-        <input id="uField" placeholder="Käyttäjä" style="width:90%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
-        <input id="pField" type="password" placeholder="Salasana" style="width:90%; padding:10px; margin-bottom:20px; border:1px solid #ccc; border-radius:5px;">
-        <button onclick="doAppLogin()" style="width:95%; padding:12px; background:#004593; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">KIRJAUDU</button>
+        <h2 style="color:var(--hw-blue)">Hartwall Varaosat</h2>
+        <input id="uIn" placeholder="Käyttäjätunnus" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
+        <input id="pIn" type="password" placeholder="Salasana" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
+        <button onclick="checkAppLogin()" style="width:100%; padding:14px; background:var(--hw-blue); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">KIRJAUDU SISÄÄN</button>
     </div>
 </div>
 
@@ -71,7 +82,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
             <h3>Ylläpito</h3>
             <input id="adminUser" placeholder="Tunnus" style="display:block; margin:10px auto; padding:10px; width:80%;">
             <input id="adminPass" type="password" placeholder="Salasana" style="display:block; margin:10px auto; padding:10px; width:80%;">
-            <button onclick="adminLogin()" style="padding:10px 20px; background:#004593; color:white; border:none; border-radius:6px; cursor:pointer;">Kirjaudu</button>
+            <button onclick="adminLogin()" style="padding:10px 20px; background:var(--hw-blue); color:white; border:none; border-radius:6px;">Kirjaudu</button>
             <button onclick="document.getElementById('adminLoginPopup').style.display='none'" style="display:block; margin:10px auto; background:none; border:none; color:red; cursor:pointer;">Peruuta</button>
         </div>
     </div>
@@ -88,7 +99,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
     <div class="main-wrapper">
         <div class="content-area">
             <div class="form-box">
-                <h2>Tilaustiedot (<span id="uName"></span>)</h2>
+                <h2>Tilaustiedot (<span id="userSpan"></span>)</h2>
                 <div class="form-row"><label>Tilaaja *</label><input id="f_tilaaja"></div>
                 <div class="form-row"><label>Varasto NRO *</label><input id="f_varasto"></div>
                 <div class="form-row"><label>Huoltaja / Toimipiste</label><input id="f_huoltaja"></div>
@@ -119,20 +130,17 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 </div>
 
 <script>
-let data = {};
-let cart = {};
-let stockStatus = {};
-let currentU = "";
-const validU = { "tomppa": "Tomi7122", "admin": "hartwall" };
+let data = {}; let cart = {}; let stockStatus = {}; let currentU = "";
+const validUsers = { "tomppa": "Tomi7122", "admin": "hartwall" };
 
-function doAppLogin() {
-    const u = document.getElementById("uField").value.trim();
-    const p = document.getElementById("pField").value.trim();
-    if(validU[u] && validU[u] === p) {
+function checkAppLogin() {
+    const u = document.getElementById("uIn").value.trim();
+    const p = document.getElementById("pIn").value.trim();
+    if(validUsers[u] && validUsers[u] === p) {
         currentU = u;
         document.getElementById("loginOverlay").style.display = "none";
         document.getElementById("appWrapper").style.display = "block";
-        document.getElementById("uName").textContent = u;
+        document.getElementById("userSpan").textContent = u;
         loadStockStatus(); loadCart(); loadData();
     } else { alert("Virhe!"); }
 }
@@ -141,8 +149,7 @@ async function loadData() {
     try {
         const response = await fetch("data.txt");
         const text = await response.text();
-        data = parseData(text);
-        render();
+        data = parseData(text); render();
     } catch(e) { console.error("Error loading data"); }
 }
 
@@ -198,30 +205,27 @@ function changeQty(code, delta) {
     }
     cart[code].qty += delta; if (cart[code].qty <= 0) delete cart[code];
     localStorage.setItem("cart_" + currentU, JSON.stringify(cart));
-    updateCart();
-    const qEl = document.getElementById("q_" + code); if(qEl) qEl.textContent = cart[code]?.qty || 0;
+    updateCart(); const qEl = document.getElementById("q_" + code); if(qEl) qEl.textContent = cart[code]?.qty || 0;
 }
 
 function updateCart() {
     const div = document.getElementById("basket-items"); div.innerHTML = "";
-    const items = Object.values(cart);
-    items.forEach(i => { div.innerHTML += `<div class="basket-item"><span><b>${i.qty} kpl</b> - ${i.name}</span></div>`; });
-    document.getElementById("basket-count").textContent = items.length;
+    Object.values(cart).forEach(i => { div.innerHTML += `<div class="basket-item"><span><b>${i.qty} kpl</b> - ${i.name}</span></div>`; });
+    document.getElementById("basket-count").textContent = Object.values(cart).length;
 }
 
 function loadCart() { const s = localStorage.getItem("cart_" + currentU); if(s) cart = JSON.parse(s); updateCart(); }
 
 function finalSubmit() {
-    const f = { tilaaja: document.getElementById("f_tilaaja").value, varasto: document.getElementById("f_varasto").value, huoltaja: document.getElementById("f_huoltaja").value, asennus: document.getElementById("f_asennus").value, vapaa: document.getElementById("f_vapaa").value };
-    if(!f.tilaaja || !f.varasto) { alert("Täytä tilaaja ja varasto!"); return; }
-    const items = Object.values(cart);
+    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, h: document.getElementById("f_huoltaja").value, a: document.getElementById("f_asennus").value, txt: document.getElementById("f_vapaa").value };
+    if(!f.t || !f.v) { alert("Täytä tilaaja ja varasto!"); return; }
     const pvm = new Date().toLocaleString('fi-FI');
-    const subject = `Varaosatilaus: ${f.tilaaja} / ${f.varasto}`;
-    let body = `Tilaaja: ${f.tilaaja}\nVarasto: ${f.varasto}\nHuoltaja: ${f.huoltaja}\nAsennus: ${f.asennus}\n\nTUOTTEET:\n`;
-    items.forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
-    if(f.vapaa) body += `\nMUUT: ${f.vapaa}`;
+    const subject = `Varaosatilaus: ${f.t} / ${f.v}`;
+    let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nHuoltaja: ${f.h}\nAsennus: ${f.a}\n\nTUOTTEET:\n`;
+    Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
+    if(f.txt) body += `\nMUUT: ${f.txt}`;
     let hist = JSON.parse(localStorage.getItem("hist_" + currentU) || "[]");
-    hist.unshift({ pvm, kpl: items.length });
+    hist.unshift({ pvm, kpl: Object.values(cart).length });
     localStorage.setItem("hist_" + currentU, JSON.stringify(hist.slice(0,10)));
     window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
