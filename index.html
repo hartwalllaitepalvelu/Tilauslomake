@@ -384,7 +384,7 @@ function finalSubmit() {
     let body = `Tilaaja: ${f.t}\nVarastonumero: ${f.v}\nPäivämäärä: ${f.p}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.nro} ${f.paikka}\n\nTUOTTEET:\n`;
     Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
     if(document.getElementById("f_vapaat").value) body += `\nMUUT: ${document.getElementById("f_vapaat").value}`;
-    window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function adminLogin() { 
@@ -410,3 +410,4 @@ document.getElementById("imgModal").onclick = function(e) { if(e.target === this
 </script>
 </body>
 </html>
+
