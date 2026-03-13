@@ -17,7 +17,6 @@ body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-siz
 .main-wrapper { display:flex; max-width:1550px; margin:0 auto; gap:20px; padding:15px; align-items:flex-start; }
 .content-area { flex:1; min-width:0; }
 
-/* LOMAKE */
 .form-box { background:white; padding:25px; border-radius:12px; border:2px solid var(--hw-blue); margin-bottom:20px; box-shadow:0 3px 12px rgba(0,0,0,0.08); }
 .form-box h2 { margin-top:0; color:var(--hw-blue); font-size:22px; font-weight:700; text-align:center; margin-bottom:20px; }
 .form-row { display:flex; flex-direction:column; margin-bottom:18px; }
@@ -42,7 +41,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .qty-controls { display:flex; align-items:center; gap:5px; }
 .qty-btn { width:32px; height:32px; border:none; background:#f0f0f0; color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px; }
 
-.sidebar { width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px); background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; flex-direction:column; border:2px solid var(--hw-blue); }
+.sidebar { width:var(--sidebar); position:sticky; top:10px; height:calc(100vh - 20px); background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; flex-direction:column; border:2px solid var(--hw-blue); transition: right 0.3s ease; }
 .sidebar-header { background:var(--hw-blue); color:white; padding:15px; text-align:center; font-weight:bold; border-radius:10px 10px 0 0; }
 .sidebar-content { flex:1; overflow-y:auto; padding:12px; }
 
@@ -51,6 +50,10 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .basket-item-name { flex:1; font-weight:600; color:var(--hw-blue); font-size:13px; }
 
 .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; }
+
+/* Mobiilinapit */
+#mobileCartToggle { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--hw-green); color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; z-index: 6000; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; }
+#closeBasketBtn { display: none; width: 100%; padding: 12px; background: #666; color: white; border: none; font-weight: bold; cursor: pointer; }
 
 /* ADMIN Paneeli */
 #adminSection { display: none; border-top: 3px solid var(--hw-blue); background: #fff; padding: 15px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 20000; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
@@ -69,8 +72,10 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 
 @media (max-width: 900px) {
     .main-wrapper { flex-direction: column; }
-    .sidebar { position: fixed; top: 0; right: -100%; width: 320px; height: 100vh; z-index: 5000; transition: right 0.3s ease; }
+    .sidebar { position: fixed; top: 0; right: -100%; width: 320px; height: 100vh; z-index: 5000; }
     .sidebar.open { right: 0; }
+    #mobileCartToggle { display: block; }
+    #closeBasketBtn { display: block; }
     #adminSection { display: none !important; }
 }
 </style>
@@ -147,6 +152,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
         </div>
 
         <div class="sidebar">
+            <button id="closeBasketBtn" onclick="toggleSidebar()">SULJE OSTOSKORI</button>
             <div class="sidebar-header">OSTOSKORI (<span id="basket-count">0</span>)</div>
             <div id="basket-items" class="sidebar-content"></div>
             <div style="padding:15px;">
@@ -157,8 +163,10 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
     </div>
 </div>
 
+<button id="mobileCartToggle" onclick="toggleSidebar()">NÄYTÄ OSTOSKORI</button>
+
 <script>
-// SALLITUT KÄYTTÄJÄT
+// TUNNUKSET
 const sallitutKayttajat = {
     "tomppa": "Tomi7122",
     "markku": "parkinson",
@@ -216,6 +224,11 @@ function doAppLogin() {
         loadStockStatus();
         loadData();
     } else { alert("Virheellinen tunnus tai salasana!"); }
+}
+
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('open');
 }
 
 async function loadData() {
@@ -397,5 +410,3 @@ document.getElementById("imgModal").onclick = function(e) { if(e.target === this
 </script>
 </body>
 </html>
-
-
