@@ -33,6 +33,9 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .category-name { background:var(--hw-blue); color:white; padding:12px 15px; border-radius:8px; font-weight:bold; text-transform:uppercase; }
 
 .product-item { display:grid; grid-template-columns:40px 1fr auto; gap:12px; padding:15px; border-bottom:1px solid #eee; background:white; align-items:center; }
+.product-item.out-of-stock { opacity: 0.5; background: #f9f9f9; pointer-events: none; }
+.product-item.out-of-stock .qty-btn { display: none; }
+
 .product-thumb { width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer; opacity:0; transition:opacity 0.3s; }
 .product-info { display:flex; flex-direction:column; gap:3px; }
 .product-name { font-weight:600; cursor:pointer; color:var(--hw-blue); text-decoration:underline; }
@@ -45,15 +48,24 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .sidebar-header { background:var(--hw-blue); color:white; padding:15px; text-align:center; font-weight:bold; border-radius:10px 10px 0 0; }
 .sidebar-content { flex:1; overflow-y:auto; padding:12px; }
 
-/* Korin muotoilu: Napit oikealla puolella */
-.basket-item { padding:12px; background:#fff; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; gap:10px; }
-.basket-item-info { font-weight:600; color:var(--hw-blue); flex:1; font-size:13px; }
+/* Ostoskori: Koodi - Nimi - Määrä */
+.basket-item { padding:10px; background:#fff; border-bottom:1px solid #eee; display:flex; align-items:center; gap:10px; }
+.basket-item-code { font-weight:bold; font-size:12px; color:#666; width:60px; }
+.basket-item-name { flex:1; font-weight:600; color:var(--hw-blue); font-size:13px; }
 
 .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; }
 
-/* ADMIN Paneeli */
-#adminLoginPopup { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:15000; }
-#adminPanel { display:none; position:fixed; top:10%; left:10%; width:80%; height:80%; background:white; z-index:16000; padding:20px; border-radius:15px; box-shadow:0 0 20px rgba(0,0,0,0.5); overflow-y:auto; }
+/* ADMIN Paneeli alareunassa, vain desktopilla */
+#adminSection { display: none; border-top: 3px solid var(--hw-blue); background: #fff; padding: 20px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 20000; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+#adminSection.active { display: flex; justify-content: center; gap: 20px; align-items: flex-end; }
+#adminLoginPopup { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:21000; }
+
+@media (max-width: 900px) {
+    .main-wrapper { flex-direction: column; }
+    .sidebar { position: fixed; top: 0; right: -100%; width: 320px; height: 100vh; z-index: 5000; transition: right 0.3s ease; }
+    .sidebar.open { right: 0; }
+    #adminSection { display: none !important; } /* Piilotetaan admin-paneeli mobiililla */
+}
 
 #imgModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:11000; }
 #modalImage { max-width:90%; max-height:90%; border-radius:10px; }
@@ -64,12 +76,6 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 #relatedHeader { background:var(--hw-blue); color:white; padding:15px; font-size:18px; font-weight:bold; text-align:center; }
 #relatedContent { padding:20px; max-height:60vh; overflow-y:auto; }
 .related-item { padding:10px; background:#f7f9fc; border-left:4px solid var(--hw-blue); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border-radius:6px; }
-
-@media (max-width: 900px) {
-    .main-wrapper { flex-direction: column; }
-    .sidebar { position: fixed; top: 0; right: -100%; width: 320px; height: 100vh; z-index: 5000; transition: right 0.3s ease; }
-    .sidebar.open { right: 0; }
-}
 </style>
 </head>
 <body>
@@ -88,21 +94,28 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 
     <div id="adminLoginPopup">
         <div style="background:white; padding:25px; border-radius:15px; text-align:center; width:300px;">
-            <h3>Ylläpito</h3>
+            <h3>Ylläpidon kirjautuminen</h3>
             <input id="adminUser" placeholder="Tunnus" style="display:block; margin:10px auto; padding:10px; width:80%;">
             <input id="adminPass" type="password" placeholder="Salasana" style="display:block; margin:10px auto; padding:10px; width:80%;">
             <button onclick="adminLogin()" style="padding:10px 20px; background:var(--hw-blue); color:white; border:none; border-radius:6px; cursor:pointer;">Kirjaudu</button>
-            <button onclick="document.getElementById('adminLoginPopup').style.display='none'" style="display:block; margin:10px auto; background:none; border:none; color:red; cursor:pointer; font-size:12px;">Peruuta</button>
         </div>
     </div>
 
-    <div id="adminPanel">
-        <h2>Varastotilanteen hallinta</h2>
-        <div class="form-row"><label>Tuotekoodi</label><input id="adminCode" placeholder="Esim. V02363"></div>
-        <div class="form-row"><label><input type="checkbox" id="adminOutOfStock"> Loppu varastosta</label></div>
-        <div class="form-row"><label>ETA-aika</label><input id="adminETA" placeholder="Esim. 20.3."></div>
-        <button onclick="saveStockStatus()" style="background:var(--hw-green); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; cursor:pointer; width:100%;">TALLENNA TILANNE</button>
-        <button onclick="document.getElementById('adminPanel').style.display='none'" style="margin-top:10px; width:100%; padding:10px; background:#666; color:white; border:none; border-radius:10px; cursor:pointer;">SULJE</button>
+    <div id="adminSection">
+        <div style="display:flex; flex-direction:column; width:200px;">
+            <label style="font-size:11px; font-weight:bold;">Tuotekoodi</label>
+            <input id="adminCode" placeholder="Esim. V123" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+        <div style="display:flex; flex-direction:column; width:200px;">
+            <label style="font-size:11px; font-weight:bold;">ETA-aika</label>
+            <input id="adminETA" placeholder="Esim. 25.3." style="padding:8px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+        <div style="display:flex; align-items:center; gap:5px; padding-bottom:10px;">
+            <input type="checkbox" id="adminOutOfStock">
+            <label style="font-size:12px; font-weight:bold; color:red;">Loppu varastosta</label>
+        </div>
+        <button onclick="saveStockStatus()" style="padding:10px 20px; background:var(--hw-green); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Tallenna muutos</button>
+        <button onclick="location.reload()" style="padding:10px; background:#666; color:white; border:none; border-radius:6px; cursor:pointer; font-size:11px;">Kirjaudu ulos</button>
     </div>
 
     <div id="relatedOverlay">
@@ -141,8 +154,7 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
             <div id="basket-items" class="sidebar-content"></div>
             <div style="padding:15px;">
                 <button class="btn-send" onclick="finalSubmit()">LÄHETÄ TILAUS</button>
-                <button id="adminLoginBtn" style="width:100%; margin-top:15px; padding:8px; background:#444; color:white; border:none; border-radius:6px; cursor:pointer;">Ylläpito</button>
-                <button onclick="location.reload()" style="width:100%; margin-top:20px; color:red; border:none; background:none; cursor:pointer; font-size:11px;">Kirjaudu ulos</button>
+                <button id="adminLoginBtn" style="width:100%; margin-top:20px; background:#444; color:white; border:none; border-radius:6px; cursor:pointer; padding:8px; font-size:11px;">Ylläpito (vain desktop)</button>
             </div>
         </div>
     </div>
@@ -205,12 +217,14 @@ function render(filter = "") {
         block.innerHTML = `<div class="category-name">${cat}</div>`;
         prods.forEach(p => {
             const status = stockStatus[p.code] || {};
-            const row = document.createElement("div"); row.className = "product-item";
+            const row = document.createElement("div"); 
+            row.className = "product-item" + (status.outOfStock ? " out-of-stock" : "");
+            
             row.innerHTML = `
                 <img class="product-thumb" id="thumb_${p.code}" onclick="openImage('${p.code}')">
                 <div class="product-info">
                     <div class="product-name" onclick="openImage('${p.code}')">${p.name}</div>
-                    <div class="product-code">${p.code} ${status.outOfStock ? '<span style="color:red;font-weight:bold;"> - LOPPU '+(status.eta?'(ETA '+status.eta+')':'')+'</span>' : ''}</div>
+                    <div class="product-code">${p.code} ${status.outOfStock ? '<span style="color:red;font-weight:bold;"> - TILAPÄISESTI LOPPU '+(status.eta?'(ETA '+status.eta+')':'')+'</span>' : ''}</div>
                 </div>
                 <div class="qty-controls">
                     <button class="qty-btn" onclick="changeQtyFromList('${p.code}', -1)">-</button>
@@ -226,6 +240,8 @@ function render(filter = "") {
 }
 
 function changeQtyFromList(code, delta) {
+    if (stockStatus[code]?.outOfStock) return; // Estetään tilaus jos loppu
+
     if (!cart[code]) {
         let name = ""; for (let cat in data) { let p = data[cat].find(x => x.code === code); if (p) { name = p.name; break; } }
         cart[code] = { code, name, qty: 0 };
@@ -249,7 +265,8 @@ function updateCart() {
     Object.values(cart).forEach(i => {
         div.innerHTML += `
             <div class="basket-item">
-                <div class="basket-item-info">${i.name}</div>
+                <div class="basket-item-code">${i.code}</div>
+                <div class="basket-item-name">${i.name}</div>
                 <div class="qty-controls">
                     <button class="qty-btn" onclick="changeQtyFromList('${i.code}', -1)" style="width:25px;height:25px;font-size:14px;">-</button>
                     <span style="min-width:20px; text-align:center; font-weight:bold; font-size:14px;">${i.qty}</span>
@@ -274,7 +291,7 @@ function finalSubmit() {
 function adminLogin() { 
     if (document.getElementById("adminUser").value === "admin" && document.getElementById("adminPass").value === "hartwall") { 
         document.getElementById("adminLoginPopup").style.display = "none"; 
-        document.getElementById("adminPanel").style.display = "block"; 
+        document.getElementById("adminSection").classList.add("active"); 
     } else { alert("Virhe!"); } 
 }
 document.getElementById("adminLoginBtn").onclick = () => document.getElementById("adminLoginPopup").style.display = "flex";
