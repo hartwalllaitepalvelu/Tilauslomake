@@ -9,7 +9,6 @@
 :root { --hw-blue:#004593; --hw-light:#eef4fb; --hw-green:#28a745; --sidebar:380px; }
 body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-size:14px; color:#333; padding-bottom:120px; }
 
-/* Kirjautumisruutu */
 #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--hw-blue); display:flex; justify-content:center; align-items:center; z-index:10000; }
 .login-box { background:white; padding:30px; border-radius:15px; width:320px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
 #appWrapper { display:none; }
@@ -17,7 +16,6 @@ body { font-family:'Segoe UI',sans-serif; margin:0; background:#f0f2f5; font-siz
 .main-wrapper { display:flex; max-width:1550px; margin:0 auto; gap:20px; padding:15px; align-items:flex-start; }
 .content-area { flex:1; min-width:0; }
 
-/* LOMAKE */
 .form-box { background:white; padding:25px; border-radius:12px; border:2px solid var(--hw-blue); margin-bottom:20px; box-shadow:0 3px 12px rgba(0,0,0,0.08); }
 .form-box h2 { margin-top:0; color:var(--hw-blue); font-size:22px; font-weight:700; text-align:center; margin-bottom:20px; }
 .form-row { display:flex; flex-direction:column; margin-bottom:18px; }
@@ -33,13 +31,9 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 .category-name { background:var(--hw-blue); color:white; padding:12px 15px; border-radius:8px; font-weight:bold; text-transform:uppercase; }
 
 .product-item { display:grid; grid-template-columns:40px 1fr auto; gap:12px; padding:15px; border-bottom:1px solid #eee; background:white; align-items:center; }
-.product-item.out-of-stock { opacity: 0.5; background: #f9f9f9; }
-.product-item.out-of-stock .qty-btn { display: none; }
-
 .product-thumb { width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer; opacity:0; transition:opacity 0.3s; }
 .product-info { display:flex; flex-direction:column; gap:3px; }
 .product-name { font-weight:600; cursor:pointer; color:var(--hw-blue); text-decoration:underline; }
-.product-code { font-size:12px; color:#666; }
 
 .qty-controls { display:flex; align-items:center; gap:5px; }
 .qty-btn { width:32px; height:32px; border:none; background:#f0f0f0; color:var(--hw-blue); cursor:pointer; font-weight:bold; font-size:18px; border-radius:6px; }
@@ -54,7 +48,6 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 
 .btn-send { width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; }
 
-/* ADMIN Paneeli */
 #adminSection { display: none; border-top: 3px solid var(--hw-blue); background: #fff; padding: 15px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 20000; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
 #adminSection.active { display: flex; justify-content: center; gap: 15px; align-items: flex-end; }
 #adminLoginPopup { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:21000; }
@@ -103,11 +96,11 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
     <div id="adminSection">
         <div style="display:flex; flex-direction:column; width:180px;">
             <label style="font-size:11px; font-weight:bold;">Tuotekoodi</label>
-            <input id="adminCode" placeholder="Esim. V123" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
+            <input id="adminCode" placeholder="Esim. V123">
         </div>
         <div style="display:flex; flex-direction:column; width:180px;">
             <label style="font-size:11px; font-weight:bold;">ETA-aika</label>
-            <input id="adminETA" placeholder="Esim. 25.3." style="padding:8px; border:1px solid #ddd; border-radius:4px;">
+            <input id="adminETA" placeholder="Esim. 25.3.">
         </div>
         <div style="display:flex; align-items:center; gap:5px; padding-bottom:10px;">
             <input type="checkbox" id="adminOutOfStock">
@@ -163,61 +156,28 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 // Määritellään asennuspaketit (koodi ja määrä)
 const asennusPaketit = {
     "Kotipizza": [
-        { code: "15490", qty: 1 },
-        { code: "26520", qty: 1 },
-        { code: "v00713", qty: 5 },
-        { code: "v00726", qty: 2 },
- { code: "V02356", qty: 1 },
- { code: "V41800", qty: 1 },
-        { code: "V02257", qty: 1 },
-        { code: "V03010", qty: 1 },
-        { code: "T00678", qty: 5 },
-        { code: "T00723", qty: 1 },
-        { code: "T41468", qty: 2 },
-        { code: "T00384", qty: 2 },
-        { code: "10172", qty: 1 },
-        { code: "T41002", qty: 2 },
-        { code: "T00609", qty: 2 },     
-        { code: "T41101", qty: 2 }
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 }
     ],
     "Subway": [
-        { code: "15279", qty: 1 },
-        { code: "10160", qty: 1 },
-        { code: "26520", qty: 1 },
-        { code: "V00713", qty: 4 },
-        { code: "V00726", qty: 1 },
-        { code: "V00727", qty: 1 },
-        { code: "V02356", qty: 1 },
-        { code: "V41800", qty: 1 },
-        { code: "V02257", qty: 1 },
-        { code: "V03010", qty: 1 },
-        { code: "V00678", qty: 4 },
-        { code: "T00723", qty: 1 },
-        { code: "T41468", qty: 2 },
-        { code: "T00384", qty: 2 },
-        { code: "T41002", qty: 2 },
-        { code: "T00609", qty: 2 },
-        { code: "T41101", qty: 2 }
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 }
     ],
     "LD Hightower tiskin alle": [
-        { code: "19814", qty: 1 },
-        { code: "30105", qty: 1 },
-        { code: "V02013", qty: 3 },
-        { code: "T02223", qty: 3 },
- { code: "T02222", qty: 3 },
-        { code: "T41460", qty: 3 },
-        { code: "T41469", qty: 3 },
-        { code: "V02355", qty: 1 },
- { code: "V03010", qty: 1 },
-        { code: "V02257", qty: 1 },
-        { code: "T00609", qty: 1 },
-        { code: "T41101", qty: 1 },
- { code: "T41102", qty: 1 },
-        { code: "M01285", qty: 1 },
-        { code: "M01290", qty: 1 },
-        { code: "M01296", qty: 1 }
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 },
+        { code: "12345", qty: 2 }
     ]
 };
+
 const relatedItems = {
     "V02363": ["V03010","V02257","V02351","T00457","T02256","T41430"],
     "V02355": ["V03010","V02257","V02351","T00457","T02256","T41430"],
@@ -266,7 +226,7 @@ function render(filter = "") {
     const container = document.getElementById("main-list"); container.innerHTML = "";
     const nav = document.getElementById("cat-nav"); nav.innerHTML = `<option value="">-- Hyppää kategoriaan --</option>`;
     
-    // Luodaan ASENNUSPAKETIT kategoria listan alkuun
+    // ASENNUSPAKETIT YLIMMÄKSI
     const pkgCat = "ASENNUSPAKETIT";
     nav.innerHTML += `<option value="${pkgCat}">${pkgCat}</option>`;
     const pkgBlock = document.createElement("div");
@@ -282,7 +242,7 @@ function render(filter = "") {
                 <div style="width:40px; text-align:center; font-size:20px;">📦</div>
                 <div class="product-info">
                     <div class="product-name" onclick="openPackageInfo('${name}')">${name}</div>
-                    <div class="product-code">Asennuspaketti</div>
+                    <div class="product-code">Klikkaa nimeä nähdäksesi sisältö</div>
                 </div>
                 <div class="qty-controls">
                     <button class="qty-btn" onclick="addPackageToCart('${name}')" style="width:auto; padding:0 10px; font-size:12px; background:var(--hw-green); color:white;">Lisää paketti</button>
@@ -292,7 +252,6 @@ function render(filter = "") {
     });
     container.appendChild(pkgBlock);
 
-    // Muut kategoriat
     Object.keys(data).forEach(cat => {
         const prods = data[cat].filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
         if (prods.length === 0) return;
@@ -324,20 +283,20 @@ function render(filter = "") {
 }
 
 function openPackageInfo(pkgName) {
-    const codes = asennusPaketit[pkgName];
+    const items = asennusPaketit[pkgName];
     const content = document.getElementById("relatedContent");
     content.innerHTML = `<p style="margin-bottom:15px; font-weight:bold; color:var(--hw-blue);">Paketin sisältö:</p>`;
     
-    codes.forEach(code => {
+    items.forEach(item => {
         let pName = "Tuotteen nimi";
         for (let cat in data) {
-            let p = data[cat].find(x => x.code === code);
+            let p = data[cat].find(x => x.code === item.code);
             if (p) { pName = p.name; break; }
         }
         content.innerHTML += `
             <div class="related-item">
-                <div style="flex:1;"><b>${code}</b> - ${pName}</div>
-                <div>1 kpl</div>
+                <div style="flex:1;"><b>${item.code}</b><br><span style="font-size:12px; color:#666;">${pName}</span></div>
+                <div style="font-weight:bold;">${item.qty} kpl</div>
             </div>`;
     });
     
@@ -346,11 +305,11 @@ function openPackageInfo(pkgName) {
 }
 
 function addPackageToCart(pkgName) {
-    const codes = asennusPaketit[pkgName];
-    codes.forEach(code => {
-        changeQtyFromList(code, 1, true); // true = ohitetaan suositusikkuna pakettia lisättäessä
+    const items = asennusPaketit[pkgName];
+    items.forEach(item => {
+        changeQtyFromList(item.code, item.qty, true);
     });
-    alert("Paketin osat lisätty ostoskoriin.");
+    alert("Asennuspaketti purettu ja tuotteet lisätty koriin.");
 }
 
 function changeQtyFromList(code, delta, skipRelated = false) {
@@ -360,9 +319,7 @@ function changeQtyFromList(code, delta, skipRelated = false) {
         let name = ""; for (let cat in data) { let p = data[cat].find(x => x.code === code); if (p) { name = p.name; break; } }
         cart[code] = { code, name, qty: 0 };
     }
-    
     if (delta > 0 && relatedItems[code] && !skipRelated) openRelatedPopup(code);
-    
     cart[code].qty += delta; if (cart[code].qty <= 0) delete cart[code];
     updateCart();
     const display = document.getElementById("qty_display_" + code); if (display) display.textContent = cart[code]?.qty || 0;
@@ -378,7 +335,10 @@ function openRelatedPopup(parentCode) {
         }
         content.innerHTML += `
             <div class="related-item">
-                <div style="flex:1;"><b>${relCode}</b><br><span style="font-size:12px; color:#666;">${relName}</span></div>
+                <div class="related-item-info">
+                    <b>${relCode}</b><br>
+                    <span style="font-size:12px; color:#666;">${relName}</span>
+                </div>
                 <button onclick="changeQtyFromList('${relCode}', 1)" style="background:var(--hw-green); color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">Lisää</button>
             </div>`;
     });
