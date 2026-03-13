@@ -160,13 +160,64 @@ header { background:white; padding:15px; border-radius:12px; border-bottom:4px s
 </div>
 
 <script>
-// Määritellään asennuspaketit
+// Määritellään asennuspaketit (koodi ja määrä)
 const asennusPaketit = {
-    "Kotipizza": ["12345", "12345", "12345", "12345", "12345"],
-    "Subway": ["12345", "12345", "12345", "12345", "12345"],
-    "LD Hightower tiskin alle": ["12345", "12345", "12345", "12345", "12345"]
+    "Kotipizza": [
+        { code: "15490", qty: 1 },
+        { code: "26520", qty: 1 },
+        { code: "v00713", qty: 5 },
+        { code: "v00726", qty: 2 },
+ { code: "V02356", qty: 1 },
+ { code: "V41800", qty: 1 },
+        { code: "V02257", qty: 1 },
+        { code: "V03010", qty: 1 },
+        { code: "T00678", qty: 5 },
+        { code: "T00723", qty: 1 },
+        { code: "T41468", qty: 2 },
+        { code: "T00384", qty: 2 },
+        { code: "10172", qty: 1 },
+        { code: "T41002", qty: 2 },
+        { code: "T00609", qty: 2 },     
+        { code: "T41101", qty: 2 }
+    ],
+    "Subway": [
+        { code: "15279", qty: 1 },
+        { code: "10160", qty: 1 },
+        { code: "26520", qty: 1 },
+        { code: "V00713", qty: 4 },
+        { code: "V00726", qty: 1 },
+        { code: "V00727", qty: 1 },
+        { code: "V02356", qty: 1 },
+        { code: "V41800", qty: 1 },
+        { code: "V02257", qty: 1 },
+        { code: "V03010", qty: 1 },
+        { code: "V00678", qty: 4 },
+        { code: "T00723", qty: 1 },
+        { code: "T41468", qty: 2 },
+        { code: "T00384", qty: 2 },
+        { code: "T41002", qty: 2 },
+        { code: "T00609", qty: 2 },
+        { code: "T41101", qty: 2 }
+    ],
+    "LD Hightower tiskin alle": [
+        { code: "19814", qty: 1 },
+        { code: "30105", qty: 1 },
+        { code: "V02013", qty: 3 },
+        { code: "T02223", qty: 3 },
+ { code: "T02222", qty: 3 },
+        { code: "T41460", qty: 3 },
+        { code: "T41469", qty: 3 },
+        { code: "V02355", qty: 1 },
+ { code: "V03010", qty: 1 },
+        { code: "V02257", qty: 1 },
+        { code: "T00609", qty: 1 },
+        { code: "T41101", qty: 1 },
+ { code: "T41102", qty: 1 },
+        { code: "M01285", qty: 1 },
+        { code: "M01290", qty: 1 },
+        { code: "M01296", qty: 1 }
+    ]
 };
-
 const relatedItems = {
     "V02363": ["V03010","V02257","V02351","T00457","T02256","T41430"],
     "V02355": ["V03010","V02257","V02351","T00457","T02256","T41430"],
