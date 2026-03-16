@@ -9,11 +9,8 @@
 :root { --hw-blue:#004593; --hw-dark:#002d62; --hw-green:#28a745; --sidebar-w: 280px; }
 body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:14px; color:#333; padding-bottom: 120px; }
 
-/* KIRJAUTUMISIKKUNA (PALAUTETTU) */
+/* MODALS */
 #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--hw-blue); display:flex; justify-content:center; align-items:center; z-index:100000; }
-.login-box { background:white; padding:40px; border-radius:12px; width:340px; text-align:center; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
-.login-box input { width:100%; padding:12px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; }
-
 #adminLoginPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,45,147,0.8); display:flex; justify-content:center; align-items:center; z-index:100001; }
 #pkgModal, #imgModal, #relatedOverlay, #fullCartModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; justify-content:center; align-items:center; }
 
@@ -43,13 +40,9 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .product-card.out { opacity: 0.6; filter: grayscale(0.5); }
 .thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
 
-/* QTY AREA & PAKETTI-IKKUNAN TASAUS */
-.qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; }
+.qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 .qty-input { width: 35px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
-
-/* ASENNUSPAKETIN RIVIN TASAUS */
-.pkg-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
 
 .search-container { position: relative; margin-bottom: 20px; }
 #filter { width: 100%; padding: 14px 45px 14px 20px; font-size: 15px; border: 2px solid var(--hw-blue); border-radius: 50px; box-sizing: border-box; }
@@ -61,6 +54,9 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 
 #adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
 #btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; font-weight: bold; cursor: pointer; font-size: 20px; }
+
+.login-box { text-align: center; background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; width: 300px; }
+.login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; box-sizing: border-box; }
 
 @media (max-width: 900px) {
     .mobile-top-bar { display: flex; }
@@ -78,7 +74,15 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 </head>
 <body>
 
-<div id="loginOverlay"><div class="login-box"><h2>Hartwall Varaosat</h2><input id="uField" placeholder="Käyttäjätunnus"><input id="pField" type="password" placeholder="Salasana"><button onclick="doAppLogin()" style="width:100%; padding:14px; background:var(--hw-blue); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">KIRJAUDU SISÄÄN</button></div></div>
+<div id="loginOverlay">
+    <div class="login-box">
+        <img src="392px-Hartwallin_logo.svg.png" alt="Hartwall Logo" style="width: 100%; max-width: 220px; margin-bottom: 20px;">
+        <h2 style="color:white; margin-bottom: 20px;">Varaosatilaus</h2>
+        <input id="uField" placeholder="Käyttäjätunnus">
+        <input id="pField" type="password" placeholder="Salasana">
+        <button onclick="doAppLogin()" style="width:100%; padding:14px; background:var(--hw-dark); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">KIRJAUDU SISÄÄN</button>
+    </div>
+</div>
 
 <div id="appWrapper" style="display:none;">
     <div class="mobile-top-bar">
@@ -112,8 +116,6 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                 <button id="clearSearch" onclick="resetSearch()">✕</button>
             </div>
 
-            <button onclick="openFullCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-weight:bold; margin-bottom:20px; cursor:pointer;">🛒 TARKASTELE OSTOSKORIA JA TILAA</button>
-
             <div style="background:#fff9c4; padding:20px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:30px;">
                 <div style="font-weight:bold; margin-bottom:10px; color:var(--hw-blue);">VALMIIT ASENNUSPAKETIT</div>
                 <div id="pkg-buttons" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
@@ -126,7 +128,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
             <div class="cart-header" style="background:var(--hw-green); color:white; padding:20px; text-align:center; font-weight:bold;">OSTOSKORI (<span id="basket-count">0</span>) <span onclick="toggleSidebar('cart-sidebar')" style="float:right; cursor:pointer; font-size:20px;">✕</span></div>
             <div id="basket-items" style="flex:1; overflow-y:auto; padding:10px;"></div>
             <div style="padding:15px; border-top:1px solid #eee;">
-                <button onclick="openFullCart()" style="width:100%; padding:12px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">LÄHETÄ TILAUS</button>
+                <button onclick="openFullCart()" style="width:100%; padding:12px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">TARKASTELE OSTOSKORIA JA TILAA</button>
                 <button onclick="document.getElementById('adminLoginPopup').style.display='flex'" style="width:100%; margin-top:10px; background:none; border:none; color:#94a3b8; font-size:10px; cursor:pointer;">YLLÄPITO</button>
             </div>
         </aside>
@@ -155,11 +157,6 @@ let allData = {}; let cart = {}; let categories = []; let stockStatus = {};
 let asennusPaketit = {}; let relatedItems = {}; let sallitut = {};
 let currentPkgItems = []; let isAdmin = false;
 
-// Lisätään timestamp URL-osoitteeseen välimuistin ohittamiseksi
-function getFreshUrl(url) {
-    return url + "?t=" + new Date().getTime();
-}
-
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
 async function doAppLogin() {
@@ -176,7 +173,7 @@ async function doAppLogin() {
 
 async function loadUsers() {
     try {
-        const res = await fetch(getFreshUrl("käyttäjät.txt"));
+        const res = await fetch("käyttäjät.txt");
         if(res.ok) {
             const t = await res.text();
             t.split("\n").forEach(line => {
@@ -193,10 +190,9 @@ async function loadAllData() {
 
 async function loadStockStatus() {
     try {
-        const res = await fetch(getFreshUrl("varastotilanne.txt"));
+        const res = await fetch("varastotilanne.txt");
         if(res.ok) {
             const t = await res.text();
-            stockStatus = {}; // Tyhjennetään vanhat
             t.split("\n").forEach(line => {
                 const p = line.trim().split(";");
                 if(p.length >= 4) stockStatus[p[0]] = { outOfStock: p[1] === "true", hidden: p[2] === "true", eta: p[3] };
@@ -208,7 +204,7 @@ async function loadStockStatus() {
 
 async function loadRecommendations() {
     try {
-        const res = await fetch(getFreshUrl("suositukset.txt"));
+        const res = await fetch("suositukset.txt");
         if(res.ok) {
             const t = await res.text();
             let parent = null;
@@ -224,7 +220,7 @@ async function loadRecommendations() {
 
 async function loadPackages() {
     try {
-        const res = await fetch(getFreshUrl("asennuspaketit.txt"));
+        const res = await fetch("asennuspaketit.txt");
         if(res.ok) {
             const t = await res.text();
             let name = null;
@@ -243,10 +239,7 @@ async function loadPackages() {
 
 async function loadFiles() {
     try {
-        const [r1, r2] = await Promise.all([
-            fetch(getFreshUrl("data.txt")), 
-            fetch(getFreshUrl("kategoriat.txt"))
-        ]);
+        const [r1, r2] = await Promise.all([fetch("data.txt"), fetch("kategoriat.txt")]);
         if(r1.ok) {
             const t = await r1.text(); let cur = null;
             t.split("\n").forEach(line => {
@@ -260,7 +253,6 @@ async function loadFiles() {
         }
         if(r2.ok) {
             const t = await r2.text(); let curM = null;
-            categories = []; // Tyhjennetään
             t.split("\n").forEach(l => {
                 let s = l.trim(); if(!s) return;
                 if(!l.startsWith("-")) { 
@@ -390,9 +382,8 @@ function openPkgModal(name) {
     currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
     currentPkgItems.forEach((item, idx) => {
         let n = findNameByCode(item.code);
-        // Muutettu pkg-item-row tyyliksi
-        items.innerHTML += `<div class="pkg-item-row">
-            <div style="flex:1; padding-right:10px;"><b>${item.code}</b><br>${n}</div>
+        items.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
+            <div><b>${item.code}</b><br>${n}</div>
             <div class="qty-area">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},-1)">-</button>
                 <input class="qty-input" value="${item.qty}" readonly>
