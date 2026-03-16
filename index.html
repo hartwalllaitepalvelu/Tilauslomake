@@ -8,7 +8,7 @@
 :root { --hw-blue:#004593; --hw-dark:#002d62; --hw-green:#28a745; --sidebar-w: 280px; }
 body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-size:14px; color:#333; padding-bottom: 120px; }
 
-/* Z-INDEX HALLINTA */
+/* Z-INDEX JA MODALIT */
 #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--hw-blue); display:flex; justify-content:center; align-items:center; z-index:100000; }
 #adminLoginPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,45,147,0.8); display:flex; justify-content:center; align-items:center; z-index:100001; }
 #pkgModal, #imgModal, #relatedOverlay, #viewCartModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; justify-content:center; align-items:center; }
@@ -31,17 +31,16 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 .product-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #edf2f7; background: white; gap: 15px; }
 .thumb-img { width: 50px; height: 50px; object-fit: contain; background: #eee; border-radius: 4px; border: 1px solid #ddd; cursor: zoom-in; flex-shrink: 0; }
 .product-info { flex: 1; cursor: pointer; }
-.pdf-icon { color: var(--hw-blue); font-size: 16px; margin-left: 5px; vertical-align: middle; }
+
+.qty-area { display: flex; align-items: center; gap: 10px; }
+.qty-btn { width: 36px; height: 36px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 20px; }
+.qty-input { width: 45px; text-align: center; border: 1px solid #cbd5e0; padding: 8px; font-weight: bold; border-radius: 6px; }
 
 .modal-content { background:white; padding:40px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; text-align: center; }
 .close-x { position: absolute; top: 20px; right: 25px; font-size: 32px; cursor: pointer; color: #999; font-weight: bold; }
 
 .guide-list { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
 .guide-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--hw-blue); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; }
-
-.qty-area { display: flex; align-items: center; gap: 10px; }
-.qty-btn { width: 36px; height: 36px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 20px; }
-.qty-input { width: 45px; text-align: center; border: 1px solid #cbd5e0; padding: 8px; font-weight: bold; border-radius: 6px; }
 
 .form-section { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e1e4e8; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
@@ -64,7 +63,6 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
     .cart-sidebar.open { right: 0; }
     .mobile-bar { display: flex; }
     #btnTop { right: 20px; }
-    #btnViewCart { display: none; }
 }
 </style>
 </head>
@@ -76,16 +74,6 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
         <input id="uField" placeholder="Käyttäjätunnus">
         <input id="pField" type="password" placeholder="Salasana">
         <button onclick="doAppLogin()" style="width:100%; padding:14px; background:var(--hw-blue); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">KIRJAUDU SISÄÄN</button>
-    </div>
-</div>
-
-<div id="adminLoginPopup" style="display:none;">
-    <div class="login-box">
-        <h3>Ylläpito</h3>
-        <input id="adminUser" placeholder="Tunnus">
-        <input id="adminPass" type="password" placeholder="Salasana">
-        <button onclick="doAdminLogin()" style="width:100%; padding:12px; background:var(--hw-dark); color:white; border:none; border-radius:6px; cursor:pointer;">KIRJAUDU</button>
-        <button onclick="document.getElementById('adminLoginPopup').style.display='none'" style="margin-top:10px; color:red; cursor:pointer; background:none; border:none;">Peruuta</button>
     </div>
 </div>
 
@@ -114,14 +102,6 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
         <h3 id="pkgModalTitle" style="color:var(--hw-blue); margin-top:0;"></h3>
         <div id="pkgModalItems" style="margin-bottom:20px; border:1px solid #eee; border-radius:8px; text-align: left;"></div>
         <button onclick="confirmPkgToCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">LISÄÄ KORIIN</button>
-    </div>
-</div>
-
-<div id="relatedOverlay" onclick="if(event.target==this)this.style.display='none'">
-    <div class="modal-content" style="width:450px; text-align: left;">
-        <span class="close-x" onclick="document.getElementById('relatedOverlay').style.display='none'">&times;</span>
-        <h3 style="color:var(--hw-blue); margin-top:0;">Suositellut lisäosat</h3>
-        <div id="relatedContent"></div>
     </div>
 </div>
 
@@ -176,25 +156,17 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 </div>
 
 <script>
-// DATAT
 const asennusPaketit = {
     "Kotipizza": [{code:"15490",qty:1},{code:"26520",qty:1},{code:"V00713",qty:5},{code:"V00726",qty:2},{code:"V02356",qty:1},{code:"V41800",qty:1},{code:"V02257",qty:1},{code:"V03010",qty:1},{code:"T00678",qty:5},{code:"T00723",qty:1},{code:"T41468",qty:2},{code:"T00384",qty:2},{code:"10172",qty:1},{code:"T41002",qty:2},{code:"T00609",qty:2},{code:"T41101",qty:2}],
     "Subway": [{code:"15279",qty:1},{code:"10160",qty:1},{code:"26520",qty:1},{code:"V00713",qty:4},{code:"V00726",qty:1},{code:"V00727",qty:1},{code:"V02356",qty:1},{code:"V41800",qty:1},{code:"V02257",qty:1},{code:"V03010",qty:1},{code:"T00678",qty:4},{code:"T00723",qty:1},{code:"T41468",qty:2},{code:"T00384",qty:2},{code:"T41002",qty:2},{code:"T00609",qty:2},{code:"T41101",qty:2}],
     "LD HIGHTOWER TISKIN ALLE": [{code:"19814",qty:1},{code:"30105",qty:1},{code:"V02013",qty:3},{code:"T02223",qty:3},{code:"T02222",qty:3},{code:"T41460",qty:3},{code:"T41469",qty:3},{code:"V02355",qty:1},{code:"V03010",qty:1},{code:"V02257",qty:1},{code:"T00609",qty:1},{code:"T41101",qty:1},{code:"T41002",qty:1},{code:"M01285",qty:1},{code:"M01290",qty:1},{code:"M01296",qty:1}]
 };
-const relatedItems = {
-    "V02363": ["V03010","V02257","V02351","T00457","T02256","T41430"],
-    "V02355": ["V03010","V02257","V02351","T00457","T02256","T41430"],
-    "V02356": ["V03010","V02257","V02351","T00457","T02256","T41430"],
-    "V02340": ["V03010","V02257","V02351","T00457","T02256","T41430"]
-};
 const sallitut = {"tomppa":"Tomi7122","markku":"parkinson","jaakko":"vendingjaska","dan":"huoltodan","tommi":"nappie","samia":"koksmeny","bob":"nayri","jouni":"paju1","jussi":"paukku","sami":"ruoska","jarno":"kurnu"};
 
-// MUUTTUJAT
-let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let currentPkgItems = []; let isAdmin = false;
-const knownGuides = []; // Tähän voisi lisätä koodit joilla ohjeita on, jotta ikoni näkyy listassa
+let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let currentPkgItems = [];
 
-// LOGIN
+window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 400 ? "block" : "none"; };
+
 function doAppLogin() {
     const u = document.getElementById("uField").value.trim().toLowerCase();
     const p = document.getElementById("pField").value.trim();
@@ -202,13 +174,11 @@ function doAppLogin() {
         document.getElementById("loginOverlay").style.display="none";
         document.getElementById("appWrapper").style.display="block";
         document.getElementById("f_pvm").valueAsDate = new Date();
-        loadLocalStock();
         loadSavedCart();
         loadFiles();
     } else { alert("Virhe!"); }
 }
 
-// DATA LATAUS
 async function loadFiles() {
     try {
         const [r1, r2] = await Promise.all([fetch("data.txt"), fetch("kategoriat.txt")]);
@@ -234,7 +204,60 @@ async function loadFiles() {
     } catch(e) { console.error(e); }
 }
 
-// RENDERÖINTI
+function renderNav() {
+    const nav = document.getElementById("dynamic-nav"); nav.innerHTML = "";
+    categories.forEach((c, idx) => {
+        let div = document.createElement("div"); div.className = "nav-item";
+        div.innerHTML = `<div class="nav-main-cat" onclick="this.parentElement.classList.toggle('active')">${c.name} <span>▾</span></div>`;
+        let subDiv = document.createElement("div"); subDiv.className = "nav-sub-list";
+        c.subs.forEach(s => { 
+            let item = document.createElement("div");
+            item.style = "padding:10px 30px; cursor:pointer;";
+            item.innerText = s;
+            item.onclick = () => jumpTo(s);
+            subDiv.appendChild(item);
+        });
+        div.appendChild(subDiv); nav.appendChild(div);
+    });
+}
+
+function jumpTo(id) {
+    const safeId = "cat-" + id.replace(/\s+/g, '-').toLowerCase();
+    const el = document.getElementById(safeId);
+    if(el) {
+        el.scrollIntoView({behavior:"smooth", block: "start"});
+        document.getElementById("nav-sidebar").classList.remove("open");
+    }
+}
+
+async function openBigImg(code, name) {
+    document.getElementById("bigImg").src = `images/${code}.png`;
+    document.getElementById("imgModalTitle").innerText = `${code} - ${name}`;
+    const linksDiv = document.getElementById("guideLinks");
+    linksDiv.innerHTML = "";
+    
+    // Yritetään ladata ohjeita
+    const types = ["", "kaytto", "asennus", "huolto"];
+    for (let type of types) {
+        let fname = type === "" ? code : `${code}_${type}`;
+        let label = type === "" ? "Asennusohje" : type.charAt(0).toUpperCase() + type.slice(1);
+        let url = `ohjeet/${fname}.pdf`;
+        
+        // Kevyt tarkistus fetchillä
+        fetch(url, { method: 'HEAD' }).then(res => {
+            if (res.ok) {
+                let a = document.createElement("a");
+                a.className = "guide-link";
+                a.href = url;
+                a.target = "_blank";
+                a.innerHTML = `📄 AVAA ${label.toUpperCase()} (PDF)`;
+                linksDiv.appendChild(a);
+            }
+        }).catch(() => {});
+    }
+    document.getElementById("imgModal").style.display = 'flex';
+}
+
 function render(filter = "") {
     const list = document.getElementById("main-list"); list.innerHTML = "";
     categories.forEach(c => {
@@ -243,21 +266,21 @@ function render(filter = "") {
             let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
             if (filt.length === 0) return;
             
+            // Luodaan id hyppäämistä varten
+            const safeId = "cat-" + sub.replace(/\s+/g, '-').toLowerCase();
             let title = document.createElement("div");
+            title.id = safeId;
             title.style = "background:var(--hw-blue); color:white; padding:12px; margin:20px 0 10px 0; border-radius:8px; font-weight:bold;";
             title.innerText = sub;
             list.appendChild(title);
 
             let block = document.createElement("div");
             filt.forEach(p => {
-                let s = stockStatus[p.code] || {};
-                if (s.hidden && !isAdmin) return;
                 block.innerHTML += `
-                    <div class="product-item ${s.outOfStock ? 'out' : ''}">
+                    <div class="product-item">
                         <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}', '${p.name.replace(/'/g, "\\'")}')">
                         <div class="product-info" onclick="openBigImg('${p.code}', '${p.name.replace(/'/g, "\\'")}')">
                             <b>${p.name}</b><br><small>${p.code}</small>
-                            ${s.outOfStock ? ' <b style="color:red">LOPPU!</b>' : ''}
                         </div>
                         <div class="qty-area">
                             <button class="qty-btn" onclick="updateQty('${p.code}','${p.name}',-1)">-</button>
@@ -271,47 +294,11 @@ function render(filter = "") {
     });
 }
 
-// OHJEIDEN TARKISTUS JA AVAUS
-async function openBigImg(code, name) {
-    document.getElementById("bigImg").src = `images/${code}.png`;
-    document.getElementById("imgModalTitle").innerText = `${code} - ${name}`;
-    
-    const linksDiv = document.getElementById("guideLinks");
-    linksDiv.innerHTML = "";
-    
-    // Tarkistetaan perusohje ja tyypit
-    const guideTypes = ["", "kaytto", "asennus", "rajaytyskuva", "huolto"];
-    for (let type of guideTypes) {
-        let fileName = type === "" ? code : `${code}_${type}`;
-        let label = type === "" ? "Ohje" : type.charAt(0).toUpperCase() + type.slice(1);
-        await checkAndAddGuide(fileName, label);
-    }
-    
-    document.getElementById("imgModal").style.display = 'flex';
-}
-
-async function checkAndAddGuide(fileName, label) {
-    const url = `ohjeet/${fileName}.pdf`;
-    try {
-        const res = await fetch(url, { method: 'HEAD' });
-        if (res.ok) {
-            const a = document.createElement("a");
-            a.className = "guide-link";
-            a.href = url;
-            a.target = "_blank";
-            a.innerHTML = `📄 AVAA ${label.toUpperCase()} (PDF)`;
-            document.getElementById("guideLinks").appendChild(a);
-        }
-    } catch (e) {}
-}
-
-// OSTOSKORI LOGIIKKA
-function updateQty(code, name, delta, skipRelated = false) {
+function updateQty(code, name, delta) {
     if(!cart[code]) {
         if(!name) { for(let c in allData) { let p = allData[c].find(x => x.code === code); if(p) name = p.name; } }
         cart[code] = { code, name: name || "Tuote " + code, qty: 0 };
     }
-    if(delta > 0 && relatedItems[code] && !skipRelated) openRelatedPopup(code);
     cart[code].qty += delta;
     if(cart[code].qty <= 0) delete cart[code];
     localStorage.setItem("currentCart", JSON.stringify(cart));
@@ -326,7 +313,6 @@ function renderCart() {
     });
     const total = Object.values(cart).length;
     document.getElementById("basket-count").textContent = total;
-    document.getElementById("m-count").textContent = total;
     document.getElementById("btn-cart-count").textContent = total;
 }
 
@@ -340,7 +326,6 @@ function openCartModal() {
     modal.style.display = "flex";
 }
 
-// PAKETIT
 function openPkgModal(name) {
     const modal = document.getElementById("pkgModal");
     const content = document.getElementById("pkgModalItems");
@@ -356,9 +341,8 @@ function openPkgModal(name) {
 }
 
 function updatePkgItemQty(idx, d) { currentPkgItems[idx].qty += d; if(currentPkgItems[idx].qty < 0) currentPkgItems[idx].qty = 0; document.querySelectorAll("#pkgModalItems .qty-input")[idx].value = currentPkgItems[idx].qty; }
-function confirmPkgToCart() { currentPkgItems.forEach(i => { if(i.qty > 0) updateQty(i.code, "", i.qty, true); }); document.getElementById("pkgModal").style.display = "none"; }
+function confirmPkgToCart() { currentPkgItems.forEach(i => { if(i.qty > 0) updateQty(i.code, "", i.qty); }); document.getElementById("pkgModal").style.display = "none"; }
 
-// LÄHETYS
 function finalSubmit() {
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, p: document.getElementById("f_pvm").value, tapa: document.getElementById("f_tapa").value, o: document.getElementById("f_osoite").value, n: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value };
     if(!f.t || !f.v || !f.p || !f.tapa || !f.o || !f.n || !f.k) return alert("Täytä kaikki tiedot!");
@@ -370,17 +354,11 @@ function finalSubmit() {
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-// APUFUNKTIOT
 function clearSearch() { document.getElementById("filter").value = ""; render(""); }
 function scrollToSearch() { window.scrollTo({ top: 350, behavior: 'smooth' }); }
 function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
-function jumpTo(id) { const el = document.getElementById(id); if(el) el.scrollIntoView({behavior:"smooth"}); document.getElementById("nav-sidebar").classList.remove("open"); }
-function renderNav() { const nav = document.getElementById("dynamic-nav"); nav.innerHTML = ""; categories.forEach(c => { let div = document.createElement("div"); div.className = "nav-item"; div.innerHTML = `<div class="nav-main-cat" onclick="this.parentElement.classList.toggle('active')">${c.name} <span>▾</span></div>`; let subDiv = document.createElement("div"); subDiv.className = "nav-sub-list"; c.subs.forEach(s => { subDiv.innerHTML += `<div style="padding:10px 30px; cursor:pointer;" onclick="jumpTo('${s}')">${s}</div>`; }); div.appendChild(subDiv); nav.appendChild(div); }); }
-function renderPkgs() { const div = document.getElementById("pkg-buttons"); div.innerHTML = ""; Object.keys(asennusPaketit).forEach(name => { div.innerHTML += `<button class="pkg-btn" style="padding:10px 18px; background:var(--hw-blue); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;" onclick="openPkgModal('${name}')">${name}</button>`; }); }
-function openRelatedPopup(parentCode) { const content = document.getElementById("relatedContent"); content.innerHTML = ""; relatedItems[parentCode].forEach(relCode => { let relName = "Tuote " + relCode; for (let cat in allData) { let p = allData[cat].find(x => x.code === relCode); if (p) { relName = p.name; break; } } content.innerHTML += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${relCode}</b><br>${relName}</div><button onclick="updateQty('${relCode}', '${relName}', 1, true)" style="background:var(--hw-green); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:bold;">Lisää</button></div>`; }); document.getElementById("relatedOverlay").style.display = "flex"; }
-function loadLocalStock() { try { const r = localStorage.getItem("stockStatus"); if(r) stockStatus = JSON.parse(r); } catch(e){} }
 function loadSavedCart() { const saved = localStorage.getItem("currentCart"); if(saved) { cart = JSON.parse(saved); renderCart(); } }
-function doAdminLogin() { if (document.getElementById("adminUser").value === "admin" && document.getElementById("adminPass").value === "hartwall") { isAdmin = true; document.getElementById("adminLoginPopup").style.display = "none"; alert("Ylläpito OK"); } else { alert("Virhe!"); } }
+function renderPkgs() { const div = document.getElementById("pkg-buttons"); div.innerHTML = ""; Object.keys(asennusPaketit).forEach(name => { div.innerHTML += `<button class="pkg-btn" style="padding:10px 18px; background:var(--hw-blue); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;" onclick="openPkgModal('${name}')">${name}</button>`; }); }
 </script>
 
 <button onclick="scrollToSearch()" id="btnTop">YLÖS ↑</button>
