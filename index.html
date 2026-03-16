@@ -33,7 +33,6 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 .thumb-img { width: 50px; height: 50px; object-fit: contain; background: #eee; border-radius: 4px; border: 1px solid #ddd; cursor: zoom-in; flex-shrink: 0; }
 .product-info { flex: 1; cursor: pointer; }
 
-/* OHJE-IKONI LISTASSA */
 .guide-indicator { color: var(--hw-blue); font-size: 16px; margin-left: 5px; vertical-align: middle; display: none; }
 
 .qty-area { display: flex; align-items: center; gap: 10px; }
@@ -49,12 +48,11 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 .modal-content { background:white; padding:40px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; }
 .close-x { position: absolute; top: 20px; right: 25px; font-size: 32px; cursor: pointer; color: #999; font-weight: bold; }
 
-/* OHJEIDEN TYYLIT MODAALISSA */
-.guide-list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.guide-list { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
 .guide-link { 
-    display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; 
+    display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; 
     background: var(--hw-blue); color: white; text-decoration: none; border-radius: 8px; 
-    font-weight: bold; font-size: 14px; width: 80%; justify-content: center; 
+    font-weight: bold; font-size: 15px; width: 85%; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
@@ -65,7 +63,6 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 #btnTop { position: fixed; bottom: 110px; right: 300px; background: var(--hw-blue); color: white; border: none; padding: 15px 25px; border-radius: 30px; display: none; z-index: 999; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 #btnViewCart { background: var(--hw-green); color: white; border: none; padding: 14px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-size: 15px; }
 
-/* ADMIN PANEELI */
 #adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
 </style>
 </head>
@@ -94,7 +91,7 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
     <div class="modal-content">
         <span class="close-x" onclick="document.getElementById('imgModal').style.display='none'">&times;</span>
         <h3 id="imgModalTitle" style="color:var(--hw-blue); margin-top:0; text-align: center;"></h3>
-        <img id="bigImg" style="max-width:100%; max-height:55vh; border-radius:8px; display:block; margin:auto;">
+        <img id="bigImg" style="max-width:100%; max-height:50vh; border-radius:8px; display:block; margin:auto;">
         <div id="guideLinks" class="guide-list"></div>
     </div>
 </div>
@@ -102,7 +99,7 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 <div id="viewCartModal" onclick="if(event.target==this)this.style.display='none'">
     <div class="modal-content">
         <span class="close-x" onclick="document.getElementById('viewCartModal').style.display='none'">&times;</span>
-        <h2 id="summary-main-title" style="color:var(--hw-green); margin-top:0;">Tilausyhteenveto</h2>
+        <h2 style="color:var(--hw-green); margin-top:0;">Tilausyhteenveto</h2>
         <div id="summary-info" style="background:#f9f9f9; padding:20px; border-radius:8px; margin-bottom:20px; display:grid; grid-template-columns:1fr 1fr; gap:15px; border:1px solid #eee;"></div>
         <div id="modal-cart-items" style="margin-bottom:30px; border:1px solid #eee; border-radius:8px;"></div>
         <button onclick="document.getElementById('viewCartModal').style.display='none'; finalSubmit();" style="width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">LÄHETÄ TILAUS</button>
@@ -204,7 +201,7 @@ const sallitut = {"tomppa":"Tomi7122","markku":"parkinson","jaakko":"vendingjask
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let currentPkgItems = []; let isAdmin = false;
 let autoGuideStatus = {}; 
 
-// PÄÄTTEET JOITA KOODI ETSII
+// LISTA PÄÄTTEISTÄ JOITA KOODI ETSII (Kuvatestien perusteella)
 const GUIDE_SUFFIXES = [
     ".pdf", ".PDF", 
     "_Manual.pdf", "_Manual.PDF", 
@@ -219,6 +216,8 @@ const GUIDE_SUFFIXES = [
     "_Menu_valikot.pdf", "_Menu_valikot.PDF",
     "_tekniset tiedot.pdf", "_tekniset tiedot.PDF"
 ];
+
+window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 400 ? "block" : "none"; };
 
 function doAppLogin() {
     const u = document.getElementById("uField").value.trim().toLowerCase();
@@ -285,7 +284,7 @@ async function checkGuideExists(code) {
     }
 }
 
-// AVATAAN ISO KUVA JA HAETAAN OHJEET
+// DYNAAMINEN OHJEIDEN HAKU MODAALIIN
 async function openBigImg(code) {
     let name = "Varaosa";
     for(let cat in allData) {
@@ -298,13 +297,14 @@ async function openBigImg(code) {
     linksDiv.innerHTML = "Etsitään ohjeita...";
     
     let found = 0;
+    linksDiv.innerHTML = ""; // Tyhjennetään haku-teksti
+
     for (let s of GUIDE_SUFFIXES) {
         let fname = code + s;
         let url = `ohjeet/${fname}`;
         try {
             const res = await fetch(url, { method: 'HEAD' });
             if (res.ok) {
-                if(found === 0) linksDiv.innerHTML = "";
                 let a = document.createElement("a");
                 a.className = "guide-link";
                 a.href = url; a.target = "_blank";
@@ -315,7 +315,7 @@ async function openBigImg(code) {
             }
         } catch (e) {}
     }
-    if(found === 0) linksDiv.innerHTML = "<small style='color:#999'>Ei löytyneitä ohjeita.</small>";
+    if(found === 0) linksDiv.innerHTML = "<small style='color:#999'>Ei löytyneitä ohjeita tästä tuotteesta.</small>";
     document.getElementById("imgModal").style.display = "flex";
 }
 
@@ -381,13 +381,13 @@ function renderCart() {
 }
 
 function openCartModal() {
+    const modal = document.getElementById("viewCartModal");
     const info = document.getElementById("summary-info");
     const items = document.getElementById("modal-cart-items");
-    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, p: document.getElementById("f_pvm").value, ta: document.getElementById("f_tapa").value, o: document.getElementById("f_osoite").value, n: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value };
-    info.innerHTML = `<div><b>Tilaaja:</b> ${f.t || '-'}</div><div><b>Varasto:</b> ${f.v || '-'}</div><div><b>Pvm:</b> ${f.p || '-'}</div><div><b>Toimitus:</b> ${f.ta || '-'}</div><div style="grid-column: 1 / -1;"><b>Osoite:</b> ${f.o || ''}, ${f.n || ''} ${f.k || ''}</div>`;
+    info.innerHTML = `<div><b>Tilaaja:</b> ${document.getElementById("f_tilaaja").value || '-'}</div><div><b>Varasto:</b> ${document.getElementById("f_varasto").value || '-'}</div><div><b>Pvm:</b> ${document.getElementById("f_pvm").value || '-'}</div><div><b>Toimitus:</b> ${document.getElementById("f_tapa").value || '-'}</div><div style="grid-column: 1 / -1;"><b>Osoite:</b> ${document.getElementById("f_osoite").value || '-'}, ${document.getElementById("f_postinro").value || ''} ${document.getElementById("f_paikka").value || ''}</div>`;
     items.innerHTML = "";
     Object.values(cart).forEach(i => { items.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${i.code}</b><br>${i.name}</div><div class="qty-area"><button class="qty-btn" onclick="updateQty('${i.code}','${i.name}',-1); openCartModal();">-</button><input class="qty-input" value="${i.qty}" readonly><button class="qty-btn" onclick="updateQty('${i.code}','${i.name}',1); openCartModal();">+</button></div></div>`; });
-    document.getElementById("viewCartModal").style.display = "flex";
+    modal.style.display = "flex";
 }
 
 function finalSubmit() {
@@ -398,12 +398,6 @@ function finalSubmit() {
     Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
-
-function clearSearch() { document.getElementById("filter").value = ""; render(""); }
-function scrollToSearch() { window.scrollTo({ top: 350, behavior: 'smooth' }); }
-function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
-function loadLocalStock() { try { const r = localStorage.getItem("stockStatus"); if(r) stockStatus = JSON.parse(r); } catch(e){} }
-function loadSavedCart() { const saved = localStorage.getItem("currentCart"); if(saved) { cart = JSON.parse(saved); renderCart(); } }
 
 function jumpTo(id) {
     const safeId = "cat-" + id.replace(/\s+/g, '-').toLowerCase();
@@ -429,6 +423,12 @@ function renderNav() {
     });
 }
 
+// Loput apufunktiot ennallaan...
+function clearSearch() { document.getElementById("filter").value = ""; render(""); }
+function scrollToSearch() { window.scrollTo({ top: 350, behavior: 'smooth' }); }
+function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
+function loadLocalStock() { try { const r = localStorage.getItem("stockStatus"); if(r) stockStatus = JSON.parse(r); } catch(e){} }
+function loadSavedCart() { const saved = localStorage.getItem("currentCart"); if(saved) { cart = JSON.parse(saved); renderCart(); } }
 function renderPkgs() { const div = document.getElementById("pkg-buttons"); div.innerHTML = ""; Object.keys(asennusPaketit).forEach(name => { div.innerHTML += `<button class="pkg-btn" style="padding:10px 18px; background:var(--hw-blue); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;" onclick="openPkgModal('${name}')">${name}</button>`; }); }
 function openPkgModal(name) {
     const modal = document.getElementById("pkgModal");
