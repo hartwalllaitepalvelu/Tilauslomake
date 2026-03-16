@@ -33,7 +33,7 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 .thumb-img { width: 50px; height: 50px; object-fit: contain; background: #eee; border-radius: 4px; border: 1px solid #ddd; cursor: zoom-in; flex-shrink: 0; }
 .product-info { flex: 1; cursor: pointer; }
 
-/* OHJE-IKONI */
+/* OHJE-IKONI LISTASSA */
 .guide-indicator { color: var(--hw-blue); font-size: 16px; margin-left: 5px; vertical-align: middle; display: none; }
 
 .qty-area { display: flex; align-items: center; gap: 10px; }
@@ -49,7 +49,7 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 .modal-content { background:white; padding:40px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; }
 .close-x { position: absolute; top: 20px; right: 25px; font-size: 32px; cursor: pointer; color: #999; font-weight: bold; }
 
-/* OHJEIDEN TYYLIT */
+/* OHJEIDEN TYYLIT MODAALISSA */
 .guide-list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 .guide-link { 
     display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; 
@@ -202,12 +202,23 @@ const relatedItems = {
 const sallitut = {"tomppa":"Tomi7122","markku":"parkinson","jaakko":"vendingjaska","dan":"huoltodan","tommi":"nappie","samia":"koksmeny","bob":"nayri","jouni":"paju1","jussi":"paukku","sami":"ruoska","jarno":"kurnu"};
 
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let currentPkgItems = []; let isAdmin = false;
-let autoGuideStatus = {}; // Muistaa, millä tuotteilla on ohjeita
+let autoGuideStatus = {}; 
 
-window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 400 ? "block" : "none"; };
-
-// TÄRKEÄT PÄÄTTEET OHJEILLE
-const GUIDE_SUFFIXES = [".pdf", ".PDF", "_Manual.pdf", "_Manual.PDF", "_Asennusvaatimukset.pdf", "_Esite.pdf", "_ohje.pdf", "_suomi.pdf", "_englanti.pdf", "_Varaosat.pdf", "_Menu.pdf"];
+// PÄÄTTEET JOITA KOODI ETSII
+const GUIDE_SUFFIXES = [
+    ".pdf", ".PDF", 
+    "_Manual.pdf", "_Manual.PDF", 
+    "_Asennusvaatimukset.pdf", "_Asennusvaatimukset.PDF",
+    "_Esite.pdf", "_Esite.PDF",
+    "_ohje.pdf", "_ohje.PDF",
+    "_suomi.pdf", "_suomi.PDF",
+    "_englanti.pdf", "_englanti.PDF",
+    "_englantia.pdf", "_englantia.PDF",
+    "_Varaosat.pdf", "_Varaosat.PDF",
+    "_Menu.pdf", "_Menu.PDF",
+    "_Menu_valikot.pdf", "_Menu_valikot.PDF",
+    "_tekniset tiedot.pdf", "_tekniset tiedot.PDF"
+];
 
 function doAppLogin() {
     const u = document.getElementById("uField").value.trim().toLowerCase();
@@ -228,15 +239,6 @@ function doAdminLogin() {
         render();
     } else { alert("Virhe!"); }
 }
-
-function loadLocalStock() { try { const r = localStorage.getItem("stockStatus"); if(r) stockStatus = JSON.parse(r); } catch(e){} }
-function saveStockStatus() {
-    const c = document.getElementById("adminCode").value.trim(); if(!c) return;
-    stockStatus[c] = { outOfStock: document.getElementById("adminOutOfStock").checked, hidden: document.getElementById("adminHide").checked, eta: document.getElementById("adminETA").value };
-    localStorage.setItem("stockStatus", JSON.stringify(stockStatus)); render(); alert("Tallennettu!");
-}
-
-function loadSavedCart() { const saved = localStorage.getItem("currentCart"); if(saved) { cart = JSON.parse(saved); renderCart(); } }
 
 async function loadFiles() {
     try {
@@ -264,10 +266,10 @@ async function loadFiles() {
             });
         }
         renderNav(); renderPkgs(); render();
-    } catch(e) { console.error(e); }
+    } catch(e) {}
 }
 
-// TARKISTETAAN OHJE TAUSTALLA LISTAA VARTEN
+// TARKISTETAAN ONKO OHJE OLEMASSA (Listan ikonille)
 async function checkGuideExists(code) {
     if(autoGuideStatus[code]) return;
     for (let s of GUIDE_SUFFIXES) {
@@ -283,7 +285,7 @@ async function checkGuideExists(code) {
     }
 }
 
-// DYNAAMINEN OHJEIDEN HAKU
+// AVATAAN ISO KUVA JA HAETAAN OHJEET
 async function openBigImg(code) {
     let name = "Varaosa";
     for(let cat in allData) {
@@ -330,17 +332,16 @@ function render(filter = "") {
             title.style = "background:var(--hw-blue); color:white; padding:12px; margin:20px 0 10px 0; border-radius:8px; font-weight:bold;";
             title.innerText = sub;
             list.appendChild(title);
-
             let block = document.createElement("div");
             filt.forEach(p => {
                 let s = stockStatus[p.code] || {};
                 if (s.hidden && !isAdmin) return;
-                const hasGuideStyle = autoGuideStatus[p.code] ? 'inline' : 'none';
+                const showIcon = autoGuideStatus[p.code] ? 'inline' : 'none';
                 block.innerHTML += `
                     <div class="product-item ${s.outOfStock ? 'out' : ''}">
                         <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}')">
                         <div class="product-info" onclick="openBigImg('${p.code}')">
-                            <b>${p.name} <span class="guide-indicator guide-ref-${p.code}" style="display:${hasGuideStyle}">📄</span></b><br><small>${p.code}</small>
+                            <b>${p.name} <span class="guide-indicator guide-ref-${p.code}" style="display:${showIcon}">📄</span></b><br><small>${p.code}</small>
                             ${s.outOfStock ? ' <b style="color:red">LOPPU!</b>' : ''}
                         </div>
                         <div class="qty-area">
@@ -380,43 +381,29 @@ function renderCart() {
 }
 
 function openCartModal() {
-    const modal = document.getElementById("viewCartModal");
     const info = document.getElementById("summary-info");
     const items = document.getElementById("modal-cart-items");
-    info.innerHTML = `<div><b>Tilaaja:</b> ${document.getElementById("f_tilaaja").value || '-'}</div><div><b>Varasto:</b> ${document.getElementById("f_varasto").value || '-'}</div><div><b>Pvm:</b> ${document.getElementById("f_pvm").value || '-'}</div><div><b>Toimitus:</b> ${document.getElementById("f_tapa").value || '-'}</div><div style="grid-column: 1 / -1;"><b>Osoite:</b> ${document.getElementById("f_osoite").value || '-'}, ${document.getElementById("f_postinro").value || ''} ${document.getElementById("f_paikka").value || ''}</div>`;
+    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, p: document.getElementById("f_pvm").value, ta: document.getElementById("f_tapa").value, o: document.getElementById("f_osoite").value, n: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value };
+    info.innerHTML = `<div><b>Tilaaja:</b> ${f.t || '-'}</div><div><b>Varasto:</b> ${f.v || '-'}</div><div><b>Pvm:</b> ${f.p || '-'}</div><div><b>Toimitus:</b> ${f.ta || '-'}</div><div style="grid-column: 1 / -1;"><b>Osoite:</b> ${f.o || ''}, ${f.n || ''} ${f.k || ''}</div>`;
     items.innerHTML = "";
     Object.values(cart).forEach(i => { items.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${i.code}</b><br>${i.name}</div><div class="qty-area"><button class="qty-btn" onclick="updateQty('${i.code}','${i.name}',-1); openCartModal();">-</button><input class="qty-input" value="${i.qty}" readonly><button class="qty-btn" onclick="updateQty('${i.code}','${i.name}',1); openCartModal();">+</button></div></div>`; });
-    modal.style.display = "flex";
-}
-
-function openPkgModal(name) {
-    const modal = document.getElementById("pkgModal");
-    const content = document.getElementById("pkgModalItems");
-    document.getElementById("pkgModalTitle").innerText = name;
-    content.innerHTML = "";
-    currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
-    currentPkgItems.forEach((item, index) => {
-        let n = "Tuote " + item.code;
-        for(let c in allData) { let f = allData[c].find(x => x.code === item.code); if(f) n = f.name; }
-        content.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee;"><div><b>${item.code}</b><br>${n}</div><div class="qty-area"><button class="qty-btn" onclick="updatePkgItemQty(${index},-1)">-</button><input class="qty-input" value="${item.qty}" readonly><button class="qty-btn" onclick="updatePkgItemQty(${index},1)">+</button></div></div>`;
-    });
-    modal.style.display = "flex";
+    document.getElementById("viewCartModal").style.display = "flex";
 }
 
 function finalSubmit() {
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, p: document.getElementById("f_pvm").value, tapa: document.getElementById("f_tapa").value, o: document.getElementById("f_osoite").value, n: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value };
     if(!f.t || !f.v || !f.p || !f.tapa || !f.o || !f.n || !f.k) return alert("Täytä kaikki tiedot!");
     const subject = `Varaosatilaus - ${f.t} - ${f.v}`;
-    let body = `Tilaaja: ${f.t}\nVarastonumero: ${f.v}\nPäivämäärä: ${f.p}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.n} ${f.k}\n\nTUOTTEET:\n`;
+    let body = `Tilaaja: ${f.t}\nVarastonumero: ${f.v}\nTuotteet:\n`;
     Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
-    localStorage.removeItem("currentCart");
-    cart = {}; renderCart(); render();
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function clearSearch() { document.getElementById("filter").value = ""; render(""); }
 function scrollToSearch() { window.scrollTo({ top: 350, behavior: 'smooth' }); }
 function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
+function loadLocalStock() { try { const r = localStorage.getItem("stockStatus"); if(r) stockStatus = JSON.parse(r); } catch(e){} }
+function loadSavedCart() { const saved = localStorage.getItem("currentCart"); if(saved) { cart = JSON.parse(saved); renderCart(); } }
 
 function jumpTo(id) {
     const safeId = "cat-" + id.replace(/\s+/g, '-').toLowerCase();
@@ -443,12 +430,26 @@ function renderNav() {
 }
 
 function renderPkgs() { const div = document.getElementById("pkg-buttons"); div.innerHTML = ""; Object.keys(asennusPaketit).forEach(name => { div.innerHTML += `<button class="pkg-btn" style="padding:10px 18px; background:var(--hw-blue); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;" onclick="openPkgModal('${name}')">${name}</button>`; }); }
+function openPkgModal(name) {
+    const modal = document.getElementById("pkgModal");
+    const content = document.getElementById("pkgModalItems");
+    document.getElementById("pkgModalTitle").innerText = name;
+    content.innerHTML = "";
+    currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
+    currentPkgItems.forEach((item, index) => {
+        let n = "Tuote " + item.code;
+        for(let c in allData) { let f = allData[c].find(x => x.code === item.code); if(f) n = f.name; }
+        content.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee;"><div><b>${item.code}</b><br>${n}</div><div class="qty-area"><button class="qty-btn" onclick="updatePkgItemQty(${index},-1)">-</button><input class="qty-input" value="${item.qty}" readonly><button class="qty-btn" onclick="updatePkgItemQty(${index},1)">+</button></div></div>`;
+    });
+    modal.style.display = "flex";
+}
 function updatePkgItemQty(idx, d) { currentPkgItems[idx].qty += d; if(currentPkgItems[idx].qty < 0) currentPkgItems[idx].qty = 0; document.querySelectorAll("#pkgModalItems .qty-input")[idx].value = currentPkgItems[idx].qty; }
 function confirmPkgToCart() { currentPkgItems.forEach(i => { if(i.qty > 0) updateQty(i.code, "", i.qty, true); }); document.getElementById("pkgModal").style.display = "none"; }
 function openRelatedPopup(parentCode) { const content = document.getElementById("relatedContent"); content.innerHTML = ""; relatedItems[parentCode].forEach(relCode => { let relName = "Tuote " + relCode; for (let cat in allData) { let p = allData[cat].find(x => x.code === relCode); if (p) { relName = p.name; break; } } content.innerHTML += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${relCode}</b><br>${relName}</div><button onclick="updateQty('${relCode}', '${relName}', 1, true)" style="background:var(--hw-green); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:bold;">Lisää</button></div>`; }); document.getElementById("relatedOverlay").style.display = "flex"; }
+function saveStockStatus() { const c = document.getElementById("adminCode").value.trim(); if(!c) return; stockStatus[c] = { outOfStock: document.getElementById("adminOutOfStock").checked, hidden: document.getElementById("adminHide").checked, eta: document.getElementById("adminETA").value }; localStorage.setItem("stockStatus", JSON.stringify(stockStatus)); render(); alert("Tallennettu!"); }
 </script>
 
-<button onclick="scrollToSearch()" id="btnTop">YLÖS ↑</button>
+<button onclick="scrollToSearch()" id="btnTop">↑</button>
 
 </body>
 </html>
