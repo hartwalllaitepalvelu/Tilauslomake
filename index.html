@@ -20,26 +20,28 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .app-container { display: flex; min-height: 100vh; }
 .nav-sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
 .nav-header { background: var(--hw-dark); color: white; padding: 20px; font-weight: bold; font-size: 16px; text-align: center; }
-.main-content { flex: 1; padding: 20px; min-width: 0; }
 
-/* GRID & KORTIT */
+/* NAVIGATIOTYYLIT */
+.nav-main-cat { padding: 12px 15px; font-weight: 700; background: #eee; border-bottom: 1px solid #ddd; color: var(--hw-dark); }
+.nav-sub-item { padding: 8px 15px 8px 25px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; }
+.nav-sub-item:hover { background: #eef2f7; color: var(--hw-blue); }
+
+.main-content { flex: 1; padding: 20px; min-width: 0; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 10px 0; }
 .product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; position: relative; }
-.product-card.out { opacity: 0.6; background: #f9f9f9; filter: grayscale(0.5); }
+.product-card.out { opacity: 0.6; filter: grayscale(0.5); }
 .thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
 
 .qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 .qty-input { width: 35px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
 
-.category-title { background: var(--hw-blue); color: white; padding: 10px 15px; margin: 25px 0 10px 0; border-radius: 8px; font-weight: bold; width: 100%; box-sizing: border-box; }
+.category-title { background: var(--hw-blue); color: white; padding: 10px 15px; margin: 25px 0 10px 0; border-radius: 8px; font-weight: bold; }
 
-/* LOMAKE */
 .form-section { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e1e4e8; margin-bottom: 20px; }
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
 .form-grid input, .form-grid textarea { padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; width: 100%; box-sizing: border-box; font-family: inherit; }
 
-/* ADMIN BAR & YLÖS NAPPI */
 #adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; font-size: 13px; }
 #btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 20px; }
 
@@ -219,8 +221,11 @@ async function loadFiles() {
             const t = await r2.text(); let curM = null;
             t.split("\n").forEach(l => {
                 let s = l.trim(); if(!s) return;
-                if(l.startsWith("-")) { if(curM) curM.subs.push(s.substring(1)); }
-                else { curM = {name: s, subs: []}; categories.push(curM); }
+                if(!l.startsWith("-")) { 
+                    curM = {name: s, subs: []}; categories.push(curM); 
+                } else {
+                    if(curM) curM.subs.push(s.substring(1).trim());
+                }
             });
         }
         renderNav(); render();
@@ -288,9 +293,7 @@ function openFullCart() {
     const info = document.getElementById("fullCartInfo");
     const items = document.getElementById("fullCartItems");
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, l: document.getElementById("f_lisatiedot").value, puut: document.getElementById("f_puuttuvat").value };
-    
-    info.innerHTML = `<strong>Tilaaja:</strong> ${f.t || '---'}<br><strong>Varasto:</strong> ${f.v || '---'}<br><strong>Toimitusosoite:</strong> ${f.o}, ${f.p} ${f.k}<br><strong>Lisätiedot:</strong> ${f.l || '---'}<br><strong>Puuttuvat:</strong> ${f.puut || '---'}`;
-    
+    info.innerHTML = `<strong>Tilaaja:</strong> ${f.t || '---'}<br><strong>Varasto:</strong> ${f.v || '---'}<br><strong>Toimitusosoite:</strong> ${f.o}, ${f.p} ${f.k}<br><strong>Lisätiedot:</strong> ${f.l || '---'}`;
     items.innerHTML = "";
     Object.values(cart).forEach(i => {
         items.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
@@ -314,7 +317,7 @@ function openPkgModal(name) {
     currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
     currentPkgItems.forEach((item, idx) => {
         let n = "Tuote " + item.code;
-        for(let cat in allData) { let f = allData[cat].find(x => x.code === item.code); if(f) n = f.name; }
+        for(let cat in allData) { let f = allData[cat].find(x => x.code === item.code); if(f) { n = f.name; break; } }
         items.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
             <div><b>${item.code}</b><br>${n}</div>
             <div class="qty-area">
@@ -336,7 +339,7 @@ function updatePkgItemQty(idx, d) {
 function confirmPkgToCart() {
     currentPkgItems.forEach(i => {
         if(i.qty > 0) {
-            let n = ""; for(let cat in allData) { let f = allData[cat].find(x => x.code === i.code); if(f) n = f.name; }
+            let n = ""; for(let cat in allData) { let f = allData[cat].find(x => x.code === i.code); if(f) { n = f.name; break; } }
             updateQty(i.code, n, i.qty, true);
         }
     });
@@ -377,15 +380,14 @@ async function openBigImg(code, name) {
 function renderNav() {
     const nav = document.getElementById("dynamic-nav"); nav.innerHTML = "";
     categories.forEach(c => {
-        let div = document.createElement("div"); div.className = "nav-item";
-        div.innerHTML = `<div class="nav-main-cat" onclick="this.parentElement.classList.toggle('active')">${c.name} <span>▾</span></div>`;
-        let subDiv = document.createElement("div"); subDiv.className = "nav-sub-list";
-        c.subs.forEach(s => { 
-            let item = document.createElement("div"); item.style = "padding:10px 30px; cursor:pointer;"; item.innerText = s; 
+        let main = document.createElement("div"); main.className = "nav-main-cat";
+        main.innerText = c.name; nav.appendChild(main);
+        c.subs.forEach(s => {
+            let item = document.createElement("div"); item.className = "nav-sub-item";
+            item.innerText = "- " + s;
             item.onclick = () => { document.getElementById("cat-" + s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"}); };
-            subDiv.appendChild(item);
+            nav.appendChild(item);
         });
-        div.appendChild(subDiv); nav.appendChild(div);
     });
 }
 
@@ -401,19 +403,16 @@ function saveStockStatus() {
     const piilota = document.getElementById("adminHide").checked;
     const eta = document.getElementById("adminETA").value;
     if(!c) return alert("Anna koodi!");
-    
     const koodirivi = `${c};${loppu};${piilota};${eta}`;
-    const subject = "Varastotilanteen päivitysrivikoodi";
-    window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(koodirivi)}`;
-    alert("Sähköposti avattu koodirivillä:\n" + koodirivi);
+    window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=Varastopaivitys&body=${encodeURIComponent(koodirivi)}`;
 }
 
 function finalSubmit() {
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, tapa: document.getElementById("f_tapa").value, l: document.getElementById("f_lisatiedot").value, puut: document.getElementById("f_puuttuvat").value };
     if(!f.t || !f.v || !f.o || !f.p || !f.k || !f.tapa) return alert("Täytä pakolliset tiedot!");
-    
-    let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.p} ${f.k}\n\nLisätiedot: ${f.l}\nPuuttuvat tuotteet: ${f.puut}\n\nTuotteet:\n`;
+    let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.p} ${f.k}\n\nLisätiedot: ${f.l}\n\nTuotteet:\n`;
     Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
+    if(f.puut) body += `\nPuuttuvat tuotteet:\n${f.puut}`;
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=Tilaus - ${f.t}&body=${encodeURIComponent(body)}`;
 }
 </script>
