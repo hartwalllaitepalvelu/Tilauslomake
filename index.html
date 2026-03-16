@@ -29,7 +29,6 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 .mobile-btn { flex: 1; padding: 12px; background: var(--hw-blue); color: white; border: 1px solid white; border-radius: 6px; font-weight: bold; }
 
 .product-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #edf2f7; background: white; gap: 15px; }
-.product-item.out { opacity: 0.5; background: #f0f0f0; }
 .thumb-img { width: 50px; height: 50px; object-fit: contain; background: #eee; border-radius: 4px; border: 1px solid #ddd; cursor: zoom-in; flex-shrink: 0; }
 .product-info { flex: 1; cursor: pointer; }
 
@@ -177,7 +176,9 @@ const asennusPaketit = {
 };
 const relatedItems = {
     "V02363": ["V03010","V02257","V02351","T00457","T02256","T41430"],
-    "V02355": ["V03010","V02257","V02351","T00457","T02256","T41430"]
+    "V02355": ["V03010","V02257","V02351","T00457","T02256","T41430"],
+    "V02356": ["V03010","V02257","V02351","T00457","T02256","T41430"],
+    "V02340": ["V03010","V02257","V02351","T00457","T02256","T41430"]
 };
 const sallitut = {"tomppa":"Tomi7122","markku":"parkinson","jaakko":"vendingjaska","dan":"huoltodan","tommi":"nappie","samia":"koksmeny","bob":"nayri","jouni":"paju1","jussi":"paukku","sami":"ruoska","jarno":"kurnu"};
 
@@ -193,7 +194,7 @@ function doAppLogin() {
         document.getElementById("appWrapper").style.display="block";
         document.getElementById("f_pvm").valueAsDate = new Date();
         loadLocalStock();
-        loadSavedCart(); // Lataa tallennettu kori
+        loadSavedCart();
         loadFiles();
     } else { alert("Virhe!"); }
 }
@@ -267,7 +268,7 @@ function updateQty(code, name, delta, skipRelated = false) {
     if(delta > 0 && relatedItems[code] && !skipRelated) openRelatedPopup(code);
     cart[code].qty += delta;
     if(cart[code].qty <= 0) delete cart[code];
-    localStorage.setItem("currentCart", JSON.stringify(cart)); // Tallenna muistiin
+    localStorage.setItem("currentCart", JSON.stringify(cart));
     let el = document.getElementById("q_"+code); if(el) el.value = cart[code]?.qty || 0;
     renderCart();
 }
@@ -275,7 +276,7 @@ function updateQty(code, name, delta, skipRelated = false) {
 function renderCart() {
     const div = document.getElementById("basket-items"); div.innerHTML = "";
     Object.values(cart).forEach(i => {
-        div.innerHTML += `<div class="cart-item"><div style="font-weight:bold; margin-bottom:10px;">${i.code} - ${i.name}</div><div class="qty-area" style="justify-content:flex-end; border-top:1px solid #f0f0f0; padding-top:10px;"><button class="qty-btn" style="width:28px; height:28px;" onclick="updateQty('${i.code}','${i.name}',-1)">-</button><input class="qty-input" style="width:35px;" value="${i.qty}" readonly><button class="qty-btn" style="width:28px; height:28px;" onclick="updateQty('${i.code}','${i.name}',1)">+</button></div></div>`;
+        div.innerHTML += `<div class="cart-item"><div style="font-weight:bold; margin-bottom:10px; font-size:13px;">${i.code} - ${i.name}</div><div class="qty-area" style="justify-content:flex-end; border-top:1px solid #f0f0f0; padding-top:10px;"><button class="qty-btn" style="width:28px; height:28px;" onclick="updateQty('${i.code}','${i.name}',-1)">-</button><input class="qty-input" style="width:35px;" value="${i.qty}" readonly><button class="qty-btn" style="width:28px; height:28px;" onclick="updateQty('${i.code}','${i.name}',1)">+</button></div></div>`;
     });
     const total = Object.values(cart).length;
     document.getElementById("basket-count").textContent = total;
@@ -287,7 +288,7 @@ function openCartModal() {
     const modal = document.getElementById("viewCartModal");
     const info = document.getElementById("summary-info");
     const items = document.getElementById("modal-cart-items");
-    info.innerHTML = `<div><b>Tilaaja:</b> ${document.getElementById("f_tilaaja").value || '-'}</div><div><b>Varasto:</b> ${document.getElementById("f_varasto").value || '-'}</div><div><b>Pvm:</b> ${document.getElementById("f_pvm").value || '-'}</div><div><b>Toimitus:</b> ${document.getElementById("f_tapa").value || '-'}</div>`;
+    info.innerHTML = `<div><b>Tilaaja:</b> ${document.getElementById("f_tilaaja").value || '-'}</div><div><b>Varasto:</b> ${document.getElementById("f_varasto").value || '-'}</div><div><b>Pvm:</b> ${document.getElementById("f_pvm").value || '-'}</div><div><b>Toimitus:</b> ${document.getElementById("f_tapa").value || '-'}</div><div style="grid-column: 1 / -1;"><b>Osoite:</b> ${document.getElementById("f_osoite").value || '-'}, ${document.getElementById("f_postinro").value || ''} ${document.getElementById("f_paikka").value || ''}</div>`;
     items.innerHTML = "";
     Object.values(cart).forEach(i => { items.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${i.code}</b><br>${i.name}</div><div class="qty-area"><button class="qty-btn" onclick="updateQty('${i.code}','${i.name}',-1); openCartModal();">-</button><input class="qty-input" value="${i.qty}" readonly><button class="qty-btn" onclick="updateQty('${i.code}','${i.name}',1); openCartModal();">+</button></div></div>`; });
     modal.style.display = "flex";
@@ -313,12 +314,9 @@ function finalSubmit() {
     const subject = `Varaosatilaus - ${f.t} - ${f.v}`;
     let body = `Tilaaja: ${f.t}\nVarastonumero: ${f.v}\nPäivämäärä: ${f.p}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.n} ${f.k}\n\nTUOTTEET:\n`;
     Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
-    
-    // Tyhjennä kori lähetyksen jälkeen
     localStorage.removeItem("currentCart");
     cart = {}; renderCart(); render();
-    
-    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&cc=oma.sahkoposti@hartwall.fi&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function openBigImg(c) { document.getElementById("bigImg").src = `images/${c}.png`; document.getElementById("imgModal").style.display = "flex"; }
