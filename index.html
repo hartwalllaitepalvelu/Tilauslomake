@@ -200,21 +200,27 @@ const GUIDE_SUFFIXES = [".pdf", ".PDF", "_Manual.pdf", "_Manual.PDF", "_Asennusv
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 400 ? "block" : "none"; };
 
+// PÄIVITETTY KÄYTTÄJÄLATAUS
 async function loadUsers() {
     try {
         const res = await fetch("käyttäjät.txt");
         if(res.ok) {
             const text = await res.text();
             text.split("\n").forEach(line => {
-                const parts = line.trim().split(/\s+/);
-                if(parts.length >= 2) allowedUsers[parts[0].toLowerCase()] = parts[parts.length - 1];
+                let cleanLine = line.trim();
+                if(!cleanLine) return;
+                const parts = cleanLine.split(/\s+/);
+                if(parts.length >= 2) {
+                    // Ensimmäinen sana on tunnus, viimeinen sana on salasana
+                    allowedUsers[parts[0].toLowerCase()] = parts[parts.length - 1];
+                }
             });
+            console.log("Käyttäjät ladattu.");
         }
-    } catch(e) {}
+    } catch(e) { console.error("Käyttäjälista-virhe", e); }
 }
 loadUsers();
 
-// PÄIVITETTY LUKULOGIIKKA: Tunnistaa nimen, vaikka siinä olisi useita sanoja
 async function loadPackages() {
     try {
         const res = await fetch("asennuspaketit.txt");
@@ -226,12 +232,7 @@ async function loadPackages() {
         text.split("\n").forEach(line => {
             let s = line.trim();
             if(!s) return;
-            
             let parts = s.split(/\s+/); 
-            
-            // LOGIIKKA: Jos rivin ensimmäinen merkki on kirjain (A-Z, V, T, M jne.)
-            // JA rivillä ei ole numeroa määränä lopussa, se on paketin nimi.
-            // TAI jos se on selkeästi tekstiä eikä nimikekoodi.
             if (!/\d/.test(s.charAt(0)) || (parts.length === 1 && isNaN(parts[0]))) {
                 currentPkgName = s;
                 asennusPaketit[currentPkgName] = [];
@@ -243,18 +244,27 @@ async function loadPackages() {
             }
         });
         renderPkgs();
-    } catch(e) { console.error("Pakettien haku epäonnistui", e); }
+    } catch(e) {}
 }
 
 function doAppLogin() {
     const u = document.getElementById("uField").value.trim().toLowerCase();
     const p = document.getElementById("pField").value.trim();
+    
+    // Varmistetaan että käyttäjät on ehditty ladata
+    if (Object.keys(allowedUsers).length === 0) {
+        alert("Käyttäjälistaa ladataan vielä, yritä hetken kuluttua uudelleen.");
+        return;
+    }
+
     if (allowedUsers[u] && allowedUsers[u] === p) {
         document.getElementById("loginOverlay").style.display="none";
         document.getElementById("appWrapper").style.display="block";
         document.getElementById("f_pvm").valueAsDate = new Date();
         loadLocalStock(); loadSavedCart(); loadFiles();
-    } else { document.getElementById("loginError").style.display = "block"; }
+    } else { 
+        document.getElementById("loginError").style.display = "block"; 
+    }
 }
 
 async function loadFiles() {
