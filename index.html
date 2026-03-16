@@ -8,10 +8,10 @@
 :root { --hw-blue:#004593; --hw-dark:#002d62; --hw-green:#28a745; --sidebar-w: 280px; }
 body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-size:14px; color:#333; padding-bottom: 120px; }
 
-/* Z-INDEX & MODALS */
+/* MODALS & Z-INDEX */
 #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--hw-blue); display:flex; justify-content:center; align-items:center; z-index:100000; }
 #adminLoginPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:100001; }
-#pkgModal, #imgModal, #relatedOverlay, #viewCartModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; justify-content:center; align-items:center; }
+#pkgModal, #imgModal, #viewCartModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; justify-content:center; align-items:center; }
 
 .login-box { background:white; padding:40px; border-radius:12px; width:340px; text-align:center; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
 .login-box input { width:100%; padding:12px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; }
@@ -153,12 +153,12 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
                 <button onclick="clearSearch()" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); border:none; background:none; font-size:22px; cursor:pointer; color:#aaa;">&times;</button>
             </div>
 
-            <button onclick="openCartModal()" style="background:var(--hw-green); color:white; border:none; padding:14px 24px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:25px; display: flex; align-items: center; gap: 10px;">🛒 TARKASTELE TILAUSTA (<span id="btn-cart-count">0</span>)</button>
-
             <div style="background:#fff9c4; padding:20px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:30px;">
                 <div style="font-weight:bold; margin-bottom:10px; color:var(--hw-blue);">VALMIIT ASENNUSPAKETIT</div>
                 <div id="pkg-buttons" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
             </div>
+
+            <button onclick="openCartModal()" style="background:var(--hw-green); color:white; border:none; padding:14px 24px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:25px; display: flex; align-items: center; gap: 10px;">🛒 TARKASTELE TILAUSTA (<span id="btn-cart-count">0</span>)</button>
 
             <div id="main-list"></div>
         </main>
@@ -267,9 +267,11 @@ async function openBigImg(code, name) {
     document.getElementById("bigImg").src = `images/${code}.png`;
     document.getElementById("imgModalTitle").innerText = `${code} - ${name}`;
     const linksDiv = document.getElementById("guideLinks");
-    linksDiv.innerHTML = "";
+    linksDiv.innerHTML = "Etsitään ohjeita...";
     
-    const suffixes = [".pdf", "_Asennusvaatimukset.pdf", "_Esite.pdf", "_Manual.pdf", "_Menu_valikot.pdf", "_Varaosat.pdf", "_tekniset tiedot.pdf", "_suomi.pdf", "_englantia.pdf", "_ohje.pdf"];
+    // Lista mahdollisista päätteistä kuviesi perusteella
+    const suffixes = [".pdf", "_Asennusvaatimukset.pdf", "_Esite.pdf", "_Manual.pdf", "_Menu_valikot.pdf", "_Menu.pdf", "_Varaosat.pdf", "_tekniset tiedot.pdf", "_ohje.pdf", "_suomi.pdf", "_englantia.pdf"];
+    
     let found = 0;
     for (let s of suffixes) {
         let fname = code + s;
@@ -277,6 +279,7 @@ async function openBigImg(code, name) {
         try {
             const res = await fetch(url, { method: 'HEAD' });
             if (res.ok) {
+                if(found === 0) linksDiv.innerHTML = "";
                 let a = document.createElement("a");
                 a.className = "guide-link";
                 a.href = url; a.target = "_blank";
@@ -287,6 +290,7 @@ async function openBigImg(code, name) {
             }
         } catch (e) {}
     }
+    if(found === 0) linksDiv.innerHTML = "<small style='color:#999'>Ei löytyneitä ohjeita.</small>";
     document.getElementById("imgModal").style.display = 'flex';
 }
 
@@ -339,7 +343,6 @@ function renderCart() {
     });
     const count = Object.values(cart).length;
     document.getElementById("basket-count").textContent = count;
-    document.getElementById("m-count").textContent = count;
     document.getElementById("btn-cart-count").textContent = count;
 }
 
@@ -367,23 +370,6 @@ function openCartModal() {
     document.getElementById("viewCartModal").style.display = "flex";
 }
 
-function openPkgModal(name) {
-    const modal = document.getElementById("pkgModal");
-    const content = document.getElementById("pkgModalItems");
-    document.getElementById("pkgModalTitle").innerText = name;
-    content.innerHTML = "";
-    currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
-    currentPkgItems.forEach((item, index) => {
-        let n = "Tuote " + item.code;
-        for(let c in allData) { let f = allData[c].find(x => x.code === item.code); if(f) n = f.name; }
-        content.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee;"><div><b>${item.code}</b><br>${n}</div><div class="qty-area"><button class="qty-btn" onclick="updatePkgItemQty(${index},-1)">-</button><input class="qty-input" value="${item.qty}" readonly><button class="qty-btn" onclick="updatePkgItemQty(${index},1)">+</button></div></div>`;
-    });
-    modal.style.display = "flex";
-}
-
-function updatePkgItemQty(idx, d) { currentPkgItems[idx].qty += d; if(currentPkgItems[idx].qty < 0) currentPkgItems[idx].qty = 0; document.querySelectorAll("#pkgModalItems .qty-input")[idx].value = currentPkgItems[idx].qty; }
-function confirmPkgToCart() { currentPkgItems.forEach(i => { if(i.qty > 0) updateQty(i.code, "", i.qty); }); document.getElementById("pkgModal").style.display = "none"; }
-
 function finalSubmit() {
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, p: document.getElementById("f_pvm").value, tapa: document.getElementById("f_tapa").value, o: document.getElementById("f_osoite").value, n: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value };
     if(!f.t || !f.v || !f.p || !f.tapa || !f.o || !f.n || !f.k) return alert("Täytä kaikki tilaajatiedot!");
@@ -401,10 +387,25 @@ function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'
 function loadLocalStock() { try { const r = localStorage.getItem("stockStatus"); if(r) stockStatus = JSON.parse(r); } catch(e){} }
 function loadSavedCart() { const saved = localStorage.getItem("currentCart"); if(saved) { cart = JSON.parse(saved); renderCart(); } }
 function renderPkgs() { const div = document.getElementById("pkg-buttons"); div.innerHTML = ""; Object.keys(asennusPaketit).forEach(name => { div.innerHTML += `<button class="pkg-btn" style="padding:10px 18px; background:var(--hw-blue); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;" onclick="openPkgModal('${name}')">${name}</button>`; }); }
+function openPkgModal(name) {
+    const modal = document.getElementById("pkgModal");
+    const content = document.getElementById("pkgModalItems");
+    document.getElementById("pkgModalTitle").innerText = name;
+    content.innerHTML = "";
+    currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
+    currentPkgItems.forEach((item, index) => {
+        let n = "Tuote " + item.code;
+        for(let c in allData) { let f = allData[c].find(x => x.code === item.code); if(f) n = f.name; }
+        content.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee;"><div><b>${item.code}</b><br>${n}</div><div class="qty-area"><button class="qty-btn" onclick="updatePkgItemQty(${index},-1)">-</button><input class="qty-input" value="${item.qty}" readonly><button class="qty-btn" onclick="updatePkgItemQty(${index},1)">+</button></div></div>`;
+    });
+    modal.style.display = "flex";
+}
+function updatePkgItemQty(idx, d) { currentPkgItems[idx].qty += d; if(currentPkgItems[idx].qty < 0) currentPkgItems[idx].qty = 0; document.querySelectorAll("#pkgModalItems .qty-input")[idx].value = currentPkgItems[idx].qty; }
+function confirmPkgToCart() { currentPkgItems.forEach(i => { if(i.qty > 0) updateQty(i.code, "", i.qty); }); document.getElementById("pkgModal").style.display = "none"; }
 function saveStockStatus() { const c = document.getElementById("adminCode").value.trim(); if(!c) return; stockStatus[c] = { outOfStock: document.getElementById("adminOutOfStock").checked, hidden: document.getElementById("adminHide").checked }; localStorage.setItem("stockStatus", JSON.stringify(stockStatus)); render(); alert("Tallennettu!"); }
 </script>
 
-<button onclick="window.scrollTo({top:0, behavior:'smooth'})" id="btnTop">YLÖS ↑</button>
+<button onclick="window.scrollTo({top:0, behavior:'smooth'})" id="btnTop" style="position:fixed; bottom:20px; right:20px; display:none; background:var(--hw-blue); color:white; border:none; border-radius:50%; width:50px; height:50px; cursor:pointer;">↑</button>
 
 </body>
 </html>
