@@ -8,9 +8,9 @@
 :root { --hw-blue:#004593; --hw-dark:#002d62; --hw-green:#28a745; --sidebar-w: 280px; }
 body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-size:14px; color:#333; padding-bottom: 120px; }
 
-/* Z-INDEX JA MODALIT */
+/* Z-INDEX HALLINTA */
 #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--hw-blue); display:flex; justify-content:center; align-items:center; z-index:100000; }
-#adminLoginPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,45,147,0.8); display:flex; justify-content:center; align-items:center; z-index:100001; }
+#adminLoginPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:100001; }
 #pkgModal, #imgModal, #relatedOverlay, #viewCartModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; justify-content:center; align-items:center; }
 
 .login-box { background:white; padding:40px; border-radius:12px; width:340px; text-align:center; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
@@ -56,6 +56,9 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 #btnTop { position: fixed; bottom: 110px; right: 300px; background: var(--hw-blue); color: white; border: none; padding: 15px 25px; border-radius: 30px; display: none; z-index: 999; font-weight: bold; cursor: pointer; }
 #btnViewCart { background: var(--hw-green); color: white; border: none; padding: 14px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-size: 15px; }
 
+/* ADMIN Palkki */
+#adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
+
 @media (max-width: 1100px) {
     .nav-sidebar, .cart-sidebar { position: fixed; left: -100%; top: 55px; z-index: 3000; width: 85%; height: calc(100vh - 55px); transition: 0.3s; }
     .cart-sidebar { right: -100%; left: auto; }
@@ -74,6 +77,16 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
         <input id="uField" placeholder="Käyttäjätunnus">
         <input id="pField" type="password" placeholder="Salasana">
         <button onclick="doAppLogin()" style="width:100%; padding:14px; background:var(--hw-blue); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">KIRJAUDU SISÄÄN</button>
+    </div>
+</div>
+
+<div id="adminLoginPopup" style="display:none;">
+    <div class="login-box">
+        <h3>Ylläpito</h3>
+        <input id="adminUser" placeholder="Tunnus">
+        <input id="adminPass" type="password" placeholder="Salasana">
+        <button onclick="doAdminLogin()" style="width:100%; padding:12px; background:var(--hw-dark); color:white; border:none; border-radius:6px; cursor:pointer;">KIRJAUDU</button>
+        <button onclick="document.getElementById('adminLoginPopup').style.display='none'" style="margin-top:10px; color:red; cursor:pointer; background:none; border:none;">Peruuta</button>
     </div>
 </div>
 
@@ -150,9 +163,20 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
             <div id="basket-items" class="cart-item-list"></div>
             <div style="padding:15px; border-top:1px solid #eee;">
                 <button onclick="finalSubmit()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">LÄHETÄ TILAUS</button>
+                <button onclick="document.getElementById('adminLoginPopup').style.display='flex'" style="width:100%; margin-top:10px; background:none; border:none; color:#a0aec0; font-size:10px; cursor:pointer;">YLLÄPITO</button>
             </div>
         </aside>
     </div>
+</div>
+
+<div id="adminSection">
+    <div style="font-weight:bold;">MUOKKAA:</div>
+    <input id="adminCode" placeholder="Koodi" style="padding:8px; width:100px;">
+    <label><input type="checkbox" id="adminOutOfStock"> LOPPU</label>
+    <label><input type="checkbox" id="adminHide"> PIILOTA</label>
+    <input id="adminETA" placeholder="ETA" style="padding:8px; width:100px;">
+    <button onclick="saveStockStatus()" style="padding:8px 15px; background:var(--hw-green); color:white; border:none; cursor:pointer; font-weight:bold;">TALLENNA</button>
+    <button onclick="document.getElementById('adminSection').style.display='none'" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">SULJE X</button>
 </div>
 
 <script>
@@ -163,7 +187,7 @@ const asennusPaketit = {
 };
 const sallitut = {"tomppa":"Tomi7122","markku":"parkinson","jaakko":"vendingjaska","dan":"huoltodan","tommi":"nappie","samia":"koksmeny","bob":"nayri","jouni":"paju1","jussi":"paukku","sami":"ruoska","jarno":"kurnu"};
 
-let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let currentPkgItems = [];
+let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let currentPkgItems = []; let isAdmin = false;
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 400 ? "block" : "none"; };
 
@@ -174,8 +198,16 @@ function doAppLogin() {
         document.getElementById("loginOverlay").style.display="none";
         document.getElementById("appWrapper").style.display="block";
         document.getElementById("f_pvm").valueAsDate = new Date();
-        loadSavedCart();
-        loadFiles();
+        loadLocalStock(); loadSavedCart(); loadFiles();
+    } else { alert("Virhe!"); }
+}
+
+function doAdminLogin() {
+    if (document.getElementById("adminUser").value === "admin" && document.getElementById("adminPass").value === "hartwall") {
+        isAdmin = true;
+        document.getElementById("adminLoginPopup").style.display = "none";
+        document.getElementById("adminSection").style.display = "flex";
+        render();
     } else { alert("Virhe!"); }
 }
 
@@ -206,7 +238,7 @@ async function loadFiles() {
 
 function renderNav() {
     const nav = document.getElementById("dynamic-nav"); nav.innerHTML = "";
-    categories.forEach((c, idx) => {
+    categories.forEach(c => {
         let div = document.createElement("div"); div.className = "nav-item";
         div.innerHTML = `<div class="nav-main-cat" onclick="this.parentElement.classList.toggle('active')">${c.name} <span>▾</span></div>`;
         let subDiv = document.createElement("div"); subDiv.className = "nav-sub-list";
@@ -224,10 +256,7 @@ function renderNav() {
 function jumpTo(id) {
     const safeId = "cat-" + id.replace(/\s+/g, '-').toLowerCase();
     const el = document.getElementById(safeId);
-    if(el) {
-        el.scrollIntoView({behavior:"smooth", block: "start"});
-        document.getElementById("nav-sidebar").classList.remove("open");
-    }
+    if(el) { el.scrollIntoView({behavior:"smooth", block: "start"}); }
 }
 
 async function openBigImg(code, name) {
@@ -236,21 +265,16 @@ async function openBigImg(code, name) {
     const linksDiv = document.getElementById("guideLinks");
     linksDiv.innerHTML = "";
     
-    // Yritetään ladata ohjeita
-    const types = ["", "kaytto", "asennus", "huolto"];
-    for (let type of types) {
-        let fname = type === "" ? code : `${code}_${type}`;
-        let label = type === "" ? "Asennusohje" : type.charAt(0).toUpperCase() + type.slice(1);
-        let url = `ohjeet/${fname}.pdf`;
-        
-        // Kevyt tarkistus fetchillä
+    // Ohjetarkistus: numero.pdf ja numero_ohje.pdf
+    const checks = [`${code}.pdf`, `${code}_ohje.pdf`];
+    for (let fname of checks) {
+        let url = `ohjeet/${fname}`;
         fetch(url, { method: 'HEAD' }).then(res => {
             if (res.ok) {
                 let a = document.createElement("a");
                 a.className = "guide-link";
-                a.href = url;
-                a.target = "_blank";
-                a.innerHTML = `📄 AVAA ${label.toUpperCase()} (PDF)`;
+                a.href = url; a.target = "_blank";
+                a.innerHTML = `📄 AVAA OHJE (${fname})`;
                 linksDiv.appendChild(a);
             }
         }).catch(() => {});
@@ -265,22 +289,21 @@ function render(filter = "") {
             let prods = allData[sub] || [];
             let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
             if (filt.length === 0) return;
-            
-            // Luodaan id hyppäämistä varten
             const safeId = "cat-" + sub.replace(/\s+/g, '-').toLowerCase();
-            let title = document.createElement("div");
-            title.id = safeId;
+            let title = document.createElement("div"); title.id = safeId;
             title.style = "background:var(--hw-blue); color:white; padding:12px; margin:20px 0 10px 0; border-radius:8px; font-weight:bold;";
             title.innerText = sub;
             list.appendChild(title);
-
             let block = document.createElement("div");
             filt.forEach(p => {
+                let s = stockStatus[p.code] || {};
+                if (s.hidden && !isAdmin) return;
                 block.innerHTML += `
-                    <div class="product-item">
+                    <div class="product-item ${s.outOfStock ? 'out' : ''}">
                         <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}', '${p.name.replace(/'/g, "\\'")}')">
                         <div class="product-info" onclick="openBigImg('${p.code}', '${p.name.replace(/'/g, "\\'")}')">
                             <b>${p.name}</b><br><small>${p.code}</small>
+                            ${s.outOfStock ? ' <b style="color:red">LOPPU!</b>' : ''}
                         </div>
                         <div class="qty-area">
                             <button class="qty-btn" onclick="updateQty('${p.code}','${p.name}',-1)">-</button>
@@ -349,16 +372,17 @@ function finalSubmit() {
     const subject = `Varaosatilaus - ${f.t} - ${f.v}`;
     let body = `Tilaaja: ${f.t}\nVarastonumero: ${f.v}\nPäivämäärä: ${f.p}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.n} ${f.k}\n\nTUOTTEET:\n`;
     Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
-    localStorage.removeItem("currentCart");
-    cart = {}; renderCart(); render();
+    localStorage.removeItem("currentCart"); cart = {}; renderCart(); render();
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function clearSearch() { document.getElementById("filter").value = ""; render(""); }
 function scrollToSearch() { window.scrollTo({ top: 350, behavior: 'smooth' }); }
 function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
+function loadLocalStock() { try { const r = localStorage.getItem("stockStatus"); if(r) stockStatus = JSON.parse(r); } catch(e){} }
 function loadSavedCart() { const saved = localStorage.getItem("currentCart"); if(saved) { cart = JSON.parse(saved); renderCart(); } }
 function renderPkgs() { const div = document.getElementById("pkg-buttons"); div.innerHTML = ""; Object.keys(asennusPaketit).forEach(name => { div.innerHTML += `<button class="pkg-btn" style="padding:10px 18px; background:var(--hw-blue); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;" onclick="openPkgModal('${name}')">${name}</button>`; }); }
+function saveStockStatus() { const c = document.getElementById("adminCode").value.trim(); if(!c) return; stockStatus[c] = { outOfStock: document.getElementById("adminOutOfStock").checked, hidden: document.getElementById("adminHide").checked, eta: document.getElementById("adminETA").value }; localStorage.setItem("stockStatus", JSON.stringify(stockStatus)); render(); alert("Tallennettu!"); }
 </script>
 
 <button onclick="scrollToSearch()" id="btnTop">YLÖS ↑</button>
