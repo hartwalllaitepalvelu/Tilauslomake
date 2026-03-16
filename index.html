@@ -21,13 +21,17 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .nav-sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
 .nav-header { background: var(--hw-dark); color: white; padding: 20px; font-weight: bold; font-size: 16px; text-align: center; }
 
-/* NAVIGATIOTYYLIT */
-.nav-main-cat { padding: 12px 15px; font-weight: 700; background: #eee; border-bottom: 1px solid #ddd; color: var(--hw-dark); }
-.nav-sub-item { padding: 8px 15px 8px 25px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; }
-.nav-sub-item:hover { background: #eef2f7; color: var(--hw-blue); }
+/* NAVIGATIO (Aukeavat kategoriat) */
+.nav-group { border-bottom: 1px solid #eee; }
+.nav-main-cat { padding: 12px 15px; font-weight: 700; background: #f8f9fa; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.nav-main-cat:hover { background: #edf2f7; }
+.nav-sub-list { display: none; background: white; }
+.nav-group.active .nav-sub-list { display: block; }
+.nav-sub-item { padding: 8px 15px 8px 30px; cursor: pointer; border-bottom: 1px solid #f9f9f9; color: #555; }
+.nav-sub-item:hover { color: var(--hw-blue); background: #f0f4f8; }
 
 .main-content { flex: 1; padding: 20px; min-width: 0; }
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 10px 0; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
 .product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; position: relative; }
 .product-card.out { opacity: 0.6; filter: grayscale(0.5); }
 .thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
@@ -232,6 +236,14 @@ async function loadFiles() {
     } catch(e) {}
 }
 
+function findNameByCode(code) {
+    for (let cat in allData) {
+        let found = allData[cat].find(x => x.code === code);
+        if (found) return found.name;
+    }
+    return "Nimeä ei löydy";
+}
+
 function render(filter = "") {
     const list = document.getElementById("main-list"); list.innerHTML = "";
     categories.forEach(c => {
@@ -264,8 +276,8 @@ function render(filter = "") {
 
 function updateQty(code, name, delta, skipRelated = false) {
     if(!cart[code]) {
-        if(!name) { for(let c in allData) { let p = allData[c].find(x => x.code === code); if(p) name = p.name; } }
-        cart[code] = { code, name: name || "Tuote " + code, qty: 0 };
+        if(!name) name = findNameByCode(code);
+        cart[code] = { code, name, qty: 0 };
     }
     cart[code].qty += delta;
     if(cart[code].qty <= 0) delete cart[code];
@@ -292,7 +304,7 @@ function renderCart() {
 function openFullCart() {
     const info = document.getElementById("fullCartInfo");
     const items = document.getElementById("fullCartItems");
-    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, l: document.getElementById("f_lisatiedot").value, puut: document.getElementById("f_puuttuvat").value };
+    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, l: document.getElementById("f_lisatiedot").value };
     info.innerHTML = `<strong>Tilaaja:</strong> ${f.t || '---'}<br><strong>Varasto:</strong> ${f.v || '---'}<br><strong>Toimitusosoite:</strong> ${f.o}, ${f.p} ${f.k}<br><strong>Lisätiedot:</strong> ${f.l || '---'}`;
     items.innerHTML = "";
     Object.values(cart).forEach(i => {
@@ -316,8 +328,7 @@ function openPkgModal(name) {
     document.getElementById("pkgModalTitle").innerText = name;
     currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
     currentPkgItems.forEach((item, idx) => {
-        let n = "Tuote " + item.code;
-        for(let cat in allData) { let f = allData[cat].find(x => x.code === item.code); if(f) { n = f.name; break; } }
+        let n = findNameByCode(item.code);
         items.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
             <div><b>${item.code}</b><br>${n}</div>
             <div class="qty-area">
@@ -339,8 +350,7 @@ function updatePkgItemQty(idx, d) {
 function confirmPkgToCart() {
     currentPkgItems.forEach(i => {
         if(i.qty > 0) {
-            let n = ""; for(let cat in allData) { let f = allData[cat].find(x => x.code === i.code); if(f) { n = f.name; break; } }
-            updateQty(i.code, n, i.qty, true);
+            updateQty(i.code, findNameByCode(i.code), i.qty, true);
         }
     });
     document.getElementById("pkgModal").style.display = "none";
@@ -349,7 +359,7 @@ function confirmPkgToCart() {
 function openRelatedPopup(parentCode) {
     const content = document.getElementById("relatedContent"); content.innerHTML = "";
     relatedItems[parentCode].forEach(relCode => {
-        let relName = ""; for (let cat in allData) { let p = allData[cat].find(x => x.code === relCode); if (p) { relName = p.name; break; } }
+        let relName = findNameByCode(relCode);
         content.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${relCode}</b><br>${relName}</div><button onclick="updateQty('${relCode}', '${relName}', 1, true)" style="background:var(--hw-green); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Lisää</button></div>`;
     });
     document.getElementById("relatedOverlay").style.display = "flex";
@@ -379,15 +389,21 @@ async function openBigImg(code, name) {
 
 function renderNav() {
     const nav = document.getElementById("dynamic-nav"); nav.innerHTML = "";
-    categories.forEach(c => {
+    categories.forEach((c, idx) => {
+        let group = document.createElement("div"); group.className = "nav-group";
         let main = document.createElement("div"); main.className = "nav-main-cat";
-        main.innerText = c.name; nav.appendChild(main);
+        main.innerHTML = `${c.name} <span>▾</span>`;
+        main.onclick = () => group.classList.toggle('active');
+        group.appendChild(main);
+        
+        let subList = document.createElement("div"); subList.className = "nav-sub-list";
         c.subs.forEach(s => {
             let item = document.createElement("div"); item.className = "nav-sub-item";
             item.innerText = "- " + s;
             item.onclick = () => { document.getElementById("cat-" + s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"}); };
-            nav.appendChild(item);
+            subList.appendChild(item);
         });
+        group.appendChild(subList); nav.appendChild(group);
     });
 }
 
