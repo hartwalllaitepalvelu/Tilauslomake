@@ -33,6 +33,9 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 .thumb-img { width: 50px; height: 50px; object-fit: contain; background: #eee; border-radius: 4px; border: 1px solid #ddd; cursor: zoom-in; flex-shrink: 0; }
 .product-info { flex: 1; cursor: pointer; }
 
+/* OHJE-IKONI LISTASSA */
+.guide-indicator { color: var(--hw-blue); font-size: 16px; margin-left: 5px; vertical-align: middle; }
+
 .qty-area { display: flex; align-items: center; gap: 10px; }
 .qty-btn { width: 36px; height: 36px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 20px; }
 .qty-input { width: 45px; text-align: center; border: 1px solid #cbd5e0; padding: 8px; font-weight: bold; border-radius: 6px; }
@@ -46,7 +49,7 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 .modal-content { background:white; padding:40px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; }
 .close-x { position: absolute; top: 20px; right: 25px; font-size: 32px; cursor: pointer; color: #999; font-weight: bold; }
 
-/* OHJEIDEN TYYLIT */
+/* OHJEIDEN TYYLIT MODAALISSA */
 .guide-list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 .guide-link { 
     display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; 
@@ -199,6 +202,7 @@ const relatedItems = {
 const sallitut = {"tomppa":"Tomi7122","markku":"parkinson","jaakko":"vendingjaska","dan":"huoltodan","tommi":"nappie","samia":"koksmeny","bob":"nayri","jouni":"paju1","jussi":"paukku","sami":"ruoska","jarno":"kurnu"};
 
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let currentPkgItems = []; let isAdmin = false;
+let autoGuideStatus = {}; // Muisti siitä, millä tuotteilla on ohjeita
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 400 ? "block" : "none"; };
 
@@ -242,7 +246,11 @@ async function loadFiles() {
             t.split("\n").forEach(line => {
                 let s = line.trim(); if(!s) return;
                 if(!/\d/.test(s.split(" ")[0])) { cur = s; allData[cur] = []; }
-                else if(cur) { allData[cur].push({code: s.split(" ")[0], name: s.substring(s.split(" ")[0].length).trim()}); }
+                else if(cur) { 
+                    const code = s.split(" ")[0];
+                    allData[cur].push({code: code, name: s.substring(code.length).trim()}); 
+                    checkGuideExists(code); // Tarkistetaan ohje taustalla
+                }
             });
         }
         if(r2.ok) {
@@ -258,9 +266,26 @@ async function loadFiles() {
     } catch(e) { console.error(e); }
 }
 
-// DYNAAMINEN OHJEIDEN HAKU
+// AUTOMAATTINEN OHJEEN TARKISTUS NIMIKELISTALLE
+async function checkGuideExists(code) {
+    if(autoGuideStatus[code] !== undefined) return;
+    const suffixes = [".pdf", "_Manual.pdf", "_Asennusvaatimukset.pdf", "_ohje.pdf"];
+    for (let s of suffixes) {
+        try {
+            const res = await fetch(`ohjeet/${code}${s}`, { method: 'HEAD' });
+            if (res.ok) {
+                autoGuideStatus[code] = true;
+                const icons = document.querySelectorAll(`.guide-ref-${code}`);
+                icons.forEach(el => el.style.display = 'inline');
+                return;
+            }
+        } catch (e) {}
+    }
+    autoGuideStatus[code] = false;
+}
+
+// DYNAAMINEN OHJEIDEN HAKU MODAALIIN
 async function openBigImg(code) {
-    // Haetaan tuotteen nimi datasta jotta se voidaan näyttää otsikossa
     let name = "Varaosa";
     for(let cat in allData) {
         let p = allData[cat].find(x => x.code === code);
@@ -272,7 +297,6 @@ async function openBigImg(code) {
     const linksDiv = document.getElementById("guideLinks");
     linksDiv.innerHTML = "Etsitään ohjeita...";
     
-    // Lista päätteistä joita koodi tarkistaa
     const suffixes = [".pdf", "_Asennusvaatimukset.pdf", "_Esite.pdf", "_Manual.pdf", "_Menu_valikot.pdf", "_Menu.pdf", "_Varaosat.pdf", "_tekniset tiedot.pdf", "_ohje.pdf", "_suomi.pdf", "_englantia.pdf"];
     
     let found = 0;
@@ -286,7 +310,6 @@ async function openBigImg(code) {
                 let a = document.createElement("a");
                 a.className = "guide-link";
                 a.href = url; a.target = "_blank";
-                // Muokataan label nätimmäksi: poistetaan .pdf ja alaviivat
                 let label = s.replace(".pdf", "").replace("_", " ").trim().toUpperCase() || "PDF OHJE";
                 a.innerHTML = `📄 ${label}`;
                 linksDiv.appendChild(a);
@@ -306,7 +329,6 @@ function render(filter = "") {
             let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
             if (filt.length === 0) return;
             
-            // Luodaan id hyppäämistä varten
             const safeId = "cat-" + sub.replace(/\s+/g, '-').toLowerCase();
             let title = document.createElement("div");
             title.id = safeId;
@@ -318,11 +340,12 @@ function render(filter = "") {
             filt.forEach(p => {
                 let s = stockStatus[p.code] || {};
                 if (s.hidden && !isAdmin) return;
+                const hasGuideStyle = autoGuideStatus[p.code] ? 'inline' : 'none';
                 block.innerHTML += `
                     <div class="product-item ${s.outOfStock ? 'out' : ''}">
                         <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}')">
                         <div class="product-info" onclick="openBigImg('${p.code}')">
-                            <b>${p.name}</b><br><small>${p.code}</small>
+                            <b>${p.name} <span class="guide-indicator guide-ref-${p.code}" style="display:${hasGuideStyle}">📄</span></b><br><small>${p.code}</small>
                             ${s.outOfStock ? ' <b style="color:red">LOPPU!</b>' : ''}
                             ${s.hidden && isAdmin ? ' <b style="color:blue">[PIILOTETTU]</b>' : ''}
                         </div>
