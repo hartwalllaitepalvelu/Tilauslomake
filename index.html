@@ -384,9 +384,12 @@ function openPkgModal(name) {
     currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
     currentPkgItems.forEach((item, idx) => {
         let n = findNameByCode(item.code);
-        items.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
-            <div style="flex:1; padding-right:10px;"><b>${item.code}</b><br>${n}</div>
-            <div class="qty-area" style="flex-shrink:0;">
+        items.innerHTML += `<div style="display:flex; align-items:center; padding:12px 10px; border-bottom:1px solid #eee;">
+            <div style="flex-grow: 1; padding-right:15px;">
+                <b style="font-size:13px;">${item.code}</b><br>
+                <span style="font-size:13px; color:#555;">${n}</span>
+            </div>
+            <div class="qty-area" style="width: auto; margin: 0; justify-content: flex-end;">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},-1)">-</button>
                 <input class="qty-input" value="${item.qty}" readonly>
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},1)">+</button>
