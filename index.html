@@ -21,37 +21,40 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .nav-sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
 .nav-header { background: var(--hw-dark); color: white; padding: 20px; font-weight: bold; font-size: 16px; text-align: center; }
 
-/* NAVIGATIO (Aukeavat kategoriat) */
 .nav-group { border-bottom: 1px solid #eee; }
 .nav-main-cat { padding: 12px 15px; font-weight: 700; background: #f8f9fa; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-.nav-main-cat:hover { background: #edf2f7; }
 .nav-sub-list { display: none; background: white; }
 .nav-group.active .nav-sub-list { display: block; }
 .nav-sub-item { padding: 8px 15px 8px 30px; cursor: pointer; border-bottom: 1px solid #f9f9f9; color: #555; }
-.nav-sub-item:hover { color: var(--hw-blue); background: #f0f4f8; }
 
 .main-content { flex: 1; padding: 20px; min-width: 0; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
-.product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; position: relative; }
-.product-card.out { opacity: 0.6; filter: grayscale(0.5); }
-.thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
+.product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; transition: all 0.2s; }
 
+/* KOROSTUS KUN TUOTE KORISSA */
+.product-card.in-cart { border: 2px solid var(--hw-green); background: #f0fff4; }
+
+.thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
 .qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 .qty-input { width: 35px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
 
 .category-title { background: var(--hw-blue); color: white; padding: 10px 15px; margin: 25px 0 10px 0; border-radius: 8px; font-weight: bold; }
 
+/* HAKUKENTTÄ JA RASTI */
+.search-container { position: relative; margin-bottom: 20px; }
+#filter { width: 100%; padding: 14px 45px 14px 20px; font-size: 15px; border: 2px solid var(--hw-blue); border-radius: 50px; box-sizing: border-box; }
+#clearSearch { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; color: #999; cursor: pointer; display: none; }
+
 .form-section { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e1e4e8; margin-bottom: 20px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-.form-grid input, .form-grid textarea { padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; width: 100%; box-sizing: border-box; font-family: inherit; }
+.form-grid input, .form-grid textarea { padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; width: 100%; box-sizing: border-box; }
 
-#adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; font-size: 13px; }
-#btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 20px; }
+#adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
+#btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; font-weight: bold; cursor: pointer; font-size: 20px; }
 
 .modal-content { background:white; padding:30px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; }
 .close-x { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #999; }
-
 .cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
 </style>
 </head>
@@ -76,12 +79,15 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                     <input id="f_osoite" placeholder="Osoite *" required>
                     <input id="f_postinro" placeholder="Postinumero *" required>
                     <input id="f_paikka" placeholder="Paikkakunta *" required>
-                    <textarea id="f_lisatiedot" placeholder="Lisätietoja..." style="grid-column: 1 / -1; height: 80px;"></textarea>
-                    <textarea id="f_puuttuvat" placeholder="Listalta puuttuvat tuotteet: Lisää nimi ja kappalemäärä" style="grid-column: 1 / -1; height: 80px; color: #666;"></textarea>
+                    <textarea id="f_lisatiedot" placeholder="Lisätietoja..." style="grid-column: 1 / -1; height: 60px;"></textarea>
+                    <textarea id="f_puuttuvat" placeholder="Listalta puuttuvat tuotteet: Lisää nimi ja kappalemäärä" style="grid-column: 1 / -1; height: 60px; color: #666;"></textarea>
                 </div>
             </div>
 
-            <input id="filter" style="width:100%; padding:14px 20px; font-size:15px; border:2px solid var(--hw-blue); border-radius:50px; margin-bottom:20px; box-sizing:border-box;" placeholder="Hae tuotteita..." oninput="render(this.value)">
+            <div class="search-container">
+                <input id="filter" placeholder="Hae tuotteita..." oninput="handleSearch(this.value)">
+                <button id="clearSearch" onclick="resetSearch()">✕</button>
+            </div>
 
             <button onclick="openFullCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-weight:bold; margin-bottom:20px; cursor:pointer;">🛒 TARKASTELE OSTOSKORIA JA TILAA</button>
 
@@ -105,13 +111,12 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 </div>
 
 <div id="adminSection">
-    <div style="font-weight:bold;">MUOKKAA:</div>
-    <input id="adminCode" placeholder="Koodi" style="padding:8px; width:100px; border-radius:4px; border:none;">
+    <input id="adminCode" placeholder="Koodi" style="padding:8px; width:100px;">
     <label><input type="checkbox" id="adminOutOfStock"> LOPPU</label>
     <label><input type="checkbox" id="adminHide"> PIILOTA</label>
-    <input id="adminETA" placeholder="ETA-pvm" style="padding:8px; width:100px; border-radius:4px; border:none;">
-    <button onclick="saveStockStatus()" style="padding:8px 15px; background:var(--hw-green); color:white; border:none; cursor:pointer; font-weight:bold; border-radius:4px;">TALLENNA JA LÄHETÄ PÄIVITYS</button>
-    <button onclick="document.getElementById('adminSection').style.display='none'" style="color:#ff4d4d; background:none; border:none; cursor:pointer; font-weight:bold;">SULJE X</button>
+    <input id="adminETA" placeholder="ETA">
+    <button onclick="saveStockStatus()" style="padding:8px 15px; background:var(--hw-green); color:white; border-radius:4px;">TALLENNA</button>
+    <button onclick="document.getElementById('adminSection').style.display='none'" style="color:red; background:none; border:none;">SULJE X</button>
 </div>
 
 <div id="fullCartModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('fullCartModal').style.display='none'">&times;</span><h2 style="color:var(--hw-green)">Tilausyhteenveto</h2><div id="fullCartInfo" style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; line-height:1.6;"></div><div id="fullCartItems"></div><button onclick="finalSubmit()" style="width:100%; padding:20px; background:var(--hw-green); color:white; border:none; border-radius:12px; font-weight:bold; font-size:16px; margin-top:20px; cursor:pointer;">VAHVISTA JA LÄHETÄ TILAUS</button></div></div>
@@ -241,7 +246,17 @@ function findNameByCode(code) {
         let found = allData[cat].find(x => x.code === code);
         if (found) return found.name;
     }
-    return "Nimeä ei löydy";
+    return code; // Palauttaa koodin jos nimeä ei löydy
+}
+
+function handleSearch(val) {
+    document.getElementById("clearSearch").style.display = val ? "block" : "none";
+    render(val);
+}
+
+function resetSearch() {
+    document.getElementById("filter").value = "";
+    handleSearch("");
 }
 
 function render(filter = "") {
@@ -256,8 +271,9 @@ function render(filter = "") {
             let grid = document.createElement("div"); grid.className = "product-grid";
             filt.forEach(p => {
                 let s = stockStatus[p.code] || {}; if (s.hidden && !isAdmin) return;
+                let inCartClass = cart[p.code] ? 'in-cart' : '';
                 grid.innerHTML += `
-                    <div class="product-card ${s.outOfStock ? 'out' : ''}">
+                    <div class="product-card ${s.outOfStock ? 'out' : ''} ${inCartClass}" id="card_${p.code}">
                         <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${p.name}')">
                         <div style="font-weight:bold; font-size:13px; margin-bottom:5px; height:34px; overflow:hidden;">${p.name}</div>
                         <div style="font-size:11px; color:#666; margin-bottom:10px;">${p.code}</div>
@@ -280,7 +296,12 @@ function updateQty(code, name, delta, skipRelated = false) {
         cart[code] = { code, name, qty: 0 };
     }
     cart[code].qty += delta;
-    if(cart[code].qty <= 0) delete cart[code];
+    if(cart[code].qty <= 0) {
+        delete cart[code];
+        document.getElementById("card_"+code)?.classList.remove("in-cart");
+    } else {
+        document.getElementById("card_"+code)?.classList.add("in-cart");
+    }
     if(delta > 0 && relatedItems[code] && !skipRelated) openRelatedPopup(code);
     renderCart();
     const el = document.getElementById("q_"+code); if(el) el.value = cart[code]?.qty || 0;
@@ -305,7 +326,7 @@ function openFullCart() {
     const info = document.getElementById("fullCartInfo");
     const items = document.getElementById("fullCartItems");
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, l: document.getElementById("f_lisatiedot").value };
-    info.innerHTML = `<strong>Tilaaja:</strong> ${f.t || '---'}<br><strong>Varasto:</strong> ${f.v || '---'}<br><strong>Toimitusosoite:</strong> ${f.o}, ${f.p} ${f.k}<br><strong>Lisätiedot:</strong> ${f.l || '---'}`;
+    info.innerHTML = `<strong>Tilaaja:</strong> ${f.t || '---'}<br><strong>Varasto:</strong> ${f.v || '---'}<br><strong>Osoite:</strong> ${f.o}, ${f.p} ${f.k}<br><strong>Lisätiedot:</strong> ${f.l || '---'}`;
     items.innerHTML = "";
     Object.values(cart).forEach(i => {
         items.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
@@ -349,9 +370,7 @@ function updatePkgItemQty(idx, d) {
 
 function confirmPkgToCart() {
     currentPkgItems.forEach(i => {
-        if(i.qty > 0) {
-            updateQty(i.code, findNameByCode(i.code), i.qty, true);
-        }
+        if(i.qty > 0) updateQty(i.code, findNameByCode(i.code), i.qty, true);
     });
     document.getElementById("pkgModal").style.display = "none";
 }
@@ -370,16 +389,20 @@ async function openBigImg(code, name) {
     document.getElementById("imgModalTitle").innerText = code + " - " + name;
     const linksDiv = document.getElementById("guideLinks");
     linksDiv.innerHTML = "Etsitään ohjeita...";
-    const suffixes = [".pdf", "_Asennusvaatimukset.pdf", "_Esite.pdf", "_Manual.pdf", "_Varaosat.pdf", "_ohje.pdf"];
+    
+    // Ohje-variaatiot
+    const tags = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_englanti", "_suomi", "_ohje"];
     let found = 0;
-    for (let s of suffixes) {
-        let url = `ohjeet/${code}${s}`;
+    
+    for (let t of tags) {
+        let url = `ohjeet/${code}${t}.pdf`;
         try {
             const res = await fetch(url, { method: 'HEAD' });
             if (res.ok) {
                 if(found === 0) linksDiv.innerHTML = "";
                 let a = document.createElement("a"); a.href = url; a.target = "_blank"; a.style = "display:block; margin:5px 0; color:#004593; font-weight:bold;";
-                a.innerText = `📄 OHJE ${s.replace(".pdf","").replace("_"," ")}`; linksDiv.appendChild(a); found++;
+                let label = t ? t.replace("_", "").toUpperCase() : "YLEISOHJE";
+                a.innerText = `📄 ${label}`; linksDiv.appendChild(a); found++;
             }
         } catch (e) {}
     }
@@ -389,13 +412,12 @@ async function openBigImg(code, name) {
 
 function renderNav() {
     const nav = document.getElementById("dynamic-nav"); nav.innerHTML = "";
-    categories.forEach((c, idx) => {
+    categories.forEach(c => {
         let group = document.createElement("div"); group.className = "nav-group";
         let main = document.createElement("div"); main.className = "nav-main-cat";
         main.innerHTML = `${c.name} <span>▾</span>`;
         main.onclick = () => group.classList.toggle('active');
         group.appendChild(main);
-        
         let subList = document.createElement("div"); subList.className = "nav-sub-list";
         c.subs.forEach(s => {
             let item = document.createElement("div"); item.className = "nav-sub-item";
@@ -415,11 +437,8 @@ function doAdminLogin() {
 
 function saveStockStatus() {
     const c = document.getElementById("adminCode").value.trim();
-    const loppu = document.getElementById("adminOutOfStock").checked;
-    const piilota = document.getElementById("adminHide").checked;
-    const eta = document.getElementById("adminETA").value;
     if(!c) return alert("Anna koodi!");
-    const koodirivi = `${c};${loppu};${piilota};${eta}`;
+    const koodirivi = `${c};${document.getElementById("adminOutOfStock").checked};${document.getElementById("adminHide").checked};${document.getElementById("adminETA").value}`;
     window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=Varastopaivitys&body=${encodeURIComponent(koodirivi)}`;
 }
 
