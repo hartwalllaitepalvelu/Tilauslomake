@@ -226,12 +226,20 @@ async function loadPackages() {
         if(res.ok) {
             const t = await res.text();
             let name = null;
+            asennusPaketit = {};
             t.split("\n").forEach(line => {
                 const s = line.trim(); if(!s) return;
-                if(!/\d/.test(s.split(" ")[0])) { name = s; asennusPaketit[name] = []; }
-                else if(name) {
-                    const p = s.split(/\s+/);
-                    asennusPaketit[name].push({ code: p[0], qty: parseInt(p[p.length-1]) || 1 });
+                const parts = s.split(/\s+/);
+                // Jos rivillä on vain yksi osa (tai se on selvästi nimi), se on paketin nimi
+                if(parts.length === 1 || (parts.length > 1 && isNaN(parts[parts.length-1]))) { 
+                    name = s; asennusPaketit[name] = []; 
+                } 
+                // Jos rivillä on koodi ja numero lopussa, se on tuote
+                else if(name && parts.length >= 2) {
+                    asennusPaketit[name].push({ 
+                        code: parts[0], 
+                        qty: parseInt(parts[parts.length-1]) || 1 
+                    });
                 }
             });
             renderPkgs();
@@ -389,9 +397,9 @@ function openPkgModal(name) {
                 <b style="font-size:13px;">${item.code}</b><br>
                 <span style="font-size:13px; color:#555;">${n}</span>
             </div>
-            <div class="qty-area" style="width: auto; margin: 0; justify-content: flex-end;">
+            <div class="qty-area" style="width: auto; margin: 0; justify-content: flex-end; display: flex;">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},-1)">-</button>
-                <input class="qty-input" value="${item.qty}" readonly>
+                <input class="qty-input" value="${item.qty}" readonly style="width: 35px; text-align: center; margin: 0 5px;">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},1)">+</button>
             </div>
         </div>`;
