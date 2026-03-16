@@ -99,7 +99,7 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 <div id="viewCartModal" onclick="if(event.target==this)this.style.display='none'">
     <div class="modal-content">
         <span class="close-x" onclick="document.getElementById('viewCartModal').style.display='none'">&times;</span>
-        <h2 style="color:var(--hw-green); margin-top:0;">Tilausyhteenveto</h2>
+        <h2 id="summary-main-title" style="color:var(--hw-green); margin-top:0;">Tilausyhteenveto</h2>
         <div id="summary-info" style="background:#f9f9f9; padding:20px; border-radius:8px; margin-bottom:20px; display:grid; grid-template-columns:1fr 1fr; gap:15px; border:1px solid #eee;"></div>
         <div id="modal-cart-items" style="margin-bottom:30px; border:1px solid #eee; border-radius:8px;"></div>
         <button onclick="document.getElementById('viewCartModal').style.display='none'; finalSubmit();" style="width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">LÄHETÄ TILAUS</button>
@@ -185,7 +185,6 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 </div>
 
 <script>
-// Related items pidetään toistaiseksi tässä, koska niitä on vähän
 const relatedItems = {
     "V02363": ["V03010","V02257","V02351","T00457","T02256","T41430"],
     "V02355": ["V03010","V02257","V02351","T00457","T02256","T41430"],
@@ -195,7 +194,7 @@ const relatedItems = {
 
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let currentPkgItems = []; let isAdmin = false;
 let autoGuideStatus = {}; let allowedUsers = {}; 
-let asennusPaketit = {}; // Ladatut paketit
+let asennusPaketit = {}; 
 
 const GUIDE_SUFFIXES = [".pdf", ".PDF", "_Manual.pdf", "_Manual.PDF", "_Asennusvaatimukset.pdf", "_Esite.pdf", "_ohje.pdf", "_suomi.pdf", "_englanti.pdf", "_englantia.pdf", "_Varaosat.pdf", "_Menu.pdf"];
 
@@ -215,28 +214,33 @@ async function loadUsers() {
 }
 loadUsers();
 
-// UUSI FUNKTIO PAKETTIEN LATAUKSEEN
+// PÄIVITETTY LUKULOGIIKKA PAKETEILLE (Tunnistaa sarkaimet ja koodit oikein)
 async function loadPackages() {
     try {
         const res = await fetch("asennuspaketit.txt");
         if(!res.ok) return;
         const text = await res.text();
         let currentPkgName = null;
+        asennusPaketit = {}; // Tyhjennetään vanhat
         
         text.split("\n").forEach(line => {
             let s = line.trim();
             if(!s) return;
             
-            // Jos rivi ei ala numerolla, se on paketin nimi
-            if(!/\d/.test(s.charAt(0))) {
+            // Jakaa rivin sarkaimen tai välilyönnin kohdalta
+            let parts = s.split(/\s+/); 
+            
+            // Jos ensimmäinen osa ei ole selkeä tuotekoodi (alkaa kirjaimella tai on lyhyt koodi) 
+            // JA rivillä on vain yksi osa, se on paketin nimi
+            if(parts.length === 1 && !/\d/.test(s.charAt(0))) {
                 currentPkgName = s;
                 asennusPaketit[currentPkgName] = [];
-            } else if(currentPkgName) {
-                // Rivi alkaa numerolla -> se on tuotekoodi ja määrä
-                let parts = s.split(/\s+/);
-                if(parts.length >= 2) {
-                    asennusPaketit[currentPkgName].push({ code: parts[0], qty: parseInt(parts[1]) });
-                }
+            } else if(currentPkgName && parts.length >= 2) {
+                // Rivi on muotoa: KOODI [välilyönti/sarkain] MÄÄRÄ
+                asennusPaketit[currentPkgName].push({ 
+                    code: parts[0], 
+                    qty: parseInt(parts[1]) || 1 
+                });
             }
         });
         renderPkgs();
@@ -279,12 +283,11 @@ async function loadFiles() {
                 else { curM = {name: s, subs: []}; categories.push(curM); }
             });
         }
-        loadPackages(); // Ladataan asennuspaketit ulkoisesta tiedostosta
+        loadPackages();
         renderNav(); render();
     } catch(e) {}
 }
 
-// ... (Loput funktiot säilyvät täysin ennallaan kuten checkGuideExists, openBigImg, jne.)
 async function checkGuideExists(code) {
     if(autoGuideStatus[code]) return;
     for (let s of GUIDE_SUFFIXES) {
@@ -460,7 +463,6 @@ function scrollToSearch() { window.scrollTo({ top: 350, behavior: 'smooth' }); }
 function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
 function loadLocalStock() { try { const r = localStorage.getItem("stockStatus"); if(r) stockStatus = JSON.parse(r); } catch(e){} }
 function loadSavedCart() { const saved = localStorage.getItem("currentCart"); if(saved) { cart = JSON.parse(saved); renderCart(); } }
-function doAdminLogin() { if (document.getElementById("adminUser").value === "admin" && document.getElementById("adminPass").value === "hartwall") { isAdmin = true; document.getElementById("adminLoginPopup").style.display = "none"; document.getElementById("adminSection").style.display = "flex"; render(); } }
 </script>
 
 <button onclick="scrollToSearch()" id="btnTop">↑</button>
