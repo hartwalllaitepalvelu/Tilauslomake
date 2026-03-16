@@ -99,7 +99,7 @@ body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-si
 <div id="viewCartModal" onclick="if(event.target==this)this.style.display='none'">
     <div class="modal-content">
         <span class="close-x" onclick="document.getElementById('viewCartModal').style.display='none'">&times;</span>
-        <h2 id="summary-main-title" style="color:var(--hw-green); margin-top:0;">Tilausyhteenveto</h2>
+        <h2 style="color:var(--hw-green); margin-top:0;">Tilausyhteenveto</h2>
         <div id="summary-info" style="background:#f9f9f9; padding:20px; border-radius:8px; margin-bottom:20px; display:grid; grid-template-columns:1fr 1fr; gap:15px; border:1px solid #eee;"></div>
         <div id="modal-cart-items" style="margin-bottom:30px; border:1px solid #eee; border-radius:8px;"></div>
         <button onclick="document.getElementById('viewCartModal').style.display='none'; finalSubmit();" style="width:100%; padding:18px; background:var(--hw-green); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">LÄHETÄ TILAUS</button>
@@ -214,32 +214,31 @@ async function loadUsers() {
 }
 loadUsers();
 
-// PÄIVITETTY LUKULOGIIKKA PAKETEILLE (Tunnistaa sarkaimet ja koodit oikein)
+// PÄIVITETTY LUKULOGIIKKA: Tunnistaa nimen, vaikka siinä olisi useita sanoja
 async function loadPackages() {
     try {
         const res = await fetch("asennuspaketit.txt");
         if(!res.ok) return;
         const text = await res.text();
         let currentPkgName = null;
-        asennusPaketit = {}; // Tyhjennetään vanhat
+        asennusPaketit = {};
         
         text.split("\n").forEach(line => {
             let s = line.trim();
             if(!s) return;
             
-            // Jakaa rivin sarkaimen tai välilyönnin kohdalta
             let parts = s.split(/\s+/); 
             
-            // Jos ensimmäinen osa ei ole selkeä tuotekoodi (alkaa kirjaimella tai on lyhyt koodi) 
-            // JA rivillä on vain yksi osa, se on paketin nimi
-            if(parts.length === 1 && !/\d/.test(s.charAt(0))) {
+            // LOGIIKKA: Jos rivin ensimmäinen merkki on kirjain (A-Z, V, T, M jne.)
+            // JA rivillä ei ole numeroa määränä lopussa, se on paketin nimi.
+            // TAI jos se on selkeästi tekstiä eikä nimikekoodi.
+            if (!/\d/.test(s.charAt(0)) || (parts.length === 1 && isNaN(parts[0]))) {
                 currentPkgName = s;
                 asennusPaketit[currentPkgName] = [];
             } else if(currentPkgName && parts.length >= 2) {
-                // Rivi on muotoa: KOODI [välilyönti/sarkain] MÄÄRÄ
                 asennusPaketit[currentPkgName].push({ 
                     code: parts[0], 
-                    qty: parseInt(parts[1]) || 1 
+                    qty: parseInt(parts[parts.length - 1]) || 1 
                 });
             }
         });
