@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hartwall Varaosatilaus Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root { --hw-blue:#004593; --hw-dark:#002d62; --hw-green:#28a745; --sidebar-w: 280px; }
-body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:14px; color:#333; padding-bottom: 120px; }
+body { font-family:'Segoe UI', sans-serif; margin:0; background:#f4f7f9; font-size:14px; color:#333; padding-bottom: 120px; }
 
 /* Z-INDEX HALLINTA */
 #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--hw-blue); display:flex; justify-content:center; align-items:center; z-index:100000; }
@@ -19,7 +18,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 
 .app-container { display: flex; min-height: 100vh; }
 .nav-sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
-.nav-header { background: var(--hw-dark); color: white; padding: 20px; font-weight: bold; font-size: 16px; text-align: center; }
+.nav-header { background: var(--hw-dark); color: white; padding: 20px; font-weight: bold; font-size: 16px; }
 .nav-item { border-bottom: 1px solid #eee; }
 .nav-main-cat { padding: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; }
 .nav-sub-list { display: none; background: #fafafa; padding-bottom: 10px; }
@@ -28,33 +27,44 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .main-content { flex: 1; padding: 20px; min-width: 0; }
 
 /* TUOTEKORTIT (GRID) */
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 10px 0; }
-.product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; transition: transform 0.2s; position: relative; }
-.product-card:hover { transform: translateY(-3px); }
-.product-card.out { opacity: 0.6; background: #f9f9f9; filter: grayscale(0.5); }
+.product-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 20px; 
+    padding: 10px 0;
+}
 
-.thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
-.card-title { font-weight: bold; font-size: 13px; margin-bottom: 4px; height: 34px; overflow: hidden; line-height: 1.2; }
-.card-code { font-size: 11px; color: #666; margin-bottom: 10px; }
+.product-card { 
+    background: white; 
+    border-radius: 12px; 
+    padding: 15px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center;
+    border: 1px solid #e1e4e8;
+    transition: transform 0.2s;
+}
+.product-card:hover { transform: translateY(-5px); }
+.product-card.out { opacity: 0.5; background: #f0f0f0; }
 
-.qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
-.qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; }
-.qty-input { width: 35px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
+.thumb-img { width: 120px; height: 120px; object-fit: contain; background: white; border-radius: 8px; cursor: zoom-in; margin-bottom: 10px; }
 
-.category-title { background: var(--hw-blue); color: white; padding: 10px 15px; margin: 25px 0 10px 0; border-radius: 8px; font-weight: bold; width: 100%; box-sizing: border-box; }
+.qty-area { display: flex; align-items: center; gap: 8px; margin-top: auto; width: 100%; justify-content: center; }
+.qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.qty-input { width: 40px; text-align: center; border: 1px solid #cbd5e0; padding: 6px; font-weight: bold; border-radius: 6px; }
+
+.category-title { background: var(--hw-blue); color: white; padding: 12px; margin: 30px 0 15px 0; border-radius: 8px; font-weight: bold; width: 100%; box-sizing: border-box; }
 
 .cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
 .cart-header { background: var(--hw-green); color: white; padding: 20px; text-align: center; font-weight: bold; }
 .cart-item-list { flex: 1; overflow-y: auto; padding: 10px; }
-.cart-item { padding: 10px; border: 1px solid #eee; background: white; border-radius: 8px; margin-bottom: 10px; }
+.cart-item { padding: 15px; border: 1px solid #eee; background: white; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-#btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 999; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-#adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 10px; z-index: 50000; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+#btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; padding: 15px 25px; border-radius: 30px; display: none; z-index: 999; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
-@media (max-width: 900px) {
-    #btnTop { right: 20px; }
-    .cart-sidebar { display:none; }
-}
+#adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
 </style>
 </head>
 <body>
@@ -76,8 +86,8 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
         </nav>
 
         <main class="main-content">
-            <div class="form-section" style="background:white; padding:20px; border-radius:12px; margin-bottom:20px; border:1px solid #ddd;">
-                <div class="form-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:10px;">
+            <div class="form-section" style="background:white; padding:25px; border-radius:12px; border:1px solid #e1e4e8; margin-bottom:30px;">
+                <div class="form-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
                     <input id="f_tilaaja" placeholder="Tilaaja *">
                     <input id="f_varasto" placeholder="Varasto *">
                     <input id="f_pvm" type="date">
@@ -85,11 +95,9 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                 </div>
             </div>
 
-            <div style="position:relative; margin-bottom:20px;">
-                <input id="filter" style="width:100%; padding:14px 20px; font-size:15px; border:2px solid var(--hw-blue); border-radius:50px; box-sizing:border-box;" placeholder="Hae tuotteita..." oninput="render(this.value)">
-            </div>
+            <input id="filter" style="width:100%; padding:16px 20px; font-size:16px; border:2px solid var(--hw-blue); border-radius:50px; margin-bottom:20px;" placeholder="Hae tuotteita..." oninput="render(this.value)">
 
-            <div style="background:#fff9c4; padding:15px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:25px;">
+            <div style="background:#fff9c4; padding:20px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:30px;">
                 <div style="font-weight:bold; margin-bottom:10px; color:var(--hw-blue);">VALMIIT ASENNUSPAKETIT</div>
                 <div id="pkg-buttons" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
             </div>
@@ -101,15 +109,15 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
             <div class="cart-header">OSTOSKORI (<span id="basket-count">0</span>)</div>
             <div id="basket-items" class="cart-item-list"></div>
             <div style="padding:15px; border-top:1px solid #eee;">
-                <button onclick="finalSubmit()" style="width:100%; padding:12px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">LÄHETÄ TILAUS</button>
+                <button onclick="finalSubmit()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">LÄHETÄ TILAUS</button>
             </div>
         </aside>
     </div>
 </div>
 
-<div id="pkgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('pkgModal').style.display='none'">&times;</span><h3 id="pkgModalTitle"></h3><div id="pkgModalItems"></div><button onclick="confirmPkgToCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; margin-top:15px;">LISÄÄ KAIKKI KORIIN</button></div></div>
-<div id="imgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('imgModal').style.display='none'">&times;</span><h3 id="imgModalTitle"></h3><img id="bigImg" style="width:100%; max-height:60vh; object-fit:contain;"></div></div>
-<div id="relatedOverlay" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content" style="width:400px;"><h3 style="color:var(--hw-blue)">Suositellut lisäosat</h3><div id="relatedContent"></div></div></div>
+<div id="pkgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content" style="background:white; padding:40px; border-radius:16px; width:600px; margin:auto; position:relative; top:50px;"><h3 id="pkgModalTitle"></h3><div id="pkgModalItems"></div><button onclick="confirmPkgToCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:8px; margin-top:15px;">LISÄÄ KORIIN</button></div></div>
+<div id="imgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content" style="background:white; padding:40px; border-radius:16px; width:600px; margin:auto; position:relative; top:50px;"><h3 id="imgModalTitle"></h3><img id="bigImg" style="width:100%; border-radius:8px;"></div></div>
+<div id="relatedOverlay" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content" style="background:white; padding:30px; border-radius:16px; width:450px; margin:auto; position:relative; top:50px;"><h3 style="color:var(--hw-blue)">Suositellut lisäosat</h3><div id="relatedContent"></div></div></div>
 
 <script>
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; 
@@ -138,7 +146,7 @@ async function loadUsers() {
                 if(p.length >= 2) sallitut[p[0].toLowerCase()] = p[1];
             });
         }
-    } catch(e) { console.error("Käyttäjiä ei voitu ladata"); }
+    } catch(e) {}
 }
 
 async function loadAllData() {
@@ -151,10 +159,8 @@ async function loadStockStatus() {
         if(res.ok) {
             const t = await res.text();
             t.split("\n").forEach(line => {
-                const parts = line.trim().split(";");
-                if(parts.length >= 4) {
-                    stockStatus[parts[0]] = { outOfStock: parts[1] === "true", hidden: parts[2] === "true", eta: parts[3] };
-                }
+                const p = line.trim().split(";");
+                if(p.length >= 4) stockStatus[p[0]] = { outOfStock: p[1] === "true", hidden: p[2] === "true", eta: p[3] };
             });
             render();
         }
@@ -237,8 +243,8 @@ function render(filter = "") {
                 grid.innerHTML += `
                     <div class="product-card ${s.outOfStock ? 'out' : ''}">
                         <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${p.name}')">
-                        <div class="card-title">${p.name}</div>
-                        <div class="card-code">${p.code}</div>
+                        <div style="font-weight:bold; font-size:13px; margin-bottom:5px; height:34px; overflow:hidden;">${p.name}</div>
+                        <div style="font-size:11px; color:#666; margin-bottom:10px;">${p.code}</div>
                         ${s.outOfStock ? `<div style="color:red; font-size:10px; font-weight:bold;">LOPPU! ${s.eta ? 'ETA: '+s.eta : ''}</div>` : ''}
                         <div class="qty-area">
                             <button class="qty-btn" onclick="updateQty('${p.code}','${p.name}',-1)">-</button>
@@ -258,7 +264,6 @@ function updateQty(code, name, delta, skipRelated = false) {
     if(cart[code].qty <= 0) delete cart[code];
     if(delta > 0 && relatedItems[code] && !skipRelated) openRelatedPopup(code);
     renderCart();
-    const el = document.getElementById("q_"+code); if(el) el.value = cart[code]?.qty || 0;
 }
 
 function renderCart() {
@@ -270,7 +275,7 @@ function renderCart() {
 function renderPkgs() {
     const div = document.getElementById("pkg-buttons"); div.innerHTML = "";
     Object.keys(asennusPaketit).forEach(name => {
-        div.innerHTML += `<button class="pkg-btn" onclick="openPkgModal('${name}')" style="padding:8px 12px; background:var(--hw-blue); color:white; border:none; border-radius:6px; cursor:pointer;">${name}</button>`;
+        div.innerHTML += `<button style="padding:10px 15px; background:var(--hw-blue); color:white; border:none; border-radius:8px; cursor:pointer;" onclick="openPkgModal('${name}')">${name}</button>`;
     });
 }
 
@@ -281,7 +286,7 @@ function openPkgModal(name) {
     currentPkgItems.forEach(item => {
         let n = "Tuote " + item.code;
         for(let cat in allData) { let f = allData[cat].find(x => x.code === item.code); if(f) n = f.name; }
-        items.innerHTML += `<div style="padding:8px; border-bottom:1px solid #eee;">${n} (${item.code}) - ${item.qty} kpl</div>`;
+        items.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;">${n} (${item.code}) - ${item.qty} kpl</div>`;
     });
     document.getElementById("pkgModal").style.display = "flex";
 }
