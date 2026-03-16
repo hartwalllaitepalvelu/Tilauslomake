@@ -37,11 +37,12 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
 .product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; transition: all 0.2s; }
 .product-card.in-cart { border: 2px solid var(--hw-green); background: #f0fff4; }
-.product-card.out { opacity: 0.6; filter: grayscale(0.5); }
+.product-card.out { opacity: 0.6; background: #f8f9fa; }
 .thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
 
 .qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.qty-btn:disabled { background: #e2e8f0; color: #a0aec0; cursor: not-allowed; }
 .qty-input { width: 35px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
 
 .search-container { position: relative; margin-bottom: 20px; }
@@ -130,7 +131,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
             <div class="cart-header" style="background:var(--hw-green); color:white; padding:20px; text-align:center; font-weight:bold;">OSTOSKORI (<span id="basket-count">0</span>) <span onclick="toggleSidebar('cart-sidebar')" style="float:right; cursor:pointer; font-size:20px;">✕</span></div>
             <div id="basket-items" style="flex:1; overflow-y:auto; padding:10px;"></div>
             <div style="padding:15px; border-top:1px solid #eee;">
-                <button onclick="openFullCart()" style="width:100%; padding:14px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:15px;">TARKASTELE OSTOSKORIA JA LÄHETÄ TILAUS</button>
+                <button onclick="openFullCart()" style="width:100%; padding:14px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:15px;">LÄHETÄ TILAUS</button>
                 <button onclick="document.getElementById('adminLoginPopup').style.display='flex'" style="width:100%; margin-top:10px; background:none; border:none; color:#94a3b8; font-size:10px; cursor:pointer;">YLLÄPITO</button>
             </div>
         </aside>
@@ -147,7 +148,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 </div>
 
 <div id="fullCartModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('fullCartModal').style.display='none'">&times;</span><h2 style="color:var(--hw-green)">Tilausyhteenveto</h2><div id="fullCartInfo" style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; line-height:1.6;"></div><div id="fullCartItems"></div><button onclick="finalSubmit()" style="width:100%; padding:20px; background:var(--hw-green); color:white; border:none; border-radius:12px; font-weight:bold; font-size:16px; margin-top:20px; cursor:pointer;">VAHVISTA JA LÄHETÄ TILAUS</button></div></div>
-<div id="pkgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('pkgModal').style.display='none'">&times;</span><h3 id="pkgModalTitle"></h3><div id="pkgModalItems"></div><button onclick="confirmPkgToCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; margin-top:15px;">LISÄÄ KAIKKI KORIIN</button></div></div>
+<div id="pkgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('pkgModal').style.display='none'">&times;</span><h3 id="pkgModalTitle"></h3><div id="pkgModalItems"></div><button id="pkgConfirmBtn" onclick="confirmPkgToCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; margin-top:15px;">LISÄÄ KAIKKI KORIIN</button></div></div>
 <div id="imgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('imgModal').style.display='none'">&times;</span><h3 id="imgModalTitle"></h3><img id="bigImg" style="width:100%; max-height:50vh; object-fit:contain;"><div id="guideLinks"></div></div></div>
 <div id="relatedOverlay" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content" style="width:400px;"><h3>Suositellut lisäosat</h3><div id="relatedContent"></div></div></div>
 <div id="adminLoginPopup" style="display:none;"><div class="login-box"><h3>Ylläpito</h3><input id="adminUser" placeholder="Tunnus"><input id="adminPass" type="password" placeholder="Salasana"><button onclick="doAdminLogin()" style="width:100%; padding:12px; background:var(--hw-dark); color:white; border:none; border-radius:6px;">KIRJAUDU</button></div></div>
@@ -230,11 +231,9 @@ async function loadPackages() {
             t.split("\n").forEach(line => {
                 const s = line.trim(); if(!s) return;
                 const parts = s.split(/\s+/);
-                // Jos rivillä on vain yksi osa (tai se on selvästi nimi), se on paketin nimi
                 if(parts.length === 1 || (parts.length > 1 && isNaN(parts[parts.length-1]))) { 
                     name = s; asennusPaketit[name] = []; 
                 } 
-                // Jos rivillä on koodi ja numero lopussa, se on tuote
                 else if(name && parts.length >= 2) {
                     asennusPaketit[name].push({ 
                         code: parts[0], 
@@ -317,11 +316,11 @@ function render(filter = "") {
                         <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${p.name}')">
                         <div style="font-weight:bold; font-size:13px; margin-bottom:5px; height:34px; overflow:hidden;">${p.name}</div>
                         <div style="font-size:11px; color:#666; margin-bottom:10px;">${p.code}</div>
-                        ${s.outOfStock ? `<div style="color:red; font-size:10px; font-weight:bold;">LOPPU! ${s.eta ? 'ETA: '+s.eta : ''}</div>` : ''}
+                        ${s.outOfStock ? `<div style="color:red; font-size:10px; font-weight:bold;">TÄLLÄ HETKELLÄ LOPPU! ${s.eta ? 'ETA: '+s.eta : ''}</div>` : ''}
                         <div class="qty-area">
-                            <button class="qty-btn" onclick="updateQty('${p.code}','${p.name}',-1)">-</button>
+                            <button class="qty-btn" ${s.outOfStock ? 'disabled' : ''} onclick="updateQty('${p.code}','${p.name}',-1)">-</button>
                             <input class="qty-input" id="q_${p.code}" value="${cart[p.code]?.qty || 0}" readonly>
-                            <button class="qty-btn" onclick="updateQty('${p.code}','${p.name}',1)">+</button>
+                            <button class="qty-btn" ${s.outOfStock ? 'disabled' : ''} onclick="updateQty('${p.code}','${p.name}',1)">+</button>
                         </div>
                     </div>`;
             });
@@ -331,6 +330,8 @@ function render(filter = "") {
 }
 
 function updateQty(code, name, delta, skipRelated = false) {
+    if(stockStatus[code]?.outOfStock) return; // Estetään lisäys jos loppu
+    
     if(!cart[code]) {
         if(!name) name = findNameByCode(code);
         cart[code] = { code, name, qty: 0 };
@@ -392,15 +393,17 @@ function openPkgModal(name) {
     currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
     currentPkgItems.forEach((item, idx) => {
         let n = findNameByCode(item.code);
-        items.innerHTML += `<div style="display:flex; align-items:center; padding:12px 10px; border-bottom:1px solid #eee;">
+        let s = stockStatus[item.code] || {};
+        items.innerHTML += `<div style="display:flex; align-items:center; padding:12px 10px; border-bottom:1px solid #eee; ${s.outOfStock ? 'opacity:0.5; background:#fff5f5;' : ''}">
             <div style="flex-grow: 1; padding-right:15px;">
                 <b style="font-size:13px;">${item.code}</b><br>
                 <span style="font-size:13px; color:#555;">${n}</span>
+                ${s.outOfStock ? '<br><small style="color:red;font-weight:bold;">LOITETTAVISSA: LOPPU</small>' : ''}
             </div>
             <div class="qty-area" style="width: auto; margin: 0; justify-content: flex-end; display: flex;">
-                <button class="qty-btn" onclick="updatePkgItemQty(${idx},-1)">-</button>
+                <button class="qty-btn" ${s.outOfStock ? 'disabled' : ''} onclick="updatePkgItemQty(${idx},-1)">-</button>
                 <input class="qty-input" value="${item.qty}" readonly style="width: 35px; text-align: center; margin: 0 5px;">
-                <button class="qty-btn" onclick="updatePkgItemQty(${idx},1)">+</button>
+                <button class="qty-btn" ${s.outOfStock ? 'disabled' : ''} onclick="updatePkgItemQty(${idx},1)">+</button>
             </div>
         </div>`;
     });
@@ -408,6 +411,7 @@ function openPkgModal(name) {
 }
 
 function updatePkgItemQty(idx, d) {
+    if(stockStatus[currentPkgItems[idx].code]?.outOfStock) return;
     currentPkgItems[idx].qty += d;
     if(currentPkgItems[idx].qty < 0) currentPkgItems[idx].qty = 0;
     document.querySelectorAll("#pkgModalItems .qty-input")[idx].value = currentPkgItems[idx].qty;
@@ -415,7 +419,7 @@ function updatePkgItemQty(idx, d) {
 
 function confirmPkgToCart() {
     currentPkgItems.forEach(i => {
-        if(i.qty > 0) updateQty(i.code, findNameByCode(i.code), i.qty, true);
+        if(i.qty > 0 && !stockStatus[i.code]?.outOfStock) updateQty(i.code, findNameByCode(i.code), i.qty, true);
     });
     document.getElementById("pkgModal").style.display = "none";
 }
@@ -424,7 +428,11 @@ function openRelatedPopup(parentCode) {
     const content = document.getElementById("relatedContent"); content.innerHTML = "";
     relatedItems[parentCode].forEach(relCode => {
         let relName = findNameByCode(relCode);
-        content.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${relCode}</b><br>${relName}</div><button onclick="updateQty('${relCode}', '${relName}', 1, true)" style="background:var(--hw-green); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Lisää</button></div>`;
+        let s = stockStatus[relCode] || {};
+        content.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; ${s.outOfStock ? 'opacity:0.5;' : ''}">
+            <div><b>${relCode}</b><br>${relName}</div>
+            <button ${s.outOfStock ? 'disabled' : ''} onclick="updateQty('${relCode}', '${relName}', 1, true)" style="background:var(--hw-green); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">${s.outOfStock ? 'LOITETTU' : 'Lisää'}</button>
+        </div>`;
     });
     document.getElementById("relatedOverlay").style.display = "flex";
 }
