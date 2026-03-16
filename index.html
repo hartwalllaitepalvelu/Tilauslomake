@@ -53,13 +53,13 @@ body { font-family: 'Inter', sans-serif; margin: 0; background: var(--hw-bg); co
 #basket-items { flex-grow: 1; overflow-y: auto; padding: 20px; }
 .cart-footer { padding: 20px; border-top: 1px solid #e2e8f0; background: #f8fafc; }
 
-/* LOMAKE & KENTÄT */
+/* LOMAKE */
 .form-section { background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 25px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 .form-grid input, .form-section textarea { padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
 .full-width { grid-column: 1 / -1; margin-top: 10px; }
 
-/* TOAST & YLÖS */
+/* ELEMENTIT */
 #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 25px; border-radius: 50px; font-weight: 600; display: none; z-index: 100005; }
 #btnTop { position: fixed; bottom: 100px; right: 32px; width: 50px; height: 50px; border-radius: 50%; background: var(--hw-blue); color: white; border: none; cursor: pointer; display: none; z-index: 9999; font-size: 20px; }
 #fab-cart { position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; border-radius: 50%; background: var(--hw-green); color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4); cursor: pointer; z-index: 10000; }
@@ -68,12 +68,14 @@ body { font-family: 'Inter', sans-serif; margin: 0; background: var(--hw-bg); co
 /* MODALIT */
 #imgModal, #pkgModal, #relatedOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:100010; justify-content:center; align-items:center; }
 .modal-content { background:white; padding:30px; border-radius:20px; width:700px; max-width:90%; max-height:85vh; overflow-y:auto; position: relative; }
+
+#adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 100020; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
 </style>
 </head>
 <body>
 
 <div id="loginOverlay"><div class="login-box"><h2>Hartwall Varaosat</h2><input id="uField" placeholder="Käyttäjätunnus"><input id="pField" type="password" placeholder="Salasana"><button onclick="doAppLogin()" style="width:100%; padding:14px; background:var(--hw-blue); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">KIRJAUDU SISÄÄN</button><p id="loginError" style="color:red; display:none;">Kirjautuminen epäonnistui.</p></div></div>
-<div id="adminLoginPopup" style="display:none;"><div class="login-box"><h3>Ylläpito</h3><input id="adminUser" placeholder="Tunnus"><input id="adminPass" type="password" placeholder="Salasana"><button onclick="doAdminLogin()" style="width:100%; padding:12px; background:var(--hw-dark); color:white; border:none; border-radius:6px; cursor:pointer;">KIRJAUDU</button></div></div>
+<div id="adminLoginPopup" style="display:none;"><div class="login-box"><h3>Ylläpito</h3><input id="adminUser" placeholder="Tunnus"><input id="adminPass" type="password" placeholder="Salasana"><button onclick="doAdminLogin()" style="width:100%; padding:12px; background:var(--hw-dark); color:white; border:none; border-radius:6px; cursor:pointer;">KIRJAUDU</button><button onclick="document.getElementById('adminLoginPopup').style.display='none'" style="margin-top:10px; color:red; background:none; border:none; cursor:pointer;">Peruuta</button></div></div>
 
 <div id="toast">Tuote lisätty! 🛒</div>
 <button id="btnTop" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
@@ -100,7 +102,7 @@ body { font-family: 'Inter', sans-serif; margin: 0; background: var(--hw-bg); co
                 </div>
             </div>
 
-            <input id="filter" style="width:100%; padding:18px 25px; border-radius:50px; border:2px solid #e2e8f0; font-size:16px; margin: 20px 0;" placeholder="Hae varaosia..." oninput="render(this.value)">
+            <input id="filter" style="width:100%; padding:18px 25px; border-radius:50px; border:2px solid #e2e8f0; font-size:16px; margin: 25px 0;" placeholder="Hae varaosia..." oninput="render(this.value)">
             
             <div style="background:#fff9c4; padding:20px; border-radius:12px; border:1px solid #fbc02d; margin-bottom:30px;">
                 <div style="font-weight:bold; margin-bottom:10px; color:var(--hw-blue);">VALMIIT ASENNUSPAKETIT</div>
@@ -126,12 +128,22 @@ body { font-family: 'Inter', sans-serif; margin: 0; background: var(--hw-bg); co
 </div>
 
 <div id="imgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><h3 id="imgModalTitle" style="color:var(--hw-blue)"></h3><img id="bigImg" style="width:100%; border-radius:15px; margin-bottom:20px;"><div id="guideLinks"></div></div></div>
-<div id="pkgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><h3 id="pkgModalTitle" style="color:var(--hw-blue)"></h3><div id="pkgModalItems"></div><button onclick="confirmPkgToCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:12px; font-weight:bold; margin-top:20px;">LISÄÄ KAIKKI KORIIN</button></div></div>
+<div id="pkgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><h3 id="pkgModalTitle" style="color:var(--hw-blue)"></h3><div id="pkgModalItems"></div><button id="addPkgBtn" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">LISÄÄ KAIKKI KORIIN</button></div></div>
 <div id="relatedOverlay" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content" style="width:400px;"><h3>Suositellut lisäosat</h3><div id="relatedContent"></div></div></div>
+
+<div id="adminSection">
+    <input id="adminCode" placeholder="Koodi">
+    <label><input type="checkbox" id="adminOutOfStock"> LOPPU</label>
+    <label><input type="checkbox" id="adminHide"> PIILOTA</label>
+    <input id="adminETA" placeholder="ETA">
+    <button onclick="sendAdminEmail()" style="padding:10px; background:var(--hw-blue); color:white; border:none; border-radius:5px; cursor:pointer;">LÄHETÄ PÄIVITYS</button>
+    <button onclick="document.getElementById('adminSection').style.display='none'" style="color:red; background:none; border:none; cursor:pointer;">X</button>
+</div>
 
 <script>
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; 
-let autoGuideStatus = {}; let allowedUsers = {}; let asennusPaketit = {}; let relatedItems = {}; let currentPkgItems = [];
+let autoGuideStatus = {}; let allowedUsers = {}; let asennusPaketit = {}; let relatedItems = {}; 
+let currentPkgItems = []; let isAdmin = false;
 
 const KEYWORDS = ["tekniset tiedot", "Asennusvaatimukset", "Esite", "Manual", "Menu", "Varaosat", "englanti", "suomi", "ohje"];
 
@@ -142,7 +154,10 @@ async function loadUsers() {
         const res = await fetch("käyttäjät.txt");
         if(res.ok) {
             const t = await res.text();
-            t.split("\n").forEach(l => { const p = l.trim().split(/\s+/); if(p.length >= 2) allowedUsers[p[0].toLowerCase()] = p[p.length - 1]; });
+            t.split("\n").forEach(l => { 
+                const p = l.trim().split(/\s+/); 
+                if(p.length >= 2) allowedUsers[p[0].toLowerCase()] = p[p.length - 1]; 
+            });
         }
     } catch(e) {}
 }
@@ -157,6 +172,17 @@ function doAppLogin() {
         document.getElementById("f_pvm").valueAsDate = new Date();
         loadFiles();
     } else { document.getElementById("loginError").style.display="block"; }
+}
+
+function doAdminLogin() {
+    const u = document.getElementById("adminUser").value.trim();
+    const p = document.getElementById("adminPass").value.trim();
+    if (u === "admin" && p === "hartwall") {
+        isAdmin = true;
+        document.getElementById("adminLoginPopup").style.display = "none";
+        document.getElementById("adminSection").style.display = "flex";
+        render();
+    } else { alert("Virheellinen tunnus tai salasana!"); }
 }
 
 async function checkGuideExists(code) {
@@ -193,7 +219,8 @@ function render(filter = "") {
             if (filt.length === 0) return;
             list.innerHTML += `<div class="category-title" id="head-${sub.replace(/\s+/g, '')}">${sub}</div>`;
             filt.forEach(p => {
-                let s = stockStatus[p.code] || { outOfStock: false };
+                let s = stockStatus[p.code] || { outOfStock: false, hidden: false };
+                if(s.hidden && !isAdmin) return;
                 const inCart = cart[p.code] ? 'in-cart' : '';
                 list.innerHTML += `<div class="product-card ${s.outOfStock ? 'out' : ''}">
                     <div class="card-img-wrap" onclick="openBigImg('${p.code}')"><img class="card-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='"></div>
@@ -207,13 +234,14 @@ function render(filter = "") {
 }
 
 function updateQty(code, name, delta, skipPopup = false) {
-    if(!name) name = getProductName(code);
+    if(!name || name === "") name = getProductName(code);
     if(!cart[code]) cart[code] = { code, name, qty: 0 };
     cart[code].qty += delta;
     if(cart[code].qty <= 0) delete cart[code];
     if(delta > 0) {
-        document.getElementById("toast").style.display = "block";
-        setTimeout(() => document.getElementById("toast").style.display = "none", 2000);
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 2000);
         if(relatedItems[code] && !skipPopup) openRelatedPopup(code);
     }
     renderCart(); render(document.getElementById("filter").value);
@@ -252,7 +280,7 @@ async function openBigImg(code) {
             const res = await fetch(`ohjeet/${f}`, { method: 'HEAD' });
             if (res.ok) {
                 let label = f.includes("_") ? f.split("_")[1].split(".")[0].toUpperCase() : "OHJE";
-                html += `<a class="guide-link" href="ohjeet/${f}" target="_blank">📄 AVAA ${label}</a>`;
+                html += `<a class="guide-link" style="display:block; padding:10px; background:#f1f5f9; color:#004593; margin-top:10px; text-decoration:none; border-radius:8px; font-weight:bold; border-left:4px solid #004593;" href="ohjeet/${f}" target="_blank">📄 AVAA ${label}</a>`;
             }
         } catch (e) {}
     }
@@ -282,7 +310,7 @@ async function loadFiles() {
     }
     if(r3.ok) {
         const t = await r3.text();
-        t.split("\n").forEach(l => { const p = l.trim().split(";"); if(p.length >= 4) stockStatus[p[0]] = { outOfStock: p[1] === "true" }; });
+        t.split("\n").forEach(l => { const p = l.trim().split(";"); if(p.length >= 4) stockStatus[p[0]] = { outOfStock: p[1] === "true", hidden: p[2] === "true", eta: p[3] }; });
     }
     if(r4.ok) {
         const t = await r4.text(); let parent = null;
@@ -336,11 +364,14 @@ function openPkgModal(n) {
     currentPkgItems.forEach(i => {
         items.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #eee;"><b>${i.code}</b> - ${getProductName(i.code)} (${i.qty} kpl)</div>`;
     });
+    document.getElementById("addPkgBtn").onclick = () => confirmPkgToCart();
     document.getElementById("pkgModal").style.display = "flex";
 }
 
 function confirmPkgToCart() {
-    currentPkgItems.forEach(i => { updateQty(i.code, getProductName(i.code), i.qty, true); });
+    currentPkgItems.forEach(i => { 
+        updateQty(i.code, getProductName(i.code), i.qty, true); 
+    });
     document.getElementById("pkgModal").style.display = "none";
 }
 
@@ -357,7 +388,12 @@ function toggleSidebar(id) {
     const el = document.getElementById(id); 
     const isVisible = el.style.display === 'flex';
     el.style.display = isVisible ? 'none' : 'flex';
-    document.getElementById("btnTop").style.visibility = isVisible ? 'visible' : 'hidden';
+}
+
+function sendAdminEmail() {
+    const code = document.getElementById("adminCode").value.trim(); if(!code) return;
+    const line = `${code};${document.getElementById("adminOutOfStock").checked};${document.getElementById("adminHide").checked};${document.getElementById("adminETA").value || ' '}`;
+    window.location.href = `mailto:tomi.eskola@hartwall.fi?subject=Päivitys:${code}&body=${encodeURIComponent(line)}`;
 }
 
 function finalSubmit() {
