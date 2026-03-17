@@ -9,3 +9,5 @@ jussi		paukku
 sami		ruoska
 jarno		kurnu
 samia		koksmeny
+kimmo		kimble
+jopi		strato
