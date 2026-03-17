@@ -127,7 +127,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
         </main>
 
         <aside id="cart-sidebar" class="cart-sidebar">
-            <div class="cart-header" style="background:var(--hw-green); color:white; padding:20px; text-align:center; font-weight:bold;">OSTOSKORI (<span id="basket-count">0</span>) <span onclick="toggleSidebar('cart-sidebar')" style="float:right; cursor:pointer; font-size:20px;">✕</span></div>
+            <div class="cart-header" style="background:var(--hw-green); color:white; padding:20px; text-align:center; font-weight:bold;">OSTOSKORI (<span id="basket-count">0</span>) <span onclick="clearCartWithConfirm()" title="Tyhjennä kori" style="float:right; cursor:pointer; font-size:20px;">✕</span></div>
             <div id="basket-items" style="flex:1; overflow-y:auto; padding:10px;"></div>
             <div style="padding:15px; border-top:1px solid #eee;">
                 <button onclick="openFullCart()" style="width:100%; padding:14px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:15px;">TARKASTELE OSTOSKORIA JA LÄHETÄ TILAUS</button>
@@ -230,11 +230,9 @@ async function loadPackages() {
             t.split("\n").forEach(line => {
                 const s = line.trim(); if(!s) return;
                 const parts = s.split(/\s+/);
-                // Jos rivillä on vain yksi osa (tai se on selvästi nimi), se on paketin nimi
                 if(parts.length === 1 || (parts.length > 1 && isNaN(parts[parts.length-1]))) { 
                     name = s; asennusPaketit[name] = []; 
                 } 
-                // Jos rivillä on koodi ja numero lopussa, se on tuote
                 else if(name && parts.length >= 2) {
                     asennusPaketit[name].push({ 
                         code: parts[0], 
@@ -254,7 +252,11 @@ async function loadFiles() {
             const t = await r1.text(); let cur = null;
             t.split("\n").forEach(line => {
                 let s = line.trim(); if(!s) return;
-                if(!/\d/.test(s.split(" ")[0])) { cur = s; allData[cur] = []; }
+                // Jos rivi alkaa *, se on kategoria
+                if(s.startsWith("*")) { 
+                    cur = s.substring(1).trim(); 
+                    allData[cur] = []; 
+                } 
                 else if(cur) {
                     const code = s.split(" ")[0];
                     allData[cur].push({code: code, name: s.substring(code.length).trim()});
@@ -297,6 +299,15 @@ function resetSearch() {
 function toggleSidebar(id) {
     const sidebar = document.getElementById(id);
     sidebar.classList.toggle('open');
+}
+
+function clearCartWithConfirm() {
+    if(Object.keys(cart).length === 0) return;
+    if(confirm("Oletko varma että haluat tyhjentää ostoskorin?")) {
+        cart = {};
+        renderCart();
+        render(); // Päivittää korttien väritykset ja numerot listassa
+    }
 }
 
 function render(filter = "") {
