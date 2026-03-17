@@ -18,7 +18,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 
 /* SIDEBARS */
 .nav-sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; transition: transform 0.3s ease; z-index: 15000; }
-.cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 20000; }
+.cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 21000; }
 
 .nav-header { background: var(--hw-dark); color: white; padding: 20px; font-weight: bold; font-size: 14px; text-align: center; }
 .nav-group { border-bottom: 1px solid #eee; }
@@ -41,10 +41,13 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 
 /* TUOTEKORTIT */
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
-.product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; transition: all 0.2s; }
+.product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; transition: all 0.2s; position: relative; }
 .product-card.in-cart { border: 2px solid var(--hw-green); background: #f0fff4; }
 .product-card.out { opacity: 0.6; filter: grayscale(0.5); }
 .thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
+
+/* OHJE-IKONI KORTISSA */
+.has-guide-badge { position: absolute; top: 10px; right: 10px; background: var(--hw-blue); color: white; font-size: 10px; padding: 3px 8px; border-radius: 50px; font-weight: bold; pointer-events: none; opacity: 0.9; }
 
 .qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
@@ -194,6 +197,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; 
 let asennusPaketit = {}; let relatedItems = {}; let sallitut = {};
 let currentPkgItems = []; let isAdmin = false;
+let guideCache = {}; // Välimuisti löytyneille ohjeille suorituskyvyn parantamiseksi
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
@@ -209,6 +213,21 @@ function showToast(msg) {
     toast.innerHTML = `🛒 <span>${msg}</span>`;
     container.appendChild(toast);
     setTimeout(() => { toast.remove(); }, 3000);
+}
+
+// Funktio, joka tarkistaa löytyykö tuotteelle ainakin yksi ohje
+async function checkForGuide(code) {
+    if (guideCache[code] !== undefined) return guideCache[code];
+    
+    // Tarkistetaan vain yleisin (.pdf) tiedosto kortin merkkiä varten, jotta ei kuormiteta palvelinta
+    try {
+        const res = await fetch(`ohjeet/${code}.pdf`, { method: 'HEAD' });
+        guideCache[code] = res.ok;
+        return res.ok;
+    } catch (e) {
+        guideCache[code] = false;
+        return false;
+    }
 }
 
 async function doAppLogin() {
@@ -361,22 +380,31 @@ function clearCartWithConfirm() {
     }
 }
 
-function render(filter = "") {
+async function render(filter = "") {
     const list = document.getElementById("main-list"); list.innerHTML = "";
-    categories.forEach(c => {
-        c.subs.forEach(sub => {
+    for (const c of categories) {
+        for (const sub of c.subs) {
             let prods = allData[sub.trim()] || [];
             let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
-            if (filt.length === 0) return;
+            if (filt.length === 0) continue;
+            
             let title = document.createElement("div"); title.className = "category-title"; title.innerText = sub; title.id = "cat-" + sub.replace(/\s+/g, '-').toLowerCase();
             list.appendChild(title);
+            
             let grid = document.createElement("div"); grid.className = "product-grid";
-            filt.forEach(p => {
-                let s = stockStatus[p.code] || {}; if (s.hidden && !isAdmin) return;
+            
+            // Käsitellään tuotteet
+            for (const p of filt) {
+                let s = stockStatus[p.code] || {}; if (s.hidden && !isAdmin) continue;
                 let inCartClass = cart[p.code] ? 'in-cart' : '';
                 let escapedName = escapeJS(p.name);
+                
+                // Tarkistetaan ohjeen olemassaolo
+                const hasGuide = await checkForGuide(p.code);
+                
                 grid.innerHTML += `
                     <div class="product-card ${s.outOfStock ? 'out' : ''} ${inCartClass}" id="card_${p.code}">
+                        ${hasGuide ? `<div class="has-guide-badge">📄 OHJE</div>` : ''}
                         <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${escapedName}')">
                         <div style="font-weight:bold; font-size:13px; margin-bottom:5px; height:34px; overflow:hidden;">${p.name}</div>
                         <div style="font-size:11px; color:#666; margin-bottom:10px;">${p.code}</div>
@@ -387,10 +415,10 @@ function render(filter = "") {
                             <button class="qty-btn" onclick="updateQty('${p.code}','${escapedName}',1)">+</button>
                         </div>
                     </div>`;
-            });
+            }
             list.appendChild(grid);
-        });
-    });
+        }
+    }
 }
 
 function setQty(code, name, val) {
@@ -522,7 +550,6 @@ async function openBigImg(code, name) {
     const linksDiv = document.getElementById("guideLinks");
     linksDiv.innerHTML = "Etsitään ohjeita...";
     
-    // Päivitetyt hakusanat
     const tags = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_englanti", "_suomi", "_ohje", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_termari_vaihto_carel", "_termari_vaihto_eliwell", "_mittakuva"];
     
     let found = 0;
