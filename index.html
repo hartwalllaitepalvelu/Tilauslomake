@@ -44,6 +44,12 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 .qty-input { width: 35px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
 
+/* ILMOITUS (TOAST) */
+.toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000000; pointer-events: none; }
+.toast { background: var(--hw-dark); color: white; padding: 12px 24px; border-radius: 50px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px; animation: slideUp 0.3s ease-out, fadeOut 0.3s ease-in 2.5s forwards; }
+@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
 .search-container { position: relative; margin-bottom: 20px; }
 #filter { width: 100%; padding: 14px 45px 14px 20px; font-size: 15px; border: 2px solid var(--hw-blue); border-radius: 50px; box-sizing: border-box; }
 #clearSearch { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; color: #999; cursor: pointer; display: none; }
@@ -73,6 +79,8 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 </style>
 </head>
 <body>
+
+<div id="toastContainer" class="toast-container"></div>
 
 <div id="loginOverlay">
     <div class="login-box">
@@ -165,6 +173,16 @@ window.onscroll = () => { document.getElementById("btnTop").style.display = wind
 function escapeJS(str) {
     if (!str) return "";
     return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+// Funktio ilmoituksen näyttämiseen
+function showToast(msg) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.innerHTML = `🛒 <span>${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 3000); // Poistaa elementin kun animaatio on ohi
 }
 
 async function doAppLogin() {
@@ -355,6 +373,12 @@ function updateQty(code, name, delta, skipRelated = false) {
         cart[code] = { code, name, qty: 0 };
     }
     cart[code].qty += delta;
+    
+    // Näytetään ilmoitus kun tuote lisätään
+    if (delta > 0) {
+        showToast(`Lisätty: ${name || code}`);
+    }
+
     if(cart[code].qty <= 0) {
         delete cart[code];
         document.getElementById("card_"+code)?.classList.remove("in-cart");
