@@ -6,7 +6,7 @@
 <title>Hartwall Varaosatilaus</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root { --hw-blue:#004593; --hw-dark:#002d62; --hw-green:#28a745; --sidebar-w: 280px; }
+:root { --hw-blue:#004593; --hw-dark:#002d62; --hw-green:#28a745; --hw-gold:#fbc02d; --sidebar-w: 280px; }
 body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:14px; color:#333; padding-bottom: 120px; }
 
 /* MODALS */
@@ -32,6 +32,11 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 /* MOBIILIPALKKI */
 .mobile-top-bar { display: none; background: var(--hw-dark); padding: 10px; position: sticky; top: 0; z-index: 16000; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 .mobile-btn { flex: 1; padding: 10px; background: var(--hw-blue); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; }
+
+/* HUOMIOKENTÄT */
+.info-box { background: white; border-left: 5px solid var(--hw-blue); padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
+.info-box.urgent { border-left-color: var(--hw-gold); background: #fffde7; }
+.info-icon { font-size: 20px; }
 
 /* TUOTEKORTIT */
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
@@ -119,6 +124,16 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                     <textarea id="f_lisatiedot" placeholder="Lisätietoja..." style="grid-column: 1 / -1; height: 60px;"></textarea>
                     <textarea id="f_puuttuvat" placeholder="Listalta puuttuvat tuotteet: Lisää nimi ja kappalemäärä" style="grid-column: 1 / -1; height: 60px; color: #666;"></textarea>
                 </div>
+            </div>
+
+            <div class="info-box">
+                <span class="info-icon">🚚</span>
+                <div><strong>Toimitusaika:</strong> Tilaukset toimitetaan kahdeksan työpäivän kuluessa.</div>
+            </div>
+
+            <div class="info-box urgent">
+                <span class="info-icon">⚠️</span>
+                <div>Kaikki tilaukset tehdään verkkokauppaa käyttäen. Jos kyseessä on <strong>kiiretilaus</strong>, tee tilaus ja ilmoita tästä sen jälkeen varastoon.</div>
             </div>
 
             <div class="search-container">
@@ -366,7 +381,6 @@ function render(filter = "") {
 }
 
 function updateQty(code, name, delta, skipRelated = false) {
-    // ESTO: Jos yritetään lisätä loppunutta tuotetta
     if (delta > 0 && stockStatus[code]?.outOfStock) {
         showToast("Tuote on tilapäisesti loppu!");
         return;
