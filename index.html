@@ -199,7 +199,8 @@ let asennusPaketit = {}; let relatedItems = {}; let sallitut = {};
 let currentPkgItems = []; let isAdmin = false;
 let guideCache = {}; 
 
-const GUIDE_TAGS = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_englanti", "_suomi", "_ohje", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_termari_vaihto_carel", "_termari_vaihto_eliwell", "_mittakuva"];
+// Lisätty "_varaosat" listaan
+const GUIDE_TAGS = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_varaosat", "_englanti", "_suomi", "_ohje", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_termari_vaihto_carel", "_termari_vaihto_eliwell", "_mittakuva"];
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
@@ -217,11 +218,9 @@ function showToast(msg) {
     setTimeout(() => { toast.remove(); }, 3000);
 }
 
-// Päivitetty funktio: Kokeilee kaikkia mahdollisia nimivaihtoehtoja merkkiä varten
 async function checkForGuide(code) {
     if (guideCache[code] !== undefined) return guideCache[code];
     
-    // Luodaan lista lupauksista (promises) kaikille hakusanoille
     const checks = GUIDE_TAGS.map(t => fetch(`ohjeet/${code}${t}.pdf`, { method: 'HEAD' }));
     
     try {
@@ -403,7 +402,6 @@ async function render(filter = "") {
                 let inCartClass = cart[p.code] ? 'in-cart' : '';
                 let escapedName = escapeJS(p.name);
                 
-                // Tarkistus: onko merkkiä varten ohjetta (tämä kutsuu nyt päivitettyä laajempaa tarkistusta)
                 const hasGuide = await checkForGuide(p.code);
                 
                 grid.innerHTML += `
