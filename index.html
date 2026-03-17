@@ -48,7 +48,8 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 
 .qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-.qty-input { width: 35px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
+.qty-input { width: 50px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; -moz-appearance: textfield; }
+.qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 /* ILMOITUS (TOAST) */
 .toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000000; pointer-events: none; }
@@ -135,12 +136,10 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                 <span class="info-icon">🚚</span>
                 <div><strong>Toimitusaika:</strong> Tilaukset toimitetaan kahdeksan työpäivän kuluessa.</div>
             </div>
-
             <div class="info-box combined">
                 <span class="info-icon">📦</span>
                 <div><strong>Yhdistäthän päivän tilaukset:</strong> Toivomme, että teet päivän varaosatilaukset kerralla kootusti. Useiden erillisten tilausten välttäminen nopeuttaa käsittelyä varastolla ja säästää pakkausmateriaaleja.</div>
             </div>
-
             <div class="info-box urgent">
                 <span class="info-icon">⚠️</span>
                 <div>Kaikki tilaukset tehdään verkkokauppaa käyttäen. Jos kyseessä on <strong>kiiretilaus</strong>, tee tilaus ja ilmoita tästä sen jälkeen varastoon.</div>
@@ -380,7 +379,7 @@ function render(filter = "") {
                         ${s.outOfStock ? `<div style="color:red; font-size:10px; font-weight:bold;">LOPPU! ${s.eta ? 'ETA: '+s.eta : ''}</div>` : ''}
                         <div class="qty-area">
                             <button class="qty-btn" onclick="updateQty('${p.code}','${escapedName}',-1)">-</button>
-                            <input class="qty-input" id="q_${p.code}" value="${cart[p.code]?.qty || 0}" readonly>
+                            <input type="number" class="qty-input" id="q_${p.code}" value="${cart[p.code]?.qty || 0}" min="0" onfocus="this.select()" onchange="setQty('${p.code}','${escapedName}',this.value)">
                             <button class="qty-btn" onclick="updateQty('${p.code}','${escapedName}',1)">+</button>
                         </div>
                     </div>`;
@@ -390,31 +389,44 @@ function render(filter = "") {
     });
 }
 
-function updateQty(code, name, delta, skipRelated = false) {
-    if (delta > 0 && stockStatus[code]?.outOfStock) {
+// Uusi funktio suoraan määrän asettamiseen
+function setQty(code, name, val) {
+    let num = parseInt(val) || 0;
+    if (num < 0) num = 0;
+    
+    // Jos tuote on loppu, estetään lisäys
+    if (num > 0 && stockStatus[code]?.outOfStock) {
         showToast("Tuote on tilapäisesti loppu!");
+        document.getElementById("q_"+code).value = 0;
         return;
     }
 
-    if(!cart[code]) {
-        if(!name) name = findNameByCode(code);
-        cart[code] = { code, name, qty: 0 };
-    }
-    cart[code].qty += delta;
-    
-    if (delta > 0) {
-        showToast(`Lisätty: ${name || code}`);
-    }
-
-    if(cart[code].qty <= 0) {
+    if (num === 0) {
         delete cart[code];
         document.getElementById("card_"+code)?.classList.remove("in-cart");
     } else {
+        if(!cart[code]) {
+            if(!name) name = findNameByCode(code);
+            cart[code] = { code, name, qty: 0 };
+        }
+        cart[code].qty = num;
         document.getElementById("card_"+code)?.classList.add("in-cart");
     }
-    if(delta > 0 && relatedItems[code] && !skipRelated) openRelatedPopup(code);
+    
     renderCart();
-    const el = document.getElementById("q_"+code); if(el) el.value = cart[code]?.qty || 0;
+    // Päivitetään hinta/määrä listassa jos useampi kenttä auki
+    const el = document.getElementById("q_"+code); if(el) el.value = num;
+}
+
+function updateQty(code, name, delta, skipRelated = false) {
+    let currentQty = cart[code]?.qty || 0;
+    let newQty = currentQty + delta;
+    setQty(code, name, newQty);
+    
+    if (delta > 0 && newQty > currentQty) {
+        showToast(`Lisätty: ${name || code}`);
+        if(relatedItems[code] && !skipRelated) openRelatedPopup(code);
+    }
 }
 
 function renderCart() {
@@ -425,7 +437,7 @@ function renderCart() {
             <b>${i.code}</b><br>${i.name}<br>
             <div class="qty-area" style="margin-top:5px; justify-content:flex-start;">
                 <button class="qty-btn" onclick="updateQty('${i.code}','${escapedName}',-1)">-</button>
-                <input class="qty-input" value="${i.qty}" readonly>
+                <input type="number" class="qty-input" value="${i.qty}" min="0" onfocus="this.select()" onchange="setQty('${i.code}','${escapedName}',this.value)">
                 <button class="qty-btn" onclick="updateQty('${i.code}','${escapedName}',1)">+</button>
             </div>
         </div>`;
@@ -469,7 +481,7 @@ function openPkgModal(name) {
             </div>
             <div class="qty-area" style="width: auto; margin: 0; justify-content: flex-end; display: flex;">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},-1)">-</button>
-                <input class="qty-input" value="${item.qty}" readonly style="width: 35px; text-align: center; margin: 0 5px;">
+                <input type="number" class="qty-input" value="${item.qty}" min="0" onfocus="this.select()" onchange="updatePkgItemQtyDirect(${idx}, this.value)">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},1)">+</button>
             </div>
         </div>`;
@@ -478,14 +490,21 @@ function openPkgModal(name) {
 }
 
 function updatePkgItemQty(idx, d) {
-    currentPkgItems[idx].qty += d;
-    if(currentPkgItems[idx].qty < 0) currentPkgItems[idx].qty = 0;
-    document.querySelectorAll("#pkgModalItems .qty-input")[idx].value = currentPkgItems[idx].qty;
+    let num = (currentPkgItems[idx].qty || 0) + d;
+    if(num < 0) num = 0;
+    currentPkgItems[idx].qty = num;
+    document.querySelectorAll("#pkgModalItems .qty-input")[idx].value = num;
+}
+
+function updatePkgItemQtyDirect(idx, val) {
+    let num = parseInt(val) || 0;
+    if(num < 0) num = 0;
+    currentPkgItems[idx].qty = num;
 }
 
 function confirmPkgToCart() {
     currentPkgItems.forEach(i => {
-        if(i.qty > 0) updateQty(i.code, findNameByCode(i.code), i.qty, true);
+        if(i.qty > 0) setQty(i.code, findNameByCode(i.code), i.qty);
     });
     document.getElementById("pkgModal").style.display = "none";
 }
