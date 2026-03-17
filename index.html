@@ -62,7 +62,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 
 .form-section { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e1e4e8; margin-bottom: 20px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-.form-grid input, .form-grid textarea { padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; width: 100%; box-sizing: border-box; }
+.form-grid input, .form-grid textarea, .form-grid select { padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; width: 100%; box-sizing: border-box; font-family: inherit; font-size: 14px; }
 
 #adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
 #btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; font-weight: bold; cursor: pointer; font-size: 20px; }
@@ -118,7 +118,11 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                     <input id="f_tilaaja" placeholder="Tilaaja *" required>
                     <input id="f_varasto" placeholder="Varastonumero *" required>
                     <input id="f_pvm" type="date" required>
-                    <input id="f_tapa" placeholder="Toimitustapa *" required>
+                    <select id="f_tapa" required>
+                        <option value="Oma logistiikka (ensisijaisesti aina tämä)">Oma logistiikka (ensisijaisesti aina tämä)</option>
+                        <option value="Kaukokiito">Kaukokiito</option>
+                        <option value="Posti">Posti</option>
+                    </select>
                     <input id="f_osoite" placeholder="Osoite *" required>
                     <input id="f_postinro" placeholder="Postinumero *" required>
                     <input id="f_paikka" placeholder="Paikkakunta *" required>
