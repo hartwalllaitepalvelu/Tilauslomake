@@ -443,8 +443,7 @@ function openFullCart() {
     items.innerHTML = "";
     Object.values(cart).forEach(i => {
         items.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-            <div><b>${i.code}</b> - ${i.name}</div>
-            <div style="font-weight:bold; font-size:16px;">${i.qty} kpl</div>
+            <div style="flex-grow:1;">[ ] &nbsp; <b>${i.qty} kpl</b> &nbsp; ${i.code} - ${i.name}</div>
         </div>`;
     });
     document.getElementById("fullCartModal").style.display = "flex";
@@ -563,7 +562,9 @@ function finalSubmit() {
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, tapa: document.getElementById("f_tapa").value, l: document.getElementById("f_lisatiedot").value, puut: document.getElementById("f_puuttuvat").value };
     if(!f.t || !f.v || !f.o || !f.p || !f.k || !f.tapa) return alert("Täytä pakolliset tiedot!");
     let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.p} ${f.k}\n\nLisätiedot: ${f.l}\n\nTuotteet:\n`;
-    Object.values(cart).forEach(i => { body += `- ${i.qty} kpl : ${i.name} (${i.code})\n`; });
+    Object.values(cart).forEach(i => { 
+        body += `[ ]  ${i.qty} kpl  :  ${i.code}  -  ${i.name}\n`; 
+    });
     if(f.puut) body += `\nPuuttuvat tuotteet:\n${f.puut}`;
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=Tilaus - ${f.t}&body=${encodeURIComponent(body)}`;
 }
