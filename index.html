@@ -197,7 +197,9 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; 
 let asennusPaketit = {}; let relatedItems = {}; let sallitut = {};
 let currentPkgItems = []; let isAdmin = false;
-let guideCache = {}; // Välimuisti löytyneille ohjeille suorituskyvyn parantamiseksi
+let guideCache = {}; 
+
+const GUIDE_TAGS = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_englanti", "_suomi", "_ohje", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_termari_vaihto_carel", "_termari_vaihto_eliwell", "_mittakuva"];
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
@@ -215,15 +217,18 @@ function showToast(msg) {
     setTimeout(() => { toast.remove(); }, 3000);
 }
 
-// Funktio, joka tarkistaa löytyykö tuotteelle ainakin yksi ohje
+// Päivitetty funktio: Kokeilee kaikkia mahdollisia nimivaihtoehtoja merkkiä varten
 async function checkForGuide(code) {
     if (guideCache[code] !== undefined) return guideCache[code];
     
-    // Tarkistetaan vain yleisin (.pdf) tiedosto kortin merkkiä varten, jotta ei kuormiteta palvelinta
+    // Luodaan lista lupauksista (promises) kaikille hakusanoille
+    const checks = GUIDE_TAGS.map(t => fetch(`ohjeet/${code}${t}.pdf`, { method: 'HEAD' }));
+    
     try {
-        const res = await fetch(`ohjeet/${code}.pdf`, { method: 'HEAD' });
-        guideCache[code] = res.ok;
-        return res.ok;
+        const results = await Promise.all(checks);
+        const exists = results.some(res => res.ok);
+        guideCache[code] = exists;
+        return exists;
     } catch (e) {
         guideCache[code] = false;
         return false;
@@ -393,13 +398,12 @@ async function render(filter = "") {
             
             let grid = document.createElement("div"); grid.className = "product-grid";
             
-            // Käsitellään tuotteet
             for (const p of filt) {
                 let s = stockStatus[p.code] || {}; if (s.hidden && !isAdmin) continue;
                 let inCartClass = cart[p.code] ? 'in-cart' : '';
                 let escapedName = escapeJS(p.name);
                 
-                // Tarkistetaan ohjeen olemassaolo
+                // Tarkistus: onko merkkiä varten ohjetta (tämä kutsuu nyt päivitettyä laajempaa tarkistusta)
                 const hasGuide = await checkForGuide(p.code);
                 
                 grid.innerHTML += `
@@ -550,10 +554,8 @@ async function openBigImg(code, name) {
     const linksDiv = document.getElementById("guideLinks");
     linksDiv.innerHTML = "Etsitään ohjeita...";
     
-    const tags = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_englanti", "_suomi", "_ohje", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_termari_vaihto_carel", "_termari_vaihto_eliwell", "_mittakuva"];
-    
     let found = 0;
-    for (let t of tags) {
+    for (let t of GUIDE_TAGS) {
         let url = `ohjeet/${code}${t}.pdf`;
         try {
             const res = await fetch(url, { method: 'HEAD' });
