@@ -252,14 +252,15 @@ async function loadFiles() {
             const t = await r1.text(); let cur = null;
             t.split("\n").forEach(line => {
                 let s = line.trim(); if(!s) return;
-                // Jos rivi alkaa *, se on kategoria
                 if(s.startsWith("*")) { 
                     cur = s.substring(1).trim(); 
                     allData[cur] = []; 
                 } 
                 else if(cur) {
-                    const code = s.split(" ")[0];
-                    allData[cur].push({code: code, name: s.substring(code.length).trim()});
+                    const parts = s.split(/\s+/);
+                    const code = parts[0];
+                    const name = s.substring(code.length).trim();
+                    allData[cur].push({code: code, name: name});
                 }
             });
         }
@@ -306,7 +307,7 @@ function clearCartWithConfirm() {
     if(confirm("Oletko varma että haluat tyhjentää ostoskorin?")) {
         cart = {};
         renderCart();
-        render(); // Päivittää korttien väritykset ja numerot listassa
+        render();
     }
 }
 
@@ -314,7 +315,8 @@ function render(filter = "") {
     const list = document.getElementById("main-list"); list.innerHTML = "";
     categories.forEach(c => {
         c.subs.forEach(sub => {
-            let prods = allData[sub] || [];
+            // Trimataan kategoria-nimi varmuuden vuoksi haussa
+            let prods = allData[sub.trim()] || [];
             let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
             if (filt.length === 0) return;
             let title = document.createElement("div"); title.className = "category-title"; title.innerText = sub; title.id = "cat-" + sub.replace(/\s+/g, '-').toLowerCase();
