@@ -34,9 +34,10 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .mobile-btn { flex: 1; padding: 10px; background: var(--hw-blue); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; }
 
 /* HUOMIOKENTÄT */
-.info-box { background: white; border-left: 5px solid var(--hw-blue); padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
+.info-box { background: white; border-left: 5px solid var(--hw-blue); padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; line-height: 1.4; }
 .info-box.urgent { border-left-color: var(--hw-gold); background: #fffde7; }
-.info-icon { font-size: 20px; }
+.info-box.combined { border-left-color: var(--hw-green); background: #f0fff4; }
+.info-icon { font-size: 20px; flex-shrink: 0; }
 
 /* TUOTEKORTIT */
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
@@ -129,6 +130,11 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
             <div class="info-box">
                 <span class="info-icon">🚚</span>
                 <div><strong>Toimitusaika:</strong> Tilaukset toimitetaan kahdeksan työpäivän kuluessa.</div>
+            </div>
+
+            <div class="info-box combined">
+                <span class="info-icon">📦</span>
+                <div><strong>Yhdistäthän päivän tilaukset:</strong> Toivomme, että teet päivän varaosatilaukset kerralla kootusti. Useiden erillisten tilausten välttäminen nopeuttaa käsittelyä varastolla ja säästää pakkausmateriaaleja.</div>
             </div>
 
             <div class="info-box urgent">
