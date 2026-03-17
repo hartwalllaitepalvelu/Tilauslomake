@@ -169,20 +169,18 @@ let currentPkgItems = []; let isAdmin = false;
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
-// Apufunktio erikoismerkkien käsittelyyn JavaScript-kutsuissa
 function escapeJS(str) {
     if (!str) return "";
     return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 }
 
-// Funktio ilmoituksen näyttämiseen
 function showToast(msg) {
     const container = document.getElementById("toastContainer");
     const toast = document.createElement("div");
     toast.className = "toast";
     toast.innerHTML = `🛒 <span>${msg}</span>`;
     container.appendChild(toast);
-    setTimeout(() => { toast.remove(); }, 3000); // Poistaa elementin kun animaatio on ohi
+    setTimeout(() => { toast.remove(); }, 3000);
 }
 
 async function doAppLogin() {
@@ -368,13 +366,18 @@ function render(filter = "") {
 }
 
 function updateQty(code, name, delta, skipRelated = false) {
+    // ESTO: Jos yritetään lisätä loppunutta tuotetta
+    if (delta > 0 && stockStatus[code]?.outOfStock) {
+        showToast("Tuote on tilapäisesti loppu!");
+        return;
+    }
+
     if(!cart[code]) {
         if(!name) name = findNameByCode(code);
         cart[code] = { code, name, qty: 0 };
     }
     cart[code].qty += delta;
     
-    // Näytetään ilmoitus kun tuote lisätään
     if (delta > 0) {
         showToast(`Lisätty: ${name || code}`);
     }
