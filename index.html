@@ -18,7 +18,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 
 /* SIDEBARS */
 .nav-sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; transition: transform 0.3s ease; z-index: 15000; }
-.cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 20000; } /* Nostettu z-index */
+.cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 20000; }
 
 .nav-header { background: var(--hw-dark); color: white; padding: 20px; font-weight: bold; font-size: 14px; text-align: center; }
 .nav-group { border-bottom: 1px solid #eee; }
@@ -75,7 +75,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
     .mobile-top-bar { display: flex; }
     .nav-sidebar { position: fixed; left: 0; transform: translateX(-100%); z-index: 21000; }
     .nav-sidebar.open { transform: translateX(0); }
-    .cart-sidebar { position: fixed; right: 0; transform: translateX(100%); width: 100%; z-index: 21000; } /* Kori peittää mobiilissa koko alan */
+    .cart-sidebar { position: fixed; right: 0; transform: translateX(100%); width: 100%; z-index: 21000; }
     .cart-sidebar.open { transform: translateX(0); }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
     #btnTop { right: 20px; }
@@ -521,7 +521,10 @@ async function openBigImg(code, name) {
     document.getElementById("imgModalTitle").innerText = code + " - " + name;
     const linksDiv = document.getElementById("guideLinks");
     linksDiv.innerHTML = "Etsitään ohjeita...";
-    const tags = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_englanti", "_suomi", "_ohje"];
+    
+    // Päivitetyt hakusanat
+    const tags = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_englanti", "_suomi", "_ohje", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_termari_vaihto_carel", "_termari_vaihto_eliwell", "_mittakuva"];
+    
     let found = 0;
     for (let t of tags) {
         let url = `ohjeet/${code}${t}.pdf`;
@@ -530,7 +533,7 @@ async function openBigImg(code, name) {
             if (res.ok) {
                 if(found === 0) linksDiv.innerHTML = "";
                 let a = document.createElement("a"); a.href = url; a.target = "_blank"; a.style = "display:block; margin:5px 0; color:#004593; font-weight:bold;";
-                let label = t ? t.replace("_", "").toUpperCase() : "YLEISOHJE";
+                let label = t ? t.replace("_", "").toUpperCase().replace(/_/g, " ") : "YLEISOHJE";
                 a.innerText = `📄 ${label}`; linksDiv.appendChild(a); found++;
             }
         } catch (e) {}
