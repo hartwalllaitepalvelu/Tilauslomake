@@ -39,6 +39,23 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .info-box.combined { border-left-color: var(--hw-green); background: #f0fff4; }
 .info-icon { font-size: 20px; flex-shrink: 0; }
 
+/* KATEGORIAOTSIKOT TUOTELISTASSA */
+.category-title {
+    grid-column: 1 / -1;
+    background: #e1e4e8;
+    color: var(--hw-blue);
+    padding: 10px 15px;
+    margin-top: 50px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-left: 4px solid var(--hw-blue);
+}
+#main-list .category-title:first-child { margin-top: 10px; }
+
 /* TUOTEKORTIT */
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
 .product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; transition: all 0.2s; position: relative; }
@@ -199,7 +216,6 @@ let asennusPaketit = {}; let relatedItems = {}; let sallitut = {};
 let currentPkgItems = []; let isAdmin = false;
 let guideCache = {}; 
 
-// Lisätty "_varaosat" listaan
 const GUIDE_TAGS = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_varaosat", "_englanti", "_suomi", "_ohje", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_termari_vaihto_carel", "_termari_vaihto_eliwell", "_mittakuva"];
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
@@ -503,10 +519,6 @@ function openPkgModal(name) {
         let n = findNameByCode(item.code);
         items.innerHTML += `<div style="display:flex; align-items:center; padding:12px 10px; border-bottom:1px solid #eee;">
             <div style="flex-grow: 1; padding-right:15px;">
-                <b style="font-size:13px;">${item.code}</b><br>
-                <span style="font-size:13px; color:#555;">${n}</span>
-            </div>
-            <div class="qty-area" style="width: auto; margin: 0; justify-content: flex-end; display: flex;">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},-1)">-</button>
                 <input type="number" class="qty-input" value="${item.qty}" min="0" onfocus="this.select()" onchange="updatePkgItemQtyDirect(${idx}, this.value)">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},1)">+</button>
