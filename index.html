@@ -17,15 +17,18 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .app-container { display: flex; min-height: 100vh; }
 
 /* SIDEBARS */
-.nav-sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; transition: transform 0.3s ease; z-index: 15000; }
-.cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 21000; }
+.nav-sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid #ddd; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; transition: transform 0.3s ease; z-index: 22000; }
+.cart-sidebar { width: var(--sidebar-w); background: white; border-left: 1px solid #ddd; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 22000; }
 
-.nav-header { background: var(--hw-dark); color: white; padding: 20px; font-weight: bold; font-size: 14px; text-align: center; }
+.nav-header { background: var(--hw-dark); color: white; padding: 25px 20px; font-weight: bold; font-size: 14px; text-align: center; position: relative; }
 .nav-group { border-bottom: 1px solid #eee; }
 .nav-main-cat { padding: 12px 15px; font-weight: 700; background: #f8f9fa; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .nav-sub-list { display: none; background: white; }
 .nav-group.active .nav-sub-list { display: block; }
-.nav-sub-item { padding: 8px 15px 8px 30px; cursor: pointer; border-bottom: 1px solid #f9f9f9; color: #555; }
+.nav-sub-item { padding: 10px 15px 10px 30px; cursor: pointer; border-bottom: 1px solid #f9f9f9; color: #555; font-size: 13px; }
+
+/* SULJEMISNAPPI VALIKKOON (MOBIILI) */
+.close-nav { display: none; position: absolute; top: 10px; right: 15px; color: white; font-size: 24px; cursor: pointer; }
 
 .main-content { flex: 1; padding: 20px; min-width: 0; }
 
@@ -93,12 +96,13 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 
 @media (max-width: 900px) {
     .mobile-top-bar { display: flex; }
-    .nav-sidebar { position: fixed; left: 0; transform: translateX(-100%); z-index: 21000; }
+    .nav-sidebar { position: fixed; left: 0; transform: translateX(-100%); width: 85%; max-width: 320px; box-shadow: 10px 0 20px rgba(0,0,0,0.2); }
     .nav-sidebar.open { transform: translateX(0); }
-    .cart-sidebar { position: fixed; right: 0; transform: translateX(100%); width: 100%; z-index: 21000; }
+    .cart-sidebar { position: fixed; right: 0; transform: translateX(100%); width: 100%; }
     .cart-sidebar.open { transform: translateX(0); }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
     #btnTop { right: 20px; }
+    .close-nav { display: block; } /* Näytä rasti vain mobiilissa */
 }
 
 .modal-content { background:white; padding:30px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; }
@@ -127,6 +131,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
     <div class="app-container">
         <nav id="nav-sidebar" class="nav-sidebar">
             <div class="nav-header">
+                <span class="close-nav" onclick="toggleSidebar('nav-sidebar')">✕</span>
                 <img src="392px-Hartwallin_logo.svg.png" style="width:130px; filter: brightness(0) invert(1); margin-bottom:10px;"><br>
                 VARAOSAT
             </div>
@@ -491,9 +496,7 @@ function renderCart() {
 }
 
 function openFullCart() {
-    // SULJETAAN OSTOSKORI ENNEN MODAALIN AVAUSTA (TÄRKEÄ MOBIILISSA)
     document.getElementById('cart-sidebar').classList.remove('open');
-    
     const info = document.getElementById("fullCartInfo");
     const items = document.getElementById("fullCartItems");
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, l: document.getElementById("f_lisatiedot").value };
@@ -601,6 +604,7 @@ function renderNav() {
             item.innerText = "- " + s;
             item.onclick = () => { 
                 document.getElementById("cat-" + s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"});
+                // SULJETAAN VALIKKO ALALUOKAN KLIKKAUKSEN JÄLKEEN
                 if(window.innerWidth < 900) toggleSidebar('nav-sidebar');
             };
             subList.appendChild(item);
