@@ -39,20 +39,20 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .info-box.combined { border-left-color: var(--hw-green); background: #f0fff4; }
 .info-icon { font-size: 20px; flex-shrink: 0; }
 
-/* KATEGORIAOTSIKOT TUOTELISTASSA */
-.category-title {
-    grid-column: 1 / -1;
-    background: #e1e4e8;
-    color: var(--hw-blue);
-    padding: 10px 15px;
-    margin-top: 50px;
-    margin-bottom: 10px;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-left: 4px solid var(--hw-blue);
+/* KATEGORIAOTSIKOT */
+.category-title { 
+    grid-column: 1 / -1; 
+    background: #e9ecef; 
+    color: var(--hw-blue); 
+    padding: 12px 15px; 
+    margin-top: 50px; 
+    margin-bottom: 15px; 
+    border-radius: 8px; 
+    font-size: 16px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    border-left: 5px solid var(--hw-blue);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 #main-list .category-title:first-child { margin-top: 10px; }
 
@@ -236,9 +236,7 @@ function showToast(msg) {
 
 async function checkForGuide(code) {
     if (guideCache[code] !== undefined) return guideCache[code];
-    
     const checks = GUIDE_TAGS.map(t => fetch(`ohjeet/${code}${t}.pdf`, { method: 'HEAD' }));
-    
     try {
         const results = await Promise.all(checks);
         const exists = results.some(res => res.ok);
@@ -408,7 +406,10 @@ async function render(filter = "") {
             let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
             if (filt.length === 0) continue;
             
-            let title = document.createElement("div"); title.className = "category-title"; title.innerText = sub; title.id = "cat-" + sub.replace(/\s+/g, '-').toLowerCase();
+            let title = document.createElement("div"); 
+            title.className = "category-title"; 
+            title.innerText = sub; 
+            title.id = "cat-" + sub.replace(/\s+/g, '-').toLowerCase();
             list.appendChild(title);
             
             let grid = document.createElement("div"); grid.className = "product-grid";
@@ -417,7 +418,6 @@ async function render(filter = "") {
                 let s = stockStatus[p.code] || {}; if (s.hidden && !isAdmin) continue;
                 let inCartClass = cart[p.code] ? 'in-cart' : '';
                 let escapedName = escapeJS(p.name);
-                
                 const hasGuide = await checkForGuide(p.code);
                 
                 grid.innerHTML += `
@@ -491,6 +491,9 @@ function renderCart() {
 }
 
 function openFullCart() {
+    // SULJETAAN OSTOSKORI ENNEN MODAALIN AVAUSTA (TÄRKEÄ MOBIILISSA)
+    document.getElementById('cart-sidebar').classList.remove('open');
+    
     const info = document.getElementById("fullCartInfo");
     const items = document.getElementById("fullCartItems");
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, l: document.getElementById("f_lisatiedot").value };
@@ -519,6 +522,10 @@ function openPkgModal(name) {
         let n = findNameByCode(item.code);
         items.innerHTML += `<div style="display:flex; align-items:center; padding:12px 10px; border-bottom:1px solid #eee;">
             <div style="flex-grow: 1; padding-right:15px;">
+                <b style="font-size:13px;">${item.code}</b><br>
+                <span style="font-size:13px; color:#555;">${n}</span>
+            </div>
+            <div class="qty-area" style="width: auto; margin: 0; justify-content: flex-end; display: flex;">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},-1)">-</button>
                 <input type="number" class="qty-input" value="${item.qty}" min="0" onfocus="this.select()" onchange="updatePkgItemQtyDirect(${idx}, this.value)">
                 <button class="qty-btn" onclick="updatePkgItemQty(${idx},1)">+</button>
@@ -563,7 +570,6 @@ async function openBigImg(code, name) {
     document.getElementById("imgModalTitle").innerText = code + " - " + name;
     const linksDiv = document.getElementById("guideLinks");
     linksDiv.innerHTML = "Etsitään ohjeita...";
-    
     let found = 0;
     for (let t of GUIDE_TAGS) {
         let url = `ohjeet/${code}${t}.pdf`;
