@@ -604,6 +604,7 @@ function renderNav() {
             item.innerText = "- " + s;
             item.onclick = () => { 
                 document.getElementById("cat-" + s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"});
+                // SULJETAAN VALIKKO ALALUOKAN KLIKKAUKSEN JÄLKEEN
                 if(window.innerWidth < 900) toggleSidebar('nav-sidebar');
             };
             subList.appendChild(item);
@@ -626,49 +627,14 @@ function saveStockStatus() {
 }
 
 function finalSubmit() {
-    const f = { 
-        t: document.getElementById("f_tilaaja").value.trim(), 
-        v: document.getElementById("f_varasto").value.trim(), 
-        o: document.getElementById("f_osoite").value.trim(), 
-        p: document.getElementById("f_postinro").value.trim(), 
-        k: document.getElementById("f_paikka").value.trim(), 
-        tapa: document.getElementById("f_tapa").value, 
-        l: document.getElementById("f_lisatiedot").value.trim(), 
-        puut: document.getElementById("f_puuttuvat").value.trim() 
-    };
-
+    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, tapa: document.getElementById("f_tapa").value, l: document.getElementById("f_lisatiedot").value, puut: document.getElementById("f_puuttuvat").value };
     if(!f.t || !f.v || !f.o || !f.p || !f.k || !f.tapa) return alert("Täytä pakolliset tiedot!");
-    if(Object.keys(cart).length === 0 && !f.puut) return alert("Ostoskori on tyhjä!");
-
-    // RAKENNETAAN AUTOMAATTINEN KERÄILYLISTA
-    let body = `VARAOSATILAUS\n`;
-    body += `------------------------------------------\n`;
-    body += `TILAAJA:      ${f.t}\n`;
-    body += `VARASTO:      ${f.v}\n`;
-    body += `TOIMITUSTAPA: ${f.tapa}\n`;
-    body += `OSOITE:       ${f.o}, ${f.p} ${f.k}\n`;
-    if(f.l) body += `LISÄTIEDOT:   ${f.l}\n`;
-    body += `------------------------------------------\n\n`;
-    
-    body += `KERÄILYLISTA:\n\n`;
-
-    // Ryhmitellään tuotteet selkeästi sarakkeisiin
+    let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.p} ${f.k}\n\nLisätiedot: ${f.l}\n\nTuotteet:\n`;
     Object.values(cart).forEach(i => { 
-        // Käytetään [ ] merkintää checklistana keräilijälle
-        body += `[ ]  ${i.qty.toString().padEnd(3)} kpl   :   ${i.code.padEnd(10)}   -   ${i.name}\n`; 
+        body += `[ ]  ${i.qty} kpl  :  ${i.code}  -  ${i.name}\n`; 
     });
-
-    if(f.puut) {
-        body += `\nLISTAN ULKOPUOLISET TUOTTEET:\n`;
-        body += `------------------------------------------\n`;
-        body += f.puut + `\n`;
-    }
-
-    body += `\n------------------------------------------\n`;
-    body += `Tilaus generoitu verkkokaupasta.`;
-
-    const subject = `Tilaus - ${f.t} (Varasto: ${f.v})`;
-    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    if(f.puut) body += `\nPuuttuvat tuotteet:\n${f.puut}`;
+    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=Tilaus - ${f.t}&body=${encodeURIComponent(body)}`;
 }
 </script>
 
