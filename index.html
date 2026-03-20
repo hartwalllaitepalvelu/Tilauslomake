@@ -27,6 +27,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .nav-group.active .nav-sub-list { display: block; }
 .nav-sub-item { padding: 10px 15px 10px 30px; cursor: pointer; border-bottom: 1px solid #f9f9f9; color: #555; font-size: 13px; }
 
+/* SULJEMISNAPPI VALIKKOON (MOBIILI) */
 .close-nav { display: none; position: absolute; top: 10px; right: 15px; color: white; font-size: 24px; cursor: pointer; }
 
 .main-content { flex: 1; padding: 20px; min-width: 0; }
@@ -35,73 +36,33 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .mobile-top-bar { display: none; background: var(--hw-dark); padding: 10px; position: sticky; top: 0; z-index: 16000; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 .mobile-btn { flex: 1; padding: 10px; background: var(--hw-blue); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; }
 
-/* HUOMIOKENTÄT */
-.info-box { background: white; border-left: 5px solid var(--hw-blue); padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; line-height: 1.4; }
-.info-box.urgent { border-left-color: var(--hw-gold); background: #fffde7; }
-.info-box.combined { border-left-color: var(--hw-green); background: #f0fff4; }
-.info-icon { font-size: 20px; flex-shrink: 0; }
-
-/* KATEGORIAOTSIKOT - NYT KLIKATTAVAT */
-.category-wrapper { margin-bottom: 15px; }
+/* KATEGORIAOTSIKOT - 50px väli palautettu */
 .category-title { 
+    grid-column: 1 / -1; 
     background: #e9ecef; 
     color: var(--hw-blue); 
-    padding: 15px; 
+    padding: 12px 15px; 
+    margin-top: 50px; 
+    margin-bottom: 15px; 
     border-radius: 8px; 
     font-size: 16px; 
     font-weight: 800; 
     text-transform: uppercase; 
     border-left: 5px solid var(--hw-blue);
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-.category-title:hover { background: #dee2e6; }
-.category-title::after { content: '▼'; font-size: 12px; }
-.category-wrapper.open .category-title::after { content: '▲'; }
-.category-wrapper.open .category-title { border-radius: 8px 8px 0 0; }
+#main-list .category-title:first-child { margin-top: 10px; }
 
-/* TUOTEGRIDI - PIILOTETTU OLETUKSENA */
-.product-grid { 
-    display: none; 
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-    gap: 15px; 
-    padding: 20px; 
-    background: white;
-    border: 1px solid #e9ecef;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-}
-.category-wrapper.open .product-grid { display: grid; }
-
+/* TUOTEKORTIT */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
 .product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; transition: all 0.2s; position: relative; }
 .product-card.in-cart { border: 2px solid var(--hw-green); background: #f0fff4; }
 .product-card.out { opacity: 0.6; filter: grayscale(0.5); }
 .thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
 
-.has-guide-badge { position: absolute; top: 10px; right: 10px; background: var(--hw-blue); color: white; font-size: 10px; padding: 3px 8px; border-radius: 50px; font-weight: bold; pointer-events: none; opacity: 0.9; }
-
 .qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-.qty-input { width: 50px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
-
-/* TOAST & SEARCH */
-.toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000000; pointer-events: none; }
-.toast { background: var(--hw-dark); color: white; padding: 12px 24px; border-radius: 50px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px; animation: slideUp 0.3s ease-out, fadeOut 0.3s ease-in 2.5s forwards; }
-@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-.search-container { position: relative; margin-bottom: 20px; }
-#filter { width: 100%; padding: 14px 45px 14px 20px; font-size: 15px; border: 2px solid var(--hw-blue); border-radius: 50px; box-sizing: border-box; }
-#clearSearch { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; color: #999; cursor: pointer; display: none; }
-
-.form-section { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e1e4e8; margin-bottom: 20px; }
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-.form-grid input, .form-grid textarea, .form-grid select { padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; width: 100%; box-sizing: border-box; font-family: inherit; font-size: 14px; }
-
-#btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; font-weight: bold; cursor: pointer; font-size: 20px; }
+.qty-input { width: 50px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; -moz-appearance: textfield; }
 
 @media (max-width: 900px) {
     .mobile-top-bar { display: flex; }
@@ -109,8 +70,6 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
     .nav-sidebar.open { transform: translateX(0); }
     .cart-sidebar { position: fixed; right: 0; transform: translateX(100%); width: 100%; }
     .cart-sidebar.open { transform: translateX(0); }
-    .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 10px; }
-    #btnTop { right: 20px; }
     .close-nav { display: block; }
 }
 
@@ -154,7 +113,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                     <input id="f_varasto" placeholder="Varastonumero *" required>
                     <input id="f_pvm" type="date" required>
                     <select id="f_tapa" required>
-                        <option value="Oma logistiikka (ensisijaisesti aina tämä)">Oma logistiikka (ensisijaisesti aina tämä)</option>
+                        <option value="Oma logistiikka">Oma logistiikka</option>
                         <option value="Kaukokiito">Kaukokiito</option>
                         <option value="Posti">Posti</option>
                     </select>
@@ -177,50 +136,28 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
         <aside id="cart-sidebar" class="cart-sidebar">
             <div class="cart-header" style="background:var(--hw-green); color:white; padding:20px; text-align:center; font-weight:bold; position: relative;">
                 OSTOSKORI (<span id="basket-count">0</span>) 
-                <span onclick="clearCartWithConfirm()" title="Tyhjennä kori" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor:pointer; font-size:18px;">🗑️</span>
-                <span onclick="toggleSidebar('cart-sidebar')" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor:pointer; font-size:22px;">✕</span>
+                <span onclick="clearCartWithConfirm()" style="position: absolute; left: 15px; cursor:pointer;">🗑️</span>
+                <span onclick="toggleSidebar('cart-sidebar')" style="position: absolute; right: 15px; cursor:pointer;">✕</span>
             </div>
             <div id="basket-items" style="flex:1; overflow-y:auto; padding:10px;"></div>
-            <div style="padding:15px; border-top:1px solid #eee;">
-                <button onclick="openFullCart()" style="width:100%; padding:14px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:15px;">TARKASTELE OSTOSKORIA JA LÄHETÄ TILAUS</button>
+            <div style="padding:15px;">
+                <button onclick="openFullCart()" style="width:100%; padding:14px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">TARKASTELE JA LÄHETÄ</button>
             </div>
         </aside>
     </div>
 </div>
 
-<div id="fullCartModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('fullCartModal').style.display='none'">&times;</span><h2 style="color:var(--hw-green)">Tilausyhteenveto</h2><div id="fullCartInfo" style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; line-height:1.6;"></div><div id="fullCartItems"></div><button onclick="finalSubmit()" style="width:100%; padding:20px; background:var(--hw-green); color:white; border:none; border-radius:12px; font-weight:bold; font-size:16px; margin-top:20px; cursor:pointer;">VAHVISTA JA LÄHETÄ TILAUS</button></div></div>
-<div id="imgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('imgModal').style.display='none'">&times;</span><h3 id="imgModalTitle"></h3><img id="bigImg" style="width:100%; max-height:50vh; object-fit:contain;"><div id="guideLinks"></div></div></div>
+<div id="fullCartModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('fullCartModal').style.display='none'">&times;</span><h2 style="color:var(--hw-green)">Tilausyhteenveto</h2><div id="fullCartInfo" style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px;"></div><div id="fullCartItems"></div><button onclick="finalSubmit()" style="width:100%; padding:20px; background:var(--hw-green); color:white; border:none; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">VAHVISTA TILAUS</button></div></div>
+<div id="imgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('imgModal').style.display='none'">&times;</span><h3 id="imgModalTitle"></h3><img id="bigImg" style="width:100%; max-height:50vh; object-fit:contain;"></div></div>
 
 <script>
-let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; 
-let asennusPaketit = {}; let relatedItems = {}; let sallitut = {};
+let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let sallitut = {};
 let guideCache = {}; 
-
 const GUIDE_TAGS = ["", "_tekniset tiedot", "_Manual", "_Varaosat", "_ohje"];
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
-function escapeJS(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ""; }
-
-function showToast(msg) {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.innerHTML = `🛒 <span>${msg}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => { toast.remove(); }, 3000);
-}
-
-async function checkForGuide(code) {
-    if (guideCache[code] !== undefined) return guideCache[code];
-    const checks = GUIDE_TAGS.map(t => fetch(`ohjeet/${code}${t}.pdf`, { method: 'HEAD' }));
-    try {
-        const results = await Promise.all(checks);
-        const exists = results.some(res => res.ok);
-        guideCache[code] = exists;
-        return exists;
-    } catch (e) { return false; }
-}
+function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
 
 async function doAppLogin() {
     await loadUsers();
@@ -229,7 +166,6 @@ async function doAppLogin() {
     if (sallitut[u] === p) {
         document.getElementById("loginOverlay").style.display="none";
         document.getElementById("appWrapper").style.display="block";
-        document.getElementById("f_pvm").valueAsDate = new Date();
         loadAllData();
     } else { alert("Virhe!"); }
 }
@@ -247,9 +183,7 @@ async function loadUsers() {
     } catch(e) {}
 }
 
-async function loadAllData() {
-    await Promise.all([loadFiles(), loadStockStatus()]);
-}
+async function loadAllData() { await Promise.all([loadFiles(), loadStockStatus()]); }
 
 async function loadStockStatus() {
     try {
@@ -258,7 +192,7 @@ async function loadStockStatus() {
             const t = await res.text();
             t.split("\n").forEach(line => {
                 const p = line.trim().split(";");
-                if(p.length >= 4) stockStatus[p[0]] = { outOfStock: p[1] === "true", eta: p[3] };
+                if(p.length >= 4) stockStatus[p[0]] = { outOfStock: p[1] === "true" };
             });
         }
     } catch(e) {}
@@ -276,7 +210,7 @@ async function loadFiles() {
                     const parts = s.split(/\s+/);
                     const code = parts[0];
                     const name = s.substring(code.length).trim();
-                    allData[cur].push({code: code, name: name});
+                    allData[cur].push({code, name});
                 }
             });
         }
@@ -292,79 +226,43 @@ async function loadFiles() {
     } catch(e) {}
 }
 
-function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
-
-function toggleCategory(wrapper, subName) {
-    const isOpen = wrapper.classList.toggle('open');
-    const grid = wrapper.querySelector('.product-grid');
-    
-    if (isOpen) {
-        renderProductsIntoGrid(grid, subName);
-    } else {
-        grid.innerHTML = ""; // Tyhjennetään muistin säästämiseksi
-    }
-}
-
-async function renderProductsIntoGrid(grid, subName) {
-    grid.innerHTML = "Ladataan tuotteita...";
-    let html = "";
-    let prods = allData[subName] || [];
-    
-    for (const p of prods) {
-        let s = stockStatus[p.code] || {};
-        let inCartClass = cart[p.code] ? 'in-cart' : '';
-        const hasGuide = await checkForGuide(p.code);
-        
-        html += `
-            <div class="product-card ${s.outOfStock ? 'out' : ''} ${inCartClass}" id="card_${p.code}">
-                ${hasGuide ? `<div class="has-guide-badge">📄 OHJE</div>` : ''}
-                <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${escapeJS(p.name)}')">
-                <div style="font-weight:bold; font-size:13px; margin-bottom:5px; height:34px; overflow:hidden;">${p.name}</div>
-                <div style="font-size:11px; color:#666; margin-bottom:10px;">${p.code}</div>
-                <div class="qty-area">
-                    <button class="qty-btn" onclick="updateQty('${p.code}','${escapeJS(p.name)}',-1)">-</button>
-                    <input type="number" class="qty-input" id="q_${p.code}" value="${cart[p.code]?.qty || 0}" onchange="setQty('${p.code}','${escapeJS(p.name)}',this.value)">
-                    <button class="qty-btn" onclick="updateQty('${p.code}','${escapeJS(p.name)}',1)">+</button>
-                </div>
-            </div>`;
-    }
-    grid.innerHTML = html;
-}
-
-function render(filter = "") {
+async function render(filter = "") {
     const list = document.getElementById("main-list"); list.innerHTML = "";
-    if (filter) {
-        renderSearchResults(filter);
-        return;
-    }
     for (const c of categories) {
         for (const sub of c.subs) {
-            let wrapper = document.createElement("div"); wrapper.className = "category-wrapper";
-            wrapper.id = "wrap-" + sub.replace(/\s+/g, '-').toLowerCase();
-            wrapper.innerHTML = `<div class="category-title" onclick="toggleCategory(this.parentElement, '${sub}')">${sub}</div><div class="product-grid"></div>`;
-            list.appendChild(wrapper);
+            let prods = allData[sub.trim()] || [];
+            let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
+            if (filt.length === 0) continue;
+            
+            let title = document.createElement("div"); title.className = "category-title"; title.innerText = sub;
+            title.id = "cat-" + sub.replace(/\s+/g, '-').toLowerCase();
+            list.appendChild(title);
+            
+            let grid = document.createElement("div"); grid.className = "product-grid";
+            for (const p of filt) {
+                let s = stockStatus[p.code] || {};
+                let inCartClass = cart[p.code] ? 'in-cart' : '';
+                grid.innerHTML += `
+                    <div class="product-card ${s.outOfStock ? 'out' : ''} ${inCartClass}" id="card_${p.code}">
+                        <img class="thumb-img" src="images/${p.code}.png" loading="lazy" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${p.name}')">
+                        <div style="font-weight:bold; font-size:13px;">${p.name}</div>
+                        <div style="font-size:11px; color:#666;">${p.code}</div>
+                        <div class="qty-area">
+                            <button class="qty-btn" onclick="updateQty('${p.code}','${p.name}',-1)">-</button>
+                            <input type="number" class="qty-input" id="q_${p.code}" value="${cart[p.code]?.qty || 0}" onchange="setQty('${p.code}','${p.name}',this.value)">
+                            <button class="qty-btn" onclick="updateQty('${p.code}','${p.name}',1)">+</button>
+                        </div>
+                    </div>`;
+            }
+            list.appendChild(grid);
         }
-    }
-}
-
-async function renderSearchResults(val) {
-    const list = document.getElementById("main-list");
-    let grid = document.createElement("div"); grid.className = "product-grid"; grid.style.display = "grid";
-    list.appendChild(grid);
-    
-    for (let sub in allData) {
-        let filt = allData[sub].filter(p => p.name.toLowerCase().includes(val.toLowerCase()) || p.code.toLowerCase().includes(val.toLowerCase()));
-        if (filt.length > 0) renderProductsIntoGrid(grid, sub, val); 
     }
 }
 
 function setQty(code, name, val) {
     let num = parseInt(val) || 0;
     if (num <= 0) { delete cart[code]; document.getElementById("card_"+code)?.classList.remove("in-cart"); } 
-    else { 
-        cart[code] = { code, name, qty: num }; 
-        document.getElementById("card_"+code)?.classList.add("in-cart"); 
-    }
+    else { cart[code] = { code, name, qty: num }; document.getElementById("card_"+code)?.classList.add("in-cart"); }
     renderCart();
 }
 
@@ -377,20 +275,14 @@ function updateQty(code, name, delta) {
 function renderCart() {
     const div = document.getElementById("basket-items"); div.innerHTML = "";
     Object.values(cart).forEach(i => {
-        div.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${i.code}</b> - ${i.name} (${i.qty} kpl)</div>`;
+        div.innerHTML += `<div style="padding:5px; border-bottom:1px solid #eee;">${i.code} - ${i.qty}kpl</div>`;
     });
     document.getElementById("basket-count").innerText = Object.values(cart).length;
     document.getElementById("m-count").innerText = Object.values(cart).length;
 }
 
-function handleSearch(val) {
-    document.getElementById("clearSearch").style.display = val ? "block" : "none";
-    render(val);
-}
-
-function resetSearch() { document.getElementById("filter").value = ""; handleSearch(""); }
-
 function openFullCart() {
+    document.getElementById('cart-sidebar').classList.remove('open');
     const items = document.getElementById("fullCartItems"); items.innerHTML = "";
     Object.values(cart).forEach(i => {
         items.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;">[ ] ${i.qty} kpl : ${i.code} - ${i.name}</div>`;
@@ -399,9 +291,17 @@ function openFullCart() {
 }
 
 function finalSubmit() {
-    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, tapa: document.getElementById("f_tapa").value };
-    let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nOsoite: ${f.o}, ${f.p} ${f.k}\n\nTuotteet:\n`;
-    Object.values(cart).forEach(i => { body += `[ ] ${i.qty} kpl : ${i.code} - ${i.name}\n`; });
+    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, tapa: document.getElementById("f_tapa").value, l: document.getElementById("f_lisatiedot").value, puut: document.getElementById("f_puuttuvat").value };
+    
+    let body = `VARAOSATILAUS / KERÄILYLISTA\n==========================================\n\n`;
+    body += `TILAAJA: ${f.t}\nVARASTO: ${f.v}\nOSOITE:  ${f.o}, ${f.p} ${f.k}\n\n`;
+    body += `TILATTAVAT TUOTTEET\n------------------------------------------\n[Kerätty]  Määrä      Koodi        Tuotenimi\n`;
+    
+    Object.values(cart).forEach(i => { 
+        body += `[  ]       ${(i.qty + " kpl").padEnd(10)} ${i.code.padEnd(12)} ${i.name}\n`; 
+    });
+    
+    if(f.puut) body += `\nMUUT TUOTTEET:\n${f.puut}\n`;
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=Tilaus - ${f.t}&body=${encodeURIComponent(body)}`;
 }
 
@@ -413,11 +313,7 @@ function renderNav() {
         c.subs.forEach(s => {
             let sub = document.createElement("div"); sub.className = "nav-sub-item"; sub.innerText = s;
             sub.onclick = () => {
-                const wrap = document.getElementById("wrap-" + s.replace(/\s+/g, '-').toLowerCase());
-                if (wrap) {
-                    wrap.scrollIntoView({behavior:"smooth"});
-                    if (!wrap.classList.contains('open')) toggleCategory(wrap, s);
-                }
+                document.getElementById("cat-" + s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"});
                 if(window.innerWidth < 900) toggleSidebar('nav-sidebar');
             };
             nav.appendChild(sub);
@@ -425,14 +321,10 @@ function renderNav() {
     });
 }
 
-function openBigImg(code, name) {
-    document.getElementById("bigImg").src = `images/${code}.png`;
-    document.getElementById("imgModalTitle").innerText = name;
-    document.getElementById("imgModal").style.display = "flex";
-}
-
+function handleSearch(val) { render(val); }
+function resetSearch() { document.getElementById("filter").value = ""; render(); }
+function openBigImg(code, name) { document.getElementById("bigImg").src = `images/${code}.png`; document.getElementById("imgModalTitle").innerText = name; document.getElementById("imgModal").style.display = "flex"; }
 function clearCartWithConfirm() { if(confirm("Tyhjennetäänkö kori?")) { cart = {}; renderCart(); render(); } }
-
 </script>
 </body>
 </html>
