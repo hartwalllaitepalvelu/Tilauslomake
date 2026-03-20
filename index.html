@@ -629,12 +629,41 @@ function saveStockStatus() {
 function finalSubmit() {
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, tapa: document.getElementById("f_tapa").value, l: document.getElementById("f_lisatiedot").value, puut: document.getElementById("f_puuttuvat").value };
     if(!f.t || !f.v || !f.o || !f.p || !f.k || !f.tapa) return alert("Täytä pakolliset tiedot!");
-    let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.p} ${f.k}\n\nLisätiedot: ${f.l}\n\nTuotteet:\n`;
+    
+    // RAKENNETAAN KUNNOLLINEN KERÄILYLISTA SÄHKÖPOSTIIN
+    let body = `VARAOSATILAUS / KERÄILYLISTA\n`;
+    body += `==========================================\n\n`;
+    body += `TILAAJAN TIEDOT\n`;
+    body += `------------------------------------------\n`;
+    body += `Tilaaja:      ${f.t}\n`;
+    body += `Varasto:      ${f.v}\n`;
+    body += `Osoite:       ${f.o}, ${f.p} ${f.k}\n`;
+    body += `Toimitustapa: ${f.tapa}\n`;
+    if(f.l) body += `Lisätiedot:   ${f.l}\n`;
+    body += `\n`;
+    
+    body += `TILATTAVAT TUOTTEET\n`;
+    body += `------------------------------------------\n`;
+    body += `[Kerätty]  Määrä      Koodi        Tuotenimi\n`;
+    body += `------------------------------------------\n`;
+    
     Object.values(cart).forEach(i => { 
-        body += `[ ]  ${i.qty} kpl  :  ${i.code}  -  ${i.name}\n`; 
+        const qty = (i.qty + " kpl").padEnd(10);
+        const code = i.code.padEnd(12);
+        body += `[  ]       ${qty} ${code} ${i.name}\n`; 
     });
-    if(f.puut) body += `\nPuuttuvat tuotteet:\n${f.puut}`;
-    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=Tilaus - ${f.t}&body=${encodeURIComponent(body)}`;
+    
+    if(f.puut) {
+        body += `\nLISTALTA PUUTTUNEET TUOTTEET\n`;
+        body += `------------------------------------------\n`;
+        body += f.puut + `\n`;
+    }
+    
+    body += `\n==========================================\n`;
+    body += `Tilaus generoitu Hartwall Varaosatilaus -järjestelmästä.`;
+
+    const subject = `Varaosatilaus - ${f.t} (Varasto: ${f.v})`;
+    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 </script>
 
