@@ -3,9 +3,9 @@
 10067 BOC-4
 10075 BOC-3
 10079 BOC-5
-10085 Oprema lauhdutin
+38684 Oprema lauhdutin
 10089 Turboaltaan koneikko
-13505 Oprema + Lauhdutin
+38683 Oprema + Lauhdutin
 19814 Mini BOC
 28273 Oprema BC 062-A 2-slingaa (520*385*268mm)
 28276 Oprema BC 103 3-slingaa
