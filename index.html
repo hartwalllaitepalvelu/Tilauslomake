@@ -27,16 +27,10 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .nav-group.active .nav-sub-list { display: block; }
 .nav-sub-item { padding: 10px 15px 10px 30px; cursor: pointer; border-bottom: 1px solid #f9f9f9; color: #555; font-size: 13px; }
 
+/* SULJEMISNAPPI VALIKKOON (MOBIILI) */
 .close-nav { display: none; position: absolute; top: 10px; right: 15px; color: white; font-size: 24px; cursor: pointer; }
 
 .main-content { flex: 1; padding: 20px; min-width: 0; }
-
-/* KATEGORIAKORTIT */
-.category-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 20px 0; }
-.category-card { background: white; border: 2px solid var(--hw-blue); border-radius: 12px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.2s; font-weight: bold; color: var(--hw-blue); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-.category-card:hover { transform: translateY(-5px); background: #f0f7ff; box-shadow: 0 8px 15px rgba(0,69,147,0.1); }
-.category-card span { font-size: 32px; }
-.back-btn { padding: 10px 20px; background: var(--hw-dark); color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
 
 /* MOBIILIPALKKI */
 .mobile-top-bar { display: none; background: var(--hw-dark); padding: 10px; position: sticky; top: 0; z-index: 16000; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
@@ -49,7 +43,20 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .info-icon { font-size: 20px; flex-shrink: 0; }
 
 /* KATEGORIAOTSIKOT */
-.category-title { grid-column: 1 / -1; background: #e9ecef; color: var(--hw-blue); padding: 12px 15px; margin-top: 50px; margin-bottom: 15px; border-radius: 8px; font-size: 16px; font-weight: 800; text-transform: uppercase; border-left: 5px solid var(--hw-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.category-title { 
+    grid-column: 1 / -1; 
+    background: #e9ecef; 
+    color: var(--hw-blue); 
+    padding: 12px 15px; 
+    margin-top: 50px; 
+    margin-bottom: 15px; 
+    border-radius: 8px; 
+    font-size: 16px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    border-left: 5px solid var(--hw-blue);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
 #main-list .category-title:first-child { margin-top: 10px; }
 
 /* TUOTEKORTIT */
@@ -59,6 +66,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .product-card.out { opacity: 0.6; filter: grayscale(0.5); }
 .thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
 
+/* OHJE-IKONI KORTISSA */
 .has-guide-badge { position: absolute; top: 10px; right: 10px; background: var(--hw-blue); color: white; font-size: 10px; padding: 3px 8px; border-radius: 50px; font-weight: bold; pointer-events: none; opacity: 0.9; }
 
 .qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
@@ -94,7 +102,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
     .cart-sidebar.open { transform: translateX(0); }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
     #btnTop { right: 20px; }
-    .close-nav { display: block; }
+    .close-nav { display: block; } /* Näytä rasti vain mobiilissa */
 }
 
 .modal-content { background:white; padding:30px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; }
@@ -155,7 +163,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
             </div>
             <div class="info-box combined">
                 <span class="info-icon">📦</span>
-                <div><strong>Yhdistäthän päivän tilaukset:</strong> Toivomme, että teet päivän varaosatilaukset kerralla kootusti.</div>
+                <div><strong>Yhdistäthän päivän tilaukset:</strong> Toivomme, että teet päivän varaosatilaukset kerralla kootusti. Useiden erillisten tilausten välttäminen nopeuttaa käsittelyä varastolla ja säästää pakkausmateriaaleja.</div>
             </div>
             <div class="info-box urgent">
                 <span class="info-icon">⚠️</span>
@@ -167,7 +175,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                 <button id="clearSearch" onclick="resetSearch()">✕</button>
             </div>
 
-            <div id="pkg-area" style="background:#fff9c4; padding:20px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:30px;">
+            <div style="background:#fff9c4; padding:20px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:30px;">
                 <div style="font-weight:bold; margin-bottom:10px; color:var(--hw-blue);">VALMIIT ASENNUSPAKETIT</div>
                 <div id="pkg-buttons" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
             </div>
@@ -212,13 +220,15 @@ let allData = {}; let cart = {}; let categories = []; let stockStatus = {};
 let asennusPaketit = {}; let relatedItems = {}; let sallitut = {};
 let currentPkgItems = []; let isAdmin = false;
 let guideCache = {}; 
-let currentCategory = null;
 
 const GUIDE_TAGS = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_varaosat", "_englanti", "_suomi", "_ohje", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_termari_vaihto_carel", "_termari_vaihto_eliwell", "_mittakuva"];
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
-function escapeJS(str) { if (!str) return ""; return str.replace(/'/g, "\\'").replace(/"/g, "&quot;"); }
+function escapeJS(str) {
+    if (!str) return "";
+    return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
 
 function showToast(msg) {
     const container = document.getElementById("toastContainer");
@@ -231,7 +241,16 @@ function showToast(msg) {
 
 async function checkForGuide(code) {
     if (guideCache[code] !== undefined) return guideCache[code];
-    return false; // Ohitetaan automaattinen tarkistus latausnopeuden takia, tarkistetaan vasta modalissa
+    const checks = GUIDE_TAGS.map(t => fetch(`ohjeet/${code}${t}.pdf`, { method: 'HEAD' }));
+    try {
+        const results = await Promise.all(checks);
+        const exists = results.some(res => res.ok);
+        guideCache[code] = exists;
+        return exists;
+    } catch (e) {
+        guideCache[code] = false;
+        return false;
+    }
 }
 
 async function doAppLogin() {
@@ -307,7 +326,10 @@ async function loadPackages() {
                     name = s; asennusPaketit[name] = []; 
                 } 
                 else if(name && parts.length >= 2) {
-                    asennusPaketit[name].push({ code: parts[0], qty: parseInt(parts[parts.length-1]) || 1 });
+                    asennusPaketit[name].push({ 
+                        code: parts[0], 
+                        qty: parseInt(parts[parts.length-1]) || 1 
+                    });
                 }
             });
             renderPkgs();
@@ -322,7 +344,10 @@ async function loadFiles() {
             const t = await r1.text(); let cur = null;
             t.split("\n").forEach(line => {
                 let s = line.trim(); if(!s) return;
-                if(s.startsWith("*")) { cur = s.substring(1).trim(); allData[cur] = []; } 
+                if(s.startsWith("*")) { 
+                    cur = s.substring(1).trim(); 
+                    allData[cur] = []; 
+                } 
                 else if(cur) {
                     const parts = s.split(/\s+/);
                     const code = parts[0];
@@ -335,8 +360,11 @@ async function loadFiles() {
             const t = await r2.text(); let curM = null;
             t.split("\n").forEach(l => {
                 let s = l.trim(); if(!s) return;
-                if(!l.startsWith("-")) { curM = {name: s, subs: []}; categories.push(curM); } 
-                else { if(curM) curM.subs.push(s.substring(1).trim()); }
+                if(!l.startsWith("-")) { 
+                    curM = {name: s, subs: []}; categories.push(curM); 
+                } else {
+                    if(curM) curM.subs.push(s.substring(1).trim());
+                }
             });
         }
         renderNav(); render();
@@ -353,8 +381,6 @@ function findNameByCode(code) {
 
 function handleSearch(val) {
     document.getElementById("clearSearch").style.display = val ? "block" : "none";
-    if(val.length > 0) { currentCategory = "HAKUTULOKSET"; } 
-    else { currentCategory = null; }
     render(val);
 }
 
@@ -363,47 +389,23 @@ function resetSearch() {
     handleSearch("");
 }
 
-function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
+function toggleSidebar(id) {
+    const sidebar = document.getElementById(id);
+    sidebar.classList.toggle('open');
+}
 
 function clearCartWithConfirm() {
     if(Object.keys(cart).length === 0) return;
-    if(confirm("Oletko varma että haluat tyhjentää ostoskorin?")) { cart = {}; renderCart(); render(); }
+    if(confirm("Oletko varma että haluat tyhjentää ostoskorin?")) {
+        cart = {};
+        renderCart();
+        render();
+    }
 }
 
 async function render(filter = "") {
-    const list = document.getElementById("main-list");
-    list.innerHTML = "";
-    
-    // JOS EI KATEGORIAA TAI HAKUA -> NÄYTÄ KORTIT
-    if (!currentCategory && filter === "") {
-        document.getElementById("pkg-area").style.display = "block";
-        let cardGrid = document.createElement("div");
-        cardGrid.className = "category-card-grid";
-        categories.forEach(c => {
-            let card = document.createElement("div");
-            card.className = "category-card";
-            card.innerHTML = `<span>📦</span> ${c.name}`;
-            card.onclick = () => { currentCategory = c.name; render(); window.scrollTo({top:0}); };
-            cardGrid.appendChild(card);
-        });
-        list.appendChild(cardGrid);
-        return;
-    }
-
-    // JOS ON VALITTU KATEGORIA TAI HAKU -> NÄYTÄ TUOTTEET
-    document.getElementById("pkg-area").style.display = (filter !== "") ? "none" : "block";
-    
-    if (filter === "") {
-        let btn = document.createElement("button");
-        btn.className = "back-btn";
-        btn.innerText = "← TAKAISIN KATEGORIOIHIN";
-        btn.onclick = () => { currentCategory = null; render(); };
-        list.appendChild(btn);
-    }
-
+    const list = document.getElementById("main-list"); list.innerHTML = "";
     for (const c of categories) {
-        if (filter === "" && c.name !== currentCategory) continue;
-        
         for (const sub of c.subs) {
             let prods = allData[sub.trim()] || [];
             let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
@@ -421,10 +423,12 @@ async function render(filter = "") {
                 let s = stockStatus[p.code] || {}; if (s.hidden && !isAdmin) continue;
                 let inCartClass = cart[p.code] ? 'in-cart' : '';
                 let escapedName = escapeJS(p.name);
+                const hasGuide = await checkForGuide(p.code);
                 
                 grid.innerHTML += `
                     <div class="product-card ${s.outOfStock ? 'out' : ''} ${inCartClass}" id="card_${p.code}">
-                        <img class="thumb-img" loading="lazy" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${escapedName}')">
+                        ${hasGuide ? `<div class="has-guide-badge">📄 OHJE</div>` : ''}
+                        <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${escapedName}')">
                         <div style="font-weight:bold; font-size:13px; margin-bottom:5px; height:34px; overflow:hidden;">${p.name}</div>
                         <div style="font-size:11px; color:#666; margin-bottom:10px;">${p.code}</div>
                         ${s.outOfStock ? `<div style="color:red; font-size:10px; font-weight:bold;">LOPPU! ${s.eta ? 'ETA: '+s.eta : ''}</div>` : ''}
@@ -548,7 +552,9 @@ function updatePkgItemQtyDirect(idx, val) {
 }
 
 function confirmPkgToCart() {
-    currentPkgItems.forEach(i => { if(i.qty > 0) setQty(i.code, findNameByCode(i.code), i.qty); });
+    currentPkgItems.forEach(i => {
+        if(i.qty > 0) setQty(i.code, findNameByCode(i.code), i.qty);
+    });
     document.getElementById("pkgModal").style.display = "none";
 }
 
@@ -597,11 +603,8 @@ function renderNav() {
             let item = document.createElement("div"); item.className = "nav-sub-item";
             item.innerText = "- " + s;
             item.onclick = () => { 
-                currentCategory = c.name;
-                render();
-                setTimeout(() => {
-                    document.getElementById("cat-" + s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"});
-                }, 100);
+                document.getElementById("cat-" + s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"});
+                // SULJETAAN VALIKKO ALALUOKAN KLIKKAUKSEN JÄLKEEN
                 if(window.innerWidth < 900) toggleSidebar('nav-sidebar');
             };
             subList.appendChild(item);
@@ -627,10 +630,13 @@ function finalSubmit() {
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value, tapa: document.getElementById("f_tapa").value, l: document.getElementById("f_lisatiedot").value, puut: document.getElementById("f_puuttuvat").value };
     if(!f.t || !f.v || !f.o || !f.p || !f.k || !f.tapa) return alert("Täytä pakolliset tiedot!");
     let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nToimitustapa: ${f.tapa}\nOsoite: ${f.o}, ${f.p} ${f.k}\n\nLisätiedot: ${f.l}\n\nTuotteet:\n`;
-    Object.values(cart).forEach(i => { body += `[ ]  ${i.qty} kpl  :  ${i.code}  -  ${i.name}\n`; });
+    Object.values(cart).forEach(i => { 
+        body += `[ ]  ${i.qty} kpl  :  ${i.code}  -  ${i.name}\n`; 
+    });
     if(f.puut) body += `\nPuuttuvat tuotteet:\n${f.puut}`;
     window.location.href = `mailto:lpvarasto@hartwall.fi?subject=Tilaus - ${f.t}&body=${encodeURIComponent(body)}`;
 }
 </script>
+
 </body>
 </html>
