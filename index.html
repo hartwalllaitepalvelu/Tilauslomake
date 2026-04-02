@@ -9,8 +9,11 @@
 :root { --hw-blue:#004593; --hw-dark:#002d62; --hw-green:#28a745; --hw-gold:#fbc02d; --sidebar-w: 280px; }
 body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:14px; color:#333; padding-bottom: 120px; }
 
-/* MODALS */
+/* MODALS & LOGIN */
 #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--hw-blue); display:flex; justify-content:center; align-items:center; z-index:100000; }
+.login-box { text-align: center; background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; width: 320px; }
+.login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; box-sizing: border-box; }
+
 #adminLoginPopup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,45,147,0.8); display:flex; justify-content:center; align-items:center; z-index:100001; }
 #pkgModal, #imgModal, #relatedOverlay, #fullCartModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; justify-content:center; align-items:center; }
 
@@ -67,7 +70,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .form-grid input, .form-grid textarea, .form-grid select { padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; width: 100%; box-sizing: border-box; font-family: inherit; }
 
 #adminSection { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #2d3748; color: white; padding: 15px; z-index: 50000; box-sizing: border-box; gap: 15px; justify-content: center; align-items: center; }
-#btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; cursor: pointer; }
+#btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; cursor: pointer; font-size: 20px; font-weight: bold; }
 
 @media (max-width: 900px) {
     .nav-sidebar { position: fixed; left: 0; transform: translateX(-100%); width: 85%; max-width: 320px; box-shadow: 10px 0 20px rgba(0,0,0,0.2); }
@@ -163,7 +166,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
             </div>
             <div id="basket-items" style="flex:1; overflow-y:auto; padding:10px;"></div>
             <div style="padding:15px; border-top:1px solid #eee;">
-                <button onclick="openFullCart()" style="width:100%; padding:14px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">TARKASTELE JA LÄHETÄ</button>
+                <button onclick="openFullCart()" style="width:100%; padding:14px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:15px;">TARKASTELE JA LÄHETÄ</button>
                 <button onclick="document.getElementById('adminLoginPopup').style.display='flex'" style="width:100%; margin-top:10px; background:none; border:none; color:#94a3b8; font-size:10px; cursor:pointer;">YLLÄPITO</button>
             </div>
         </aside>
@@ -191,6 +194,8 @@ let allData = {}; let cart = {}; let categories = []; let stockStatus = {};
 let asennusPaketit = {}; let sallitut = {}; let isAdmin = false;
 let currentCategoryFilter = null;
 let guideCache = {};
+
+window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
 function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
 
