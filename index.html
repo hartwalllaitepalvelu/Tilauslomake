@@ -27,50 +27,30 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .nav-group.active .nav-sub-list { display: block; }
 .nav-sub-item { padding: 10px 15px 10px 30px; cursor: pointer; border-bottom: 1px solid #f9f9f9; color: #555; font-size: 13px; }
 
-.close-nav { display: block; position: absolute; top: 10px; right: 15px; color: white; font-size: 24px; cursor: pointer; }
-
+.close-nav { display: none; position: absolute; top: 10px; right: 15px; color: white; font-size: 24px; cursor: pointer; }
 .main-content { flex: 1; padding: 20px; min-width: 0; }
 
 /* MOBIILI */
 .mobile-top-bar { display: none; background: var(--hw-dark); padding: 10px; position: sticky; top: 0; z-index: 16000; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 .mobile-btn { flex: 1; padding: 10px; background: var(--hw-blue); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; }
 
-/* INFO BOXES */
-.info-box { background: white; border-left: 5px solid var(--hw-blue); padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; line-height: 1.4; }
-.info-box.urgent { border-left-color: var(--hw-gold); background: #fffde7; }
-.info-box.combined { border-left-color: var(--hw-green); background: #f0fff4; }
-.info-icon { font-size: 20px; flex-shrink: 0; }
-
-/* PRODUCT CARDS */
+/* TUOTEKORTIT */
+.category-title { grid-column: 1 / -1; background: #e9ecef; color: var(--hw-blue); padding: 12px 15px; margin-top: 50px; margin-bottom: 15px; border-radius: 8px; font-size: 16px; font-weight: 800; text-transform: uppercase; border-left: 5px solid var(--hw-blue); }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 0; }
 .product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid #e1e4e8; transition: all 0.2s; position: relative; }
 .product-card.in-cart { border: 2px solid var(--hw-green); background: #f0fff4; }
-.product-card.out { opacity: 0.6; filter: grayscale(0.5); }
 .thumb-img { width: 100px; height: 100px; object-fit: contain; background: white; cursor: zoom-in; margin-bottom: 10px; }
-
-.has-guide-badge { position: absolute; top: 10px; right: 10px; background: var(--hw-blue); color: white; font-size: 10px; padding: 3px 8px; border-radius: 50px; font-weight: bold; pointer-events: none; opacity: 0.9; }
 
 .qty-area { display: flex; align-items: center; gap: 5px; margin-top: auto; width: 100%; justify-content: center; }
 .qty-btn { width: 32px; height: 32px; border: none; background: #edf2f7; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 .qty-input { width: 50px; text-align: center; border: 1px solid #cbd5e0; padding: 5px; font-weight: bold; border-radius: 6px; }
 
-/* MODAL CONTENT */
-.modal-content { background:white; padding:30px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-.close-x { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #999; }
-
-/* MISC */
-.toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000000; pointer-events: none; }
-.toast { background: var(--hw-dark); color: white; padding: 12px 24px; border-radius: 50px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); font-weight: 600; font-size: 14px; animation: slideUp 0.3s ease-out; }
-@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
 .search-container { position: relative; margin-bottom: 20px; }
 #filter { width: 100%; padding: 14px 45px 14px 20px; font-size: 15px; border: 2px solid var(--hw-blue); border-radius: 50px; box-sizing: border-box; }
 #clearSearch { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; color: #999; cursor: pointer; display: none; }
 
-#btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; font-weight: bold; cursor: pointer; font-size: 20px; }
-
-.login-box { text-align: center; background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; width: 320px; }
-.login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; box-sizing: border-box; }
+.modal-content { background:white; padding:30px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; }
+.close-x { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #999; }
 
 @media (max-width: 900px) {
     .mobile-top-bar { display: flex; }
@@ -78,7 +58,6 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
     .nav-sidebar.open { transform: translateX(0); }
     .cart-sidebar { position: fixed; right: 0; transform: translateX(100%); width: 100%; }
     .cart-sidebar.open { transform: translateX(0); }
-    #btnTop { right: 20px; }
 }
 </style>
 </head>
@@ -111,26 +90,25 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
         </nav>
 
         <main class="main-content">
-            <!-- Form Section -->
             <div class="form-section" style="background:white; padding:20px; border-radius:12px; border:1px solid #e1e4e8; margin-bottom:20px;">
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
-                    <input id="f_tilaaja" placeholder="Tilaaja *" style="padding:10px; border:1px solid #cbd5e0; border-radius:6px;">
-                    <input id="f_varasto" placeholder="Varastonumero *" style="padding:10px; border:1px solid #cbd5e0; border-radius:6px;">
-                    <input id="f_pvm" type="date" style="padding:10px; border:1px solid #cbd5e0; border-radius:6px;">
-                    <select id="f_tapa" style="padding:10px; border:1px solid #cbd5e0; border-radius:6px;">
+                    <input id="f_tilaaja" placeholder="Tilaaja *">
+                    <input id="f_varasto" placeholder="Varastonumero *">
+                    <input id="f_pvm" type="date">
+                    <select id="f_tapa">
                         <option value="Oma logistiikka">Oma logistiikka</option>
                         <option value="Kaukokiito">Kaukokiito</option>
                         <option value="Posti">Posti</option>
                     </select>
-                    <input id="f_osoite" placeholder="Osoite *" style="padding:10px; border:1px solid #cbd5e0; border-radius:6px;">
-                    <input id="f_postinro" placeholder="Postinumero *" style="padding:10px; border:1px solid #cbd5e0; border-radius:6px;">
-                    <input id="f_paikka" placeholder="Paikkakunta *" style="padding:10px; border:1px solid #cbd5e0; border-radius:6px;">
-                    <textarea id="f_lisatiedot" placeholder="Lisätietoja..." style="grid-column: 1/-1; padding:10px; border:1px solid #cbd5e0; border-radius:6px; height:60px;"></textarea>
+                    <input id="f_osoite" placeholder="Osoite *">
+                    <input id="f_postinro" placeholder="Postinumero *">
+                    <input id="f_paikka" placeholder="Paikkakunta *">
+                    <textarea id="f_lisatiedot" placeholder="Lisätietoja..." style="grid-column: 1 / -1; height: 60px;"></textarea>
                 </div>
             </div>
 
             <div class="search-container">
-                <input id="filter" placeholder="Hae tuotteita..." oninput="handleSearch(this.value)">
+                <input id="filter" placeholder="Hae tuotteita..." oninput="handleSearchDebounced(this.value)">
                 <button id="clearSearch" onclick="resetSearch()">✕</button>
             </div>
 
@@ -150,97 +128,38 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
     </div>
 </div>
 
-<!-- Modals -->
-<div id="fullCartModal" onclick="if(event.target==this)this.style.display='none'">
-    <div class="modal-content">
-        <span class="close-x" onclick="document.getElementById('fullCartModal').style.display='none'">&times;</span>
-        <h2 style="color:var(--hw-green)">Tilausyhteenveto</h2>
-        <div id="fullCartInfo" style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px;"></div>
-        <div id="fullCartItems"></div>
-        <button onclick="finalSubmit()" style="width:100%; padding:20px; background:var(--hw-green); color:white; border:none; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">VAHVISTA JA LÄHETÄ</button>
-    </div>
-</div>
-
-<div id="imgModal" onclick="if(event.target==this)this.style.display='none'">
-    <div class="modal-content">
-        <span class="close-x" onclick="document.getElementById('imgModal').style.display='none'">&times;</span>
-        <h3 id="imgModalTitle"></h3>
-        <img id="bigImg" style="width:100%; max-height:50vh; object-fit:contain; margin-bottom:20px;">
-        <div id="guideLinks" style="display:flex; flex-direction:column; gap:8px;"></div>
-    </div>
-</div>
-
-<button onclick="window.scrollTo({top:0, behavior:'smooth'})" id="btnTop">↑</button>
+<div id="fullCartModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('fullCartModal').style.display='none'">&times;</span><h2 style="color:var(--hw-green)">Tilausyhteenveto</h2><div id="fullCartInfo"></div><div id="fullCartItems"></div><button onclick="finalSubmit()" style="width:100%; padding:20px; background:var(--hw-green); color:white; border:none; border-radius:12px; font-weight:bold; margin-top:20px; cursor:pointer;">LÄHETÄ TILAUS</button></div></div>
+<div id="imgModal" onclick="if(event.target==this)this.style.display='none'"><div class="modal-content"><span class="close-x" onclick="document.getElementById('imgModal').style.display='none'">&times;</span><h3 id="imgModalTitle"></h3><img id="bigImg" style="width:100%; max-height:50vh; object-fit:contain;"><div id="guideLinks" style="margin-top:15px;"></div></div></div>
 
 <script>
 let allData = {}; let cart = {}; let categories = []; let stockStatus = {}; let sallitut = {};
-let guideCache = {};
+let searchTimeout;
 
 const GUIDE_TAGS = ["", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Manual", "_Menu", "_Varaosat", "_varaosat", "_englanti", "_suomi", "_ohje", "_mittakuva"];
 
 function toggleSidebar(id) { document.getElementById(id).classList.toggle('open'); }
-function escapeJS(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, "&quot;") : ""; }
-function showToast(msg) {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div"); toast.className = "toast";
-    toast.innerHTML = `🛒 ${msg}`; container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+
+// Debounce-haku: Säästää tehoja, kun haku ei suorita renderöintiä jokaisella kirjaimella
+function handleSearchDebounced(val) {
+    clearTimeout(searchTimeout);
+    document.getElementById("clearSearch").style.display = val ? "block" : "none";
+    searchTimeout = setTimeout(() => render(val), 250;
 }
 
-// --- GUIDES LOGIC ---
-async function checkForGuide(code) {
-    if (guideCache[code] !== undefined) return guideCache[code];
-    // Tarkistetaan vain perusohje olemassaolon badgea varten nopeuden vuoksi
-    try {
-        const res = await fetch(`ohjeet/${code}.pdf`, { method: 'GET', headers: { 'Range': 'bytes=0-0' } });
-        const exists = res.ok || res.status === 206;
-        guideCache[code] = exists;
-        return exists;
-    } catch (e) {
-        guideCache[code] = false;
-        return false;
-    }
+function resetSearch() {
+    document.getElementById("filter").value = "";
+    handleSearchDebounced("");
 }
 
-async function openBigImg(code, name) {
-    document.getElementById("bigImg").src = `images/${code}.png`;
-    document.getElementById("imgModalTitle").innerText = code + " - " + name;
-    const linksDiv = document.getElementById("guideLinks");
-    linksDiv.innerHTML = "Etsitään ohjeita...";
-    
-    let found = 0;
-    let html = "";
-
-    // Käydään kaikki mahdolliset liitteet läpi
-    for (let t of GUIDE_TAGS) {
-        let url = `ohjeet/${code}${t}.pdf`;
-        try {
-            const res = await fetch(url, { method: 'GET', headers: { 'Range': 'bytes=0-0' } });
-            if (res.ok || res.status === 206) {
-                let label = t ? t.replace("_", "").toUpperCase().replace(/_/g, " ") : "YLEISOHJE";
-                html += `<a href="${url}" target="_blank" style="display:block; padding:12px; background:#f0f7ff; border-radius:8px; color:var(--hw-blue); font-weight:bold; text-decoration:none; border:1px solid #d0e3ff;">📄 ${label}</a>`;
-                found++;
-            }
-        } catch (e) {}
-    }
-
-    linksDiv.innerHTML = found > 0 ? html : "<small style='color:#999'>Ei löytyneitä ohjeita.</small>";
-    document.getElementById("imgModal").style.display = "flex";
-}
-
-// --- DATA LOGIC ---
 async function doAppLogin() {
-    try {
-        const res = await fetch("käyttäjät.txt");
-        if(res.ok) {
-            const t = await res.text();
-            t.split("\n").forEach(line => {
-                const parts = line.trim().split(/\s+/);
-                if(parts.length >= 2) sallitut[parts[0].toLowerCase()] = parts[1];
-            });
-        }
-    } catch(e) {}
-
+    const res = await fetch("käyttäjät.txt").catch(() => null);
+    if(res && res.ok) {
+        const t = await res.text();
+        t.split("\n").forEach(line => {
+            const parts = line.trim().split(/\s+/);
+            if(parts.length >= 2) sallitut[parts[0].toLowerCase()] = parts[1];
+        });
+    }
     const u = document.getElementById("uField").value.trim().toLowerCase();
     const p = document.getElementById("pField").value.trim();
     if (sallitut[u] === p) {
@@ -248,7 +167,7 @@ async function doAppLogin() {
         document.getElementById("appWrapper").style.display="block";
         document.getElementById("f_pvm").valueAsDate = new Date();
         loadAllData();
-    } else alert("Virhe!");
+    } else { alert("Virhe!"); }
 }
 
 async function loadAllData() {
@@ -259,8 +178,8 @@ async function loadAllData() {
             let s = line.trim(); if(!s) return;
             if(s.startsWith("*")) { cur = s.substring(1).trim(); allData[cur] = []; } 
             else if(cur) {
-                const p = s.split(/\s+/);
-                allData[cur].push({code: p[0], name: s.substring(p[0].length).trim()});
+                const parts = s.split(/\s+/);
+                allData[cur].push({code: parts[0], name: s.substring(parts[0].length).trim()});
             }
         });
     }
@@ -269,98 +188,131 @@ async function loadAllData() {
         t.split("\n").forEach(l => {
             let s = l.trim(); if(!s) return;
             if(!l.startsWith("-")) { curM = {name: s, subs: []}; categories.push(curM); } 
-            else { if(curM) curM.subs.push(s.substring(1).trim()); }
+            else if(curM) { curM.subs.push(s.substring(1).trim()); }
         });
     }
-    renderNav(); render();
+    renderNav();
+    render();
 }
 
-// --- UI RENDER ---
 function renderNav() {
-    const nav = document.getElementById("dynamic-nav"); nav.innerHTML = "";
+    let html = "";
     categories.forEach(c => {
-        let group = document.createElement("div"); group.className = "nav-group";
-        group.innerHTML = `<div class="nav-main-cat" onclick="this.parentElement.classList.toggle('active')">${c.name} ▾</div>`;
-        let subList = document.createElement("div"); subList.className = "nav-sub-list";
-        c.subs.forEach(s => {
-            let item = document.createElement("div"); item.className = "nav-sub-item";
-            item.innerText = "- " + s;
-            item.onclick = () => {
-                document.getElementById("cat-"+s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"});
-                if(window.innerWidth < 900) toggleSidebar('nav-sidebar');
-            };
-            subList.appendChild(item);
-        });
-        group.appendChild(subList); nav.appendChild(group);
+        html += `<div class="nav-group">
+            <div class="nav-main-cat" onclick="this.parentElement.classList.toggle('active')">${c.name} ▾</div>
+            <div class="nav-sub-list">
+                ${c.subs.map(s => `<div class="nav-sub-item" onclick="scrollToCat('${s}')">- ${s}</div>`).join('')}
+            </div>
+        </div>`;
     });
+    document.getElementById("dynamic-nav").innerHTML = html;
 }
 
-async function render(filter = "") {
-    const list = document.getElementById("main-list"); list.innerHTML = "";
+function scrollToCat(s) {
+    document.getElementById("cat-" + s.replace(/\s+/g, '-').toLowerCase())?.scrollIntoView({behavior:"smooth"});
+    if(window.innerWidth < 900) toggleSidebar('nav-sidebar');
+}
+
+function render(filter = "") {
+    const list = document.getElementById("main-list");
+    let fullHtml = ""; // Kootaan koko sisältö muuttujaan ennen DOM-päivitystä (Nopeampi)
+    
     for (const c of categories) {
         for (const sub of c.subs) {
             let prods = allData[sub.trim()] || [];
             let filt = prods.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || p.code.toLowerCase().includes(filter.toLowerCase()));
             if (filt.length === 0) continue;
             
-            list.innerHTML += `<div class="category-title" id="cat-${sub.replace(/\s+/g, '-').toLowerCase()}" style="background:#e9ecef; padding:10px; margin-top:30px; font-weight:bold;">${sub}</div>`;
-            let grid = document.createElement("div"); grid.className = "product-grid";
+            fullHtml += `<div class="category-title" id="cat-${sub.replace(/\s+/g, '-').toLowerCase()}">${sub}</div>`;
+            fullHtml += `<div class="product-grid">`;
             
-            for (const p of filt) {
-                const hasGuide = await checkForGuide(p.code);
-                grid.innerHTML += `
-                    <div class="product-card ${cart[p.code] ? 'in-cart' : ''}">
-                        ${hasGuide ? `<div class="has-guide-badge">📄 OHJE</div>` : ''}
-                        <img class="thumb-img" src="images/${p.code}.png" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${escapeJS(p.name)}')">
+            filt.forEach(p => {
+                const inCart = cart[p.code] ? 'in-cart' : '';
+                fullHtml += `
+                    <div class="product-card ${inCart}" id="card_${p.code}">
+                        <img class="thumb-img" src="images/${p.code}.png" loading="lazy" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${p.name.replace(/'/g, "\\'")}')">
                         <div style="font-weight:bold; font-size:13px; height:34px; overflow:hidden;">${p.name}</div>
                         <div style="font-size:11px; color:#666; margin-bottom:10px;">${p.code}</div>
                         <div class="qty-area">
-                            <button class="qty-btn" onclick="updateQty('${p.code}','${escapeJS(p.name)}',-1)">-</button>
-                            <input type="number" class="qty-input" value="${cart[p.code]?.qty || 0}" onchange="setQty('${p.code}','${escapeJS(p.name)}',this.value)">
-                            <button class="qty-btn" onclick="updateQty('${p.code}','${escapeJS(p.name)}',1)">+</button>
+                            <button class="qty-btn" onclick="updateQty('${p.code}','${p.name.replace(/'/g, "\\'")}',-1)">-</button>
+                            <input type="number" class="qty-input" id="q_${p.code}" value="${cart[p.code]?.qty || 0}" onchange="setQty('${p.code}','${p.name.replace(/'/g, "\\'")}',this.value)">
+                            <button class="qty-btn" onclick="updateQty('${p.code}','${p.name.replace(/'/g, "\\'")}',1)">+</button>
                         </div>
                     </div>`;
-            }
-            list.appendChild(grid);
+            });
+            fullHtml += `</div>`;
         }
     }
+    list.innerHTML = fullHtml;
 }
 
-// --- CART LOGIC ---
-function updateQty(c, n, d) { setQty(c, n, (cart[c]?.qty || 0) + d); }
-function setQty(c, n, v) {
-    let num = parseInt(v) || 0;
-    if(num <= 0) delete cart[c]; else cart[c] = {code:c, name:n, qty:num};
-    renderCart(); render(document.getElementById("filter").value);
+async function openBigImg(code, name) {
+    document.getElementById("bigImg").src = `images/${code}.png`;
+    document.getElementById("imgModalTitle").innerText = code + " - " + name;
+    const linksDiv = document.getElementById("guideLinks");
+    linksDiv.innerHTML = "Etsitään ohjeita...";
+    
+    let html = "";
+    // Tarkistetaan ohjeet vasta tässä vaiheessa (Nopeuttaa selailua)
+    const checks = GUIDE_TAGS.map(async t => {
+        const url = `ohjeet/${code}${t}.pdf`;
+        const res = await fetch(url, { method: 'HEAD' }).catch(() => null);
+        if(res && res.ok) {
+            let label = t ? t.replace("_", "").toUpperCase() : "YLEISOHJE";
+            return `<a href="${url}" target="_blank" style="display:block; padding:10px; background:#f0f7ff; border-radius:8px; margin-bottom:5px; text-decoration:none; color:var(--hw-blue); font-weight:bold;">📄 ${label}</a>`;
+        }
+        return null;
+    });
+
+    const results = await Promise.all(checks);
+    html = results.filter(r => r !== null).join('');
+    linksDiv.innerHTML = html || "<small style='color:#999'>Ei löytyneitä ohjeita.</small>";
+    document.getElementById("imgModal").style.display = "flex";
+}
+
+function setQty(code, name, val) {
+    let num = parseInt(val) || 0;
+    if(num <= 0) {
+        delete cart[code];
+        document.getElementById("card_"+code)?.classList.remove("in-cart");
+    } else {
+        cart[code] = { code, name, qty: num };
+        document.getElementById("card_"+code)?.classList.add("in-cart");
+    }
+    renderCart();
+}
+
+function updateQty(code, name, d) {
+    let n = (cart[code]?.qty || 0) + d;
+    setQty(code, name, n);
+    document.getElementById("q_"+code).value = n > 0 ? n : 0;
 }
 
 function renderCart() {
-    const div = document.getElementById("basket-items"); div.innerHTML = "";
-    Object.values(cart).forEach(i => {
-        div.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${i.qty} kpl</b> - ${i.name}</div>`;
-    });
+    const div = document.getElementById("basket-items");
+    div.innerHTML = Object.values(cart).map(i => `
+        <div style="padding:10px; border-bottom:1px solid #eee;">
+            <b>${i.qty} kpl</b> - ${i.name}
+        </div>
+    `).join('');
     document.getElementById("basket-count").innerText = Object.keys(cart).length;
 }
 
 function openFullCart() {
     const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value };
     document.getElementById("fullCartInfo").innerHTML = `<b>Tilaaja:</b> ${f.t}<br><b>Varasto:</b> ${f.v}`;
-    let html = "";
-    Object.values(cart).forEach(i => { html += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${i.qty} kpl</b> : ${i.code} - ${i.name}</div>`; });
-    document.getElementById("fullCartItems").innerHTML = html;
+    document.getElementById("fullCartItems").innerHTML = Object.values(cart).map(i => `
+        <div style="padding:10px; border-bottom:1px solid #eee;">${i.qty} kpl : ${i.code} - ${i.name}</div>
+    `).join('');
     document.getElementById("fullCartModal").style.display = "flex";
 }
 
-function handleSearch(v) { render(v); }
-function resetSearch() { document.getElementById("filter").value = ""; render(""); }
-
 function finalSubmit() {
-    const f = { t: document.getElementById("f_tilaaja").value, v: document.getElementById("f_varasto").value, o: document.getElementById("f_osoite").value, p: document.getElementById("f_postinro").value, k: document.getElementById("f_paikka").value };
-    if(!f.t || !f.v) return alert("Täytä tilaaja ja varasto!");
-    let body = `Tilaaja: ${f.t}\nVarasto: ${f.v}\nOsoite: ${f.o}, ${f.p} ${f.k}\n\nTuotteet:\n`;
-    Object.values(cart).forEach(i => { body += `${i.qty} kpl : ${i.code} - ${i.name}\n`; });
-    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=Tilaus - ${f.t}&body=${encodeURIComponent(body)}`;
+    const t = document.getElementById("f_tilaaja").value;
+    const body = "Tilaus:\n" + Object.values(cart).map(i => `${i.qty} kpl : ${i.code} - ${i.name}`).join('\n');
+    window.location.href = `mailto:lpvarasto@hartwall.fi?subject=Tilaus - ${t}&body=${encodeURIComponent(body)}`;
 }
 </script>
+
 </body>
 </html>
