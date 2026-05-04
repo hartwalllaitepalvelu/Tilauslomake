@@ -14,7 +14,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 .login-box { text-align: center; background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; width: 320px; }
 .login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; box-sizing: border-box; }
 
-#fullCartModal, #imgModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:200000; justify-content:center; align-items:center; }
+#fullCartModal, #imgModal, #pkgModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:200000; justify-content:center; align-items:center; }
 .modal-content { background:white; padding:30px; border-radius:16px; width:750px; max-width:95%; max-height:85vh; overflow-y:auto; position: relative; color: #333; }
 .close-x { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #999; }
 
@@ -86,7 +86,7 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
             <div class="form-section">
                 <div class="form-grid">
                     <div class="form-group"><label>Tilaaja *</label><input id="f_tilaaja" placeholder="Nimi"></div>
-                    <div class="form-group"><label>Varastonumero *</label><input id="f_varasto" placeholder="Esim. 1234"></div>
+                    <div class="form-group"><label>Varastonumero *</label><input id="f_varasto" placeholder="Esim. LP011"></div>
                     <div class="form-group"><label>Osoite *</label><input id="f_osoite" placeholder="Katuosoite"></div>
                     <div class="form-group"><label>Postinumero *</label><input id="f_postinro" placeholder="00000"></div>
                     <div class="form-group"><label>Paikkakunta *</label><input id="f_paikka" placeholder="Kaupunki"></div>
@@ -98,9 +98,14 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                             <option value="Posti">Posti</option>
                         </select>
                     </div>
-                    <div class="form-group" style="grid-column: 1/-1;"><label>Lisätietoja</label><textarea id="f_lisatiedot" placeholder="Esim. ovikoodi tai tarkempi sijainti..."></textarea></div>
-                    <div class="form-group" style="grid-column: 1/-1;"><label>Listalta puuttuvat tuotteet</label><textarea id="f_puuttuvat" placeholder="Lisää nimi ja kappalemäärä, jos tuotetta ei löydy valikoimasta..."></textarea></div>
+                    <div class="form-group" style="grid-column: 1/-1;"><label>Lisätietoja</label><textarea id="f_lisatiedot" placeholder=""></textarea></div>
+                    <div class="form-group" style="grid-column: 1/-1;"><label>Listalta puuttuvat tuotteet</label><textarea id="f_puuttuvat" placeholder="Lisää nimi ja kappalemäärä..."></textarea></div>
                 </div>
+            </div>
+
+            <div style="background:#fff9c4; padding:20px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:30px;">
+                <div style="font-weight:bold; margin-bottom:10px; color:var(--hw-blue);">VALMIIT ASENNUSPAKETIT</div>
+                <div id="pkg-buttons" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
             </div>
 
             <input id="filter" placeholder="Hae tuotteita..." oninput="render(this.value)">
@@ -114,6 +119,15 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
                 <button onclick="openFullCart()" style="width:100%; padding:14px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">TARKASTELE JA LÄHETÄ</button>
             </div>
         </aside>
+    </div>
+</div>
+
+<div id="pkgModal">
+    <div class="modal-content">
+        <span class="close-x" onclick="document.getElementById('pkgModal').style.display='none'">&times;</span>
+        <h3 id="pkgModalTitle"></h3>
+        <div id="pkgModalItems"></div>
+        <button onclick="confirmPkgToCart()" style="width:100%; padding:15px; background:var(--hw-green); color:white; border:none; border-radius:8px; font-weight:bold; margin-top:15px; cursor:pointer;">LISÄÄ KAIKKI KORIIN</button>
     </div>
 </div>
 
@@ -139,7 +153,8 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 <button onclick="window.scrollTo({top:0, behavior:'smooth'})" id="btnTop">↑</button>
 
 <script>
-let allData = {}; let cart = {}; let categories = []; let sallitut = {};
+let allData = {}; let cart = {}; let categories = []; let sallitut = {}; let asennusPaketit = {};
+let currentPkgItems = [];
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
 
 async function doAppLogin() {
@@ -163,7 +178,12 @@ async function doAppLogin() {
 }
 
 async function loadAllData() {
-    const [r1, r2] = await Promise.all([fetch("data.txt"), fetch("kategoriat.txt")]);
+    const [r1, r2, r3] = await Promise.all([
+        fetch("data.txt"), 
+        fetch("kategoriat.txt"),
+        fetch("asennuspaketit.txt")
+    ]);
+    
     if(r1.ok) {
         const t = await r1.text(); let cur = null;
         t.split("\n").forEach(line => {
@@ -182,6 +202,19 @@ async function loadAllData() {
             if(!l.startsWith("-")) { curM = {name: s, subs: []}; categories.push(curM); } 
             else if(curM) { curM.subs.push(s.substring(1).trim()); }
         });
+    }
+    if(r3.ok) {
+        const t = await r3.text(); let name = null;
+        t.split("\n").forEach(line => {
+            let s = line.trim(); if(!s) return;
+            const parts = s.split(/\s+/);
+            if(parts.length === 1 || isNaN(parts[parts.length-1])) {
+                name = s; asennusPaketit[name] = [];
+            } else if(name) {
+                asennusPaketit[name].push({ code: parts[0], qty: parseInt(parts[parts.length-1]) });
+            }
+        });
+        renderPkgs();
     }
     renderNav(); render();
 }
@@ -229,30 +262,59 @@ function setQty(code, name, val) {
     let n = parseInt(val) || 0;
     if(n <= 0) delete cart[code]; else cart[code] = {code, name, qty: n};
     renderCart();
-    // Päivitetään vain tuotekortin tyyli ja arvo, jos se on näkyvissä
     const card = document.querySelector(`.product-card img[onclick*="${code}"]`)?.parentElement;
-    if(card) {
-        card.classList.toggle('in-cart', n > 0);
-        card.querySelector('.qty-input').value = n;
-    }
+    if(card) { card.classList.toggle('in-cart', n > 0); card.querySelector('.qty-input').value = n; }
 }
 
-function updateQty(code, name, d) {
-    let n = (cart[code]?.qty || 0) + d;
-    setQty(code, name, n);
-}
+function updateQty(code, name, d) { setQty(code, name, (cart[code]?.qty || 0) + d); }
 
 function renderCart() {
     document.getElementById("basket-count").innerText = Object.keys(cart).length;
     document.getElementById("basket-items").innerHTML = Object.values(cart).map(i => `
         <div style="padding:10px; border-bottom:1px solid #eee;">
-            <b>${i.name}</b><br>
+            <b>${i.code}</b> - ${i.name}<br>
             <div class="qty-area" style="margin-top:5px; justify-content: flex-start;">
                 <button class="qty-btn" onclick="updateQty('${i.code}','${i.name.replace(/'/g,"\\'")}',-1)">-</button>
                 <input type="number" class="qty-input" value="${i.qty}" onchange="setQty('${i.code}','${i.name.replace(/'/g,"\\'")}', this.value)">
                 <button class="qty-btn" onclick="updateQty('${i.code}','${i.name.replace(/'/g,"\\'")}',1)">+</button>
             </div>
         </div>`).join('');
+}
+
+function renderPkgs() {
+    document.getElementById("pkg-buttons").innerHTML = Object.keys(asennusPaketit).map(name => `
+        <button onclick="openPkgModal('${name}')" style="padding:10px; background:var(--hw-blue); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">${name}</button>
+    `).join('');
+}
+
+function openPkgModal(name) {
+    document.getElementById("pkgModalTitle").innerText = name;
+    currentPkgItems = JSON.parse(JSON.stringify(asennusPaketit[name]));
+    document.getElementById("pkgModalItems").innerHTML = currentPkgItems.map((item, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
+            <span><b>${item.code}</b></span>
+            <div class="qty-area">
+                <button class="qty-btn" onclick="updatePkgItemQty(${idx},-1)">-</button>
+                <input type="number" class="qty-input" value="${item.qty}" readonly>
+                <button class="qty-btn" onclick="updatePkgItemQty(${idx},1)">+</button>
+            </div>
+        </div>`).join('');
+    document.getElementById("pkgModal").style.display = "flex";
+}
+
+function updatePkgItemQty(idx, d) {
+    currentPkgItems[idx].qty = Math.max(0, currentPkgItems[idx].qty + d);
+    document.querySelectorAll("#pkgModalItems .qty-input")[idx].value = currentPkgItems[idx].qty;
+}
+
+function confirmPkgToCart() {
+    currentPkgItems.forEach(i => { if(i.qty > 0) setQty(i.code, findNameByCode(i.code), i.qty); });
+    document.getElementById("pkgModal").style.display = "none";
+}
+
+function findNameByCode(code) {
+    for (let cat in allData) { let f = allData[cat].find(x => x.code === code); if(f) return f.name; }
+    return code;
 }
 
 async function openBigImg(code, name) {
@@ -263,10 +325,7 @@ async function openBigImg(code, name) {
     const tags = ["", "_ohje", "_Varaosat", "_Manual", "_tekniset tiedot"];
     for (let t of tags) {
         let url = `ohjeet/${code}${t}.pdf`;
-        try {
-            const res = await fetch(url, { method: 'HEAD' });
-            if(res.ok) html += `<a href="${url}" target="_blank" style="padding:10px; background:#f0f7ff; border:1px solid #d0e3ff; border-radius:8px; text-decoration:none; color:var(--hw-blue); font-weight:bold;">📄 ${t?t.replace("_","").toUpperCase():'YLEISOHJE'}</a>`;
-        } catch(e) {}
+        try { const res = await fetch(url, { method: 'HEAD' }); if(res.ok) html += `<a href="${url}" target="_blank" style="padding:10px; background:#f0f7ff; border:1px solid #d0e3ff; border-radius:8px; text-decoration:none; color:var(--hw-blue); font-weight:bold;">📄 ${t?t.replace("_","").toUpperCase():'YLEISOHJE'}</a>`; } catch(e) {}
     }
     div.innerHTML = html || "Ei ohjeita.";
     document.getElementById("imgModal").style.display = "flex";
