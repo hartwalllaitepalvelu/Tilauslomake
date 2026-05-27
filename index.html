@@ -266,13 +266,14 @@ function render(filter = "") {
             if (prods.length === 0) continue;
             html += `<div class="category-title" id="cat-${sub.replace(/\s+/g, '-').toLowerCase()}">${sub}</div><div class="product-grid">`;
             prods.forEach(p => {
+                const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 html += `<div class="product-card ${cart[p.code]?'in-cart':''}">
-                    <img class="thumb-img" src="images/${p.code}.png" loading="lazy" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${p.name.replace(/'/g,"\\'")}')">
+                    <img class="thumb-img" src="images/${p.code}.png" loading="lazy" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='" onclick="openBigImg('${p.code}','${safeName}')">
                     <div style="font-weight:bold; height:34px; overflow:hidden;">${p.name}</div><div style="color:#666; font-size:11px; margin-bottom:10px;">${p.code}</div>
                     <div class="qty-area">
-                        <button class="qty-btn" onclick="updateQty('${p.code}','${p.name.replace(/'/g,"\\'")}',-1)">-</button>
-                        <input type="number" class="qty-input" value="${cart[p.code]?.qty || 0}" onchange="setQty('${p.code}','${p.name.replace(/'/g,"\\'")}', this.value)">
-                        <button class="qty-btn" onclick="updateQty('${p.code}','${p.name.replace(/'/g,"\\'")}',1)">+</button>
+                        <button class="qty-btn" onclick="updateQty('${p.code}','${safeName}',-1)">-</button>
+                        <input type="number" class="qty-input" value="${cart[p.code]?.qty || 0}" onchange="setQty('${p.code}','${safeName}', this.value)">
+                        <button class="qty-btn" onclick="updateQty('${p.code}','${safeName}',1)">+</button>
                     </div>
                 </div>`;
             });
@@ -296,9 +297,10 @@ function openRelatedPopup(parentCode) {
     const div = document.getElementById("relatedContent"); div.innerHTML = "";
     relatedItems[parentCode].forEach(relCode => {
         let relName = findNameByCode(relCode);
+        const safeRelName = relName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         div.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
             <span><b>${relCode}</b><br><small>${relName}</small></span>
-            <button onclick="updateQty('${relCode}','${relName.replace(/'/g,"\\'")}',1);this.innerText='Lisätty ✔';this.disabled=true;" style="background:var(--hw-blue);color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">LISÄÄ</button>
+            <button onclick="updateQty('${relCode}','${safeRelName}',1);this.innerText='Lisätty ✔';this.disabled=true;" style="background:var(--hw-blue);color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">LISÄÄ</button>
         </div>`;
     });
     document.getElementById("relatedOverlay").style.display = "flex";
@@ -306,15 +308,17 @@ function openRelatedPopup(parentCode) {
 
 function renderCart() {
     document.getElementById("basket-count").innerText = Object.keys(cart).length;
-    document.getElementById("basket-items").innerHTML = Object.values(cart).map(i => `
-        <div style="padding:10px; border-bottom:1px solid #eee;">
+    document.getElementById("basket-items").innerHTML = Object.values(cart).map(i => {
+        const safeName = i.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return `<div style="padding:10px; border-bottom:1px solid #eee;">
             <b>${i.code}</b> - ${i.name}<br>
             <div class="qty-area" style="margin-top:5px; justify-content: flex-start;">
-                <button class="qty-btn" onclick="updateQty('${i.code}','${i.name.replace(/'/g,"\\'")}',-1)">-</button>
-                <input type="number" class="qty-input" value="${i.qty}" onchange="setQty('${i.code}','${i.name.replace(/'/g,"\\'")}', this.value)">
-                <button class="qty-btn" onclick="updateQty('${i.code}','${i.name.replace(/'/g,"\\'")}',1)">+</button>
+                <button class="qty-btn" onclick="updateQty('${i.code}','${safeName}',-1)">-</button>
+                <input type="number" class="qty-input" value="${i.qty}" onchange="setQty('${i.code}','${safeName}', this.value)">
+                <button class="qty-btn" onclick="updateQty('${i.code}','${safeName}',1)">+</button>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 }
 
 function clearCartWithConfirm() { if(confirm("Haluatko tyhjentää ostoskorin?")) { cart = {}; renderCart(); render(document.getElementById("filter").value); } }
