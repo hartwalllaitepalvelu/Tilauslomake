@@ -38,3 +38,4 @@ petri		raih
 juhmot		mottu
 heikki		kape
 teemu		raja
+juh		tolvai
