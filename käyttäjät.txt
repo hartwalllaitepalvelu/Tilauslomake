@@ -21,7 +21,7 @@ timo		puijo
 artsi		paka
 urkki		simsalabim
 jukka		tornik
-juh		cheek
+jst		cheek
 vesku		from
 make		gran
 timi		twopistons
