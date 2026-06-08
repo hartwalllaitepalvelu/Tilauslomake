@@ -63,6 +63,15 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 #btnTop { position: fixed; bottom: 30px; right: 300px; background: var(--hw-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: none; z-index: 9999; cursor: pointer; font-size: 20px; }
 #filter { width: 100%; padding: 14px 20px; border: 2px solid var(--hw-blue); border-radius: 50px; box-sizing: border-box; outline: none; margin-bottom: 20px; font-family: inherit; }
 
+/* WIZARD BUILDER STYLES */
+.wizard-banner { background: #fff3cd; border: 2px solid var(--hw-gold); padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 15px; }
+.wizard-banner-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.wizard-footer { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 8px; border: 1px solid #ddd; margin-top: 15px; }
+.wizard-btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+.wizard-btn-next { background: var(--hw-green); color: white; }
+.wizard-btn-next:disabled { background: #cbd5e0; color: #718096; cursor: not-allowed; }
+.wizard-btn-cancel { background: #e2e8f0; color: #4a5568; }
+
 /* RESPONSIVE MEDIA QUERIES */
 @media (max-width: 992px) {
     #appWrapper[style*="display: block"] ~ .mobile-header,
@@ -114,32 +123,38 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
         </nav>
 
         <main class="main-content">
-            <div class="form-section">
-                <div class="form-grid">
-                    <div class="form-group"><label>Tilaaja *</label><input id="f_tilaaja" placeholder="Nimi"></div>
-                    <div class="form-group"><label>Varastonumero *</label><input id="f_varasto" placeholder="Esim. LP011"></div>
-                    <div class="form-group"><label>Osoite *</label><input id="f_osoite" placeholder="Katuosoite"></div>
-                    <div class="form-group"><label>Postinumero *</label><input id="f_postinro" placeholder="00000"></div>
-                    <div class="form-group"><label>Paikkakunta *</label><input id="f_paikka" placeholder="Kaupunki"></div>
-                    <div class="form-group"><label>Toimitustapa *</label>
-                        <select id="f_tapa">
-                            <option value="Oma logistiikka (ensisijaisesti aina tämä)">Oma logistiikka (ensisijaisesti aina tämä)</option>
-                            <option value="Kaukokiito">Kaukokiito</option>
-                            <option value="Posti">Posti</option>
-                        </select>
+            <!-- WIZARD-ALUE -->
+            <div id="wizard-container" style="display:none;"></div>
+
+            <div id="storefront-main-area">
+                <div id="normal-form-area" class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Tilaaja *</label><input id="f_tilaaja" placeholder="Nimi"></div>
+                        <div class="form-group"><label>Varastonumero *</label><input id="f_varasto" placeholder="Esim. LP011"></div>
+                        <div class="form-group"><label>Osoite *</label><input id="f_osoite" placeholder="Katuosoite"></div>
+                        <div class="form-group"><label>Postinumero *</label><input id="f_postinro" placeholder="00000"></div>
+                        <div class="form-group"><label>Paikkakunta *</label><input id="f_paikka" placeholder="Kaupunki"></div>
+                        <div class="form-group"><label>Toimitustapa *</label>
+                            <select id="f_tapa">
+                                <option value="Oma logistiikka (ensisijaisesti aina tämä)">Oma logistiikka (ensisijaisesti aina tämä)</option>
+                                <option value="Kaukokiito">Kaukokiito</option>
+                                <option value="Posti">Posti</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: 1/-1;"><label>Lisätietoja</label><textarea id="f_lisatiedot" placeholder=""></textarea></div>
+                        <div class="form-group" style="grid-column: 1/-1;"><label>Listalta puuttuvat tuotteet</label><textarea id="f_puuttuvat" placeholder="Lisää nimi ja kappalemäärä..."></textarea></div>
                     </div>
-                    <div class="form-group" style="grid-column: 1/-1;"><label>Lisätietoja</label><textarea id="f_lisatiedot" placeholder=""></textarea></div>
-                    <div class="form-group" style="grid-column: 1/-1;"><label>Listalta puuttuvat tuotteet</label><textarea id="f_puuttuvat" placeholder="Lisää nimi ja kappalemäärä..."></textarea></div>
                 </div>
-            </div>
 
-            <div style="background:#fff9c4; padding:20px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:30px;">
-                <div style="font-weight:bold; margin-bottom:10px; color:var(--hw-blue);">VALMIIT ASENNUSPAKETIT</div>
-                <div id="pkg-buttons" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
-            </div>
+                <div style="background:#fff9c4; padding:20px; border-radius:12px; border:2px solid #fbc02d; margin-bottom:30px;">
+                    <div style="font-weight:bold; margin-bottom:10px; color:var(--hw-blue);">VALMIIT ASENNUSPAKETIT</div>
+                    <div id="pkg-buttons" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 15px;"></div>
+                    <button onclick="startInstallationWizard()" style="padding:12px 20px; background:var(--hw-gold); color:var(--hw-dark); border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:14px;">🛠️ Aloita Olutasennus (Pakotetut vaiheet)</button>
+                </div>
 
-            <input id="filter" placeholder="Hae tuotteita..." oninput="render(this.value)">
-            <div id="main-list"></div>
+                <input id="filter" placeholder="Hae tuotteita..." oninput="render(this.value)">
+                <div id="main-list"></div>
+            </div>
         </main>
 
         <aside id="cart-sidebar" class="cart-sidebar">
@@ -213,6 +228,11 @@ body { font-family:'Inter', sans-serif; margin:0; background:#f4f7f9; font-size:
 let allData = {}; let cart = {}; let categories = []; let sallitut = {}; let asennusPaketit = {}; 
 let relatedItems = {}; let currentPkgItems = []; let isAdmin = false;
 
+// PARSITUT VAIHEET JA WIZARDIN TILA
+let wizardSteps = [];
+let currentWizardStep = 0;
+let wizardCart = {};
+
 const GUIDE_TAGS = ["", "_ohje", "_Varaosat", "_Manual", "_tekniset tiedot", "_Asennusvaatimukset", "_Esite", "_Menu", "_varaosat", "_englanti", "_suomi", "_termari", "_termari_vaihto", "_carel", "_eliwell", "_mittakuva"];
 
 window.onscroll = () => { document.getElementById("btnTop").style.display = window.scrollY > 300 ? "block" : "none"; };
@@ -238,8 +258,8 @@ async function doAppLogin() {
 }
 
 async function loadAllData() {
-    const [r1, r2, r3, r4] = await Promise.all([
-        fetch("data.txt"), fetch("kategoriat.txt"), fetch("asennuspaketit.txt"), fetch("suositukset.txt")
+    const [r1, r2, r3, r4, r5] = await Promise.all([
+        fetch("data.txt"), fetch("kategoriat.txt"), fetch("asennuspaketit.txt"), fetch("suositukset.txt"), fetch("olutasennus.txt")
     ]);
     
     if(r1.ok) {
@@ -279,6 +299,38 @@ async function loadAllData() {
             if(p.length === 1) { parent = p[0]; relatedItems[parent] = []; }
             else if(parent) { relatedItems[parent].push(p[0]); }
         });
+    }
+    
+    // UUSI PARSERI: MÄÄRITTELEMÄSI KAAVAN MUKAINEN LUKU (Otsikko, nimikkeet, tyhjä rivi)
+    if(r5.ok) {
+        const text = await r5.text();
+        const lines = text.split(/\r?\n/);
+        let currentStep = null;
+        
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            
+            if (!line) {
+                // Tyhjä rivi katkaisee vaiheen
+                currentStep = null;
+                continue;
+            }
+            
+            if (currentStep === null) {
+                // Tyhjän rivin jälkeen tai ensimmäinen rivi = Otsikko
+                currentStep = { title: line, items: [] };
+                wizardSteps.push(currentStep);
+            } else {
+                // Vaiheen sisällä oleva nimikerivi (Koodi + Nimi)
+                const parts = line.split(/\s+/);
+                if (parts.length >= 1) {
+                    currentStep.items.push({
+                        code: parts[0],
+                        name: line.substring(parts[0].length).trim()
+                    });
+                }
+            }
+        }
     }
     renderNav(); render();
 }
@@ -361,7 +413,7 @@ function renderCart() {
                 <button class="qty-btn" onclick="updateQty('${i.code}',-1)">-</button>
                 <input type="number" class="qty-input" value="${i.qty}" oninput="setQty('${i.code}', this.value)">
                 <button class="qty-btn" onclick="updateQty('${i.code}',1)">+</button>
-          22112 </div>
+            </div>
         </div>`).join('');
 }
 
@@ -435,6 +487,92 @@ function toggleSidebar(id) {
         document.getElementById('cart-sidebar').classList.remove('open');
         sidebar.classList.add('open');
     }
+}
+
+// ==========================================
+// KÄYTTÖLIITTYMÄLOGIIKKA: VAIHEITTAINEN OLUTASENNUS
+// ==========================================
+function startInstallationWizard() {
+    if (wizardSteps.length === 0) {
+        alert("Olutasennuksen vaiheita ei löytynyt tiedostosta olutasennus.txt!");
+        return;
+    }
+    currentWizardStep = 0;
+    wizardCart = {};
+    
+    document.getElementById("storefront-main-area").style.display = "none";
+    document.getElementById("wizard-container").style.display = "block";
+    
+    renderWizardStep();
+}
+
+function renderWizardStep() {
+    const step = wizardSteps[currentWizardStep];
+    const container = document.getElementById("wizard-container");
+    
+    let itemsHtml = step.items.map(p => {
+        const currentQty = wizardCart[p.code] || 0;
+        // Jos nimeä ei ole saatu talteen tiedostosta, koitetaan etsiä se allDatasta koodilla
+        const displayName = p.name || findNameByCode(p.code);
+        return `
+        <div class="product-card ${currentQty > 0 ? 'in-cart' : ''}" style="width: 180px; margin: 10px; display: inline-flex;">
+            <img class="thumb-img" src="images/${p.code}.png" loading="lazy" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
+            <div style="font-weight:bold; height:34px; overflow:hidden; font-size:12px;">${displayName}</div>
+            <div style="color:#666; font-size:11px; margin-bottom:10px;">${p.code}</div>
+            <div class="qty-area">
+                <button class="qty-btn" onclick="updateWizardQty('${p.code}', -1)">-</button>
+                <input type="number" class="qty-input" value="${currentQty}" readonly>
+                <button class="qty-btn" onclick="updateWizardQty('${p.code}', 1)">+</button>
+            </div>
+        </div>`;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="wizard-banner">
+            <div class="wizard-banner-header">
+                <h2 style="margin:0; color:var(--hw-blue); font-size: 18px;">Olutasennus - Vaihe ${currentWizardStep + 1} / ${wizardSteps.length}</h2>
+                <span style="font-weight:bold; background:var(--hw-gold); color:var(--hw-dark); padding:5px 15px; border-radius:20px;">${step.title}</span>
+            </div>
+            <p style="margin:0; color:#555;">Valitse tähän asennusvaiheeseen tarvittavat tuotteet alta ja klikkaa 'Seuraava'.</p>
+        </div>
+        <div class="product-grid" style="justify-content: center;">
+            ${itemsHtml}
+        </div>
+        <div class="wizard-footer">
+            <button class="wizard-btn wizard-btn-cancel" onclick="cancelWizard()">Keskeytä tilaus</button>
+            <button class="wizard-btn wizard-btn-next" onclick="nextWizardStep()">
+                ${currentWizardStep === wizardSteps.length - 1 ? 'Valmis (Siirrä koriin) ✔' : 'Seuraava vaihe ➔'}
+            </button>
+        </div>
+    `;
+}
+
+function updateWizardQty(code, d) {
+    let currentQty = wizardCart[code] || 0;
+    let newQty = currentQty + d;
+    if (newQty <= 0) delete wizardCart[code]; else wizardCart[code] = newQty;
+    renderWizardStep();
+}
+
+function nextWizardStep() {
+    if (currentWizardStep < wizardSteps.length - 1) {
+        currentWizardStep++;
+        renderWizardStep();
+        window.scrollTo({top:0, behavior:'smooth'});
+    } else {
+        // Kaikki vaiheet käyty läpi -> siirretään valinnat ostoskoriin
+        Object.keys(wizardCart).forEach(code => {
+            setQty(code, wizardCart[code]);
+        });
+        alert("Asennustilauksen tuotteet lisätty ostoskoriin!");
+        cancelWizard();
+    }
+}
+
+function cancelWizard() {
+    document.getElementById("wizard-container").style.display = "none";
+    document.getElementById("storefront-main-area").style.display = "block";
+    render(document.getElementById("filter").value);
 }
 </script>
 </body>
