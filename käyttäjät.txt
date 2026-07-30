@@ -26,7 +26,7 @@ vesku		from
 make		gran
 timi		twopistons
 hphv		harju
-jari		lehtiin
+jar		lehtiin
 ben		leh
 tomi		leseco
 juhaa		niitt
