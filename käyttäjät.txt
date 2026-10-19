@@ -40,3 +40,4 @@ heikki		kape
 teemu		raja
 juh		tolvai
 jani		sten
+tero		meri
